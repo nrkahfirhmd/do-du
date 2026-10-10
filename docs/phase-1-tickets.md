@@ -12,12 +12,12 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Work top to bottom
 
 Replace template `Item.swift` with SwiftData models `Project`, `Category`, `Task`, `TimeEntry` per spec data model.
 
-- [ ] Models are CloudKit-compatible from day one: every property optional or has default, all relationships optional with inverses, no `@Attribute(.unique)`.
-- [ ] `Task` includes `externalSource?` / `externalID?` (Phase 3 insurance).
-- [ ] `TimeEntry.end == nil` means running.
-- [ ] Delete rules: deleting project asks first, then cascades tasks + entries; deleting category nullifies.
-- [ ] `Item.swift` and template `ContentView` list removed.
-- [ ] Unit test: create project → task → entry, fetch back.
+- [x] Models are CloudKit-compatible from day one: every property optional or has default, all relationships optional with inverses, no `@Attribute(.unique)`.
+- [x] `TaskItem` includes `externalSource?` / `externalID?` (Phase 3 insurance).
+- [x] `TimeEntry.end == nil` means running.
+- [x] Delete rules: project cascades tasks + entries; category nullifies. (Confirm dialog lives in DD-03.)
+- [x] `Item.swift` and template `ContentView` list removed.
+- [x] Self-check (`checks/run.sh`): create project → task → entry, fetch back, cascade delete.
 
 ## DD-02 · Day-boundary & stats math — M
 **Req:** R4, R5 · **Blocked by:** DD-01
