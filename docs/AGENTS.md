@@ -17,8 +17,8 @@
 - **Build in phase order** (see [Timeline](#timeline--phasing)). Do not start integrations before core loop works.
 - Models: `Project`, `Category`, `TaskItem`, `TimeEntry` in `Models.swift`. Model is `TaskItem`, not `Task`, to avoid clashing with Swift concurrency `Task`. Keep them CloudKit-compatible (defaults on every property, optional relationships, no `.unique`).
 - Secrets (API keys, OAuth tokens) go in Keychain, never in SwiftData or source.
-- **AI (hybrid):** Apple Foundation Models (on-device) for natural-language task input (R7). Claude API (`claude-sonnet-5-5`) for plan, recap, chat (R8–R10). User's Claude API key stored in Keychain.
-- **Tickets:** Phase 1 breakdown in [phase-1-tickets.md](phase-1-tickets.md). Tick checkboxes as work lands.
+- **AI (hybrid):** Apple Foundation Models (on-device) for natural-language task input (R7). Claude API (`claude-opus-5-5`, Anthropic's default model; one constant in `ClaudeClient`) for plan, recap, chat (R8–R10). User's Claude API key stored in Keychain.
+- **Tickets:** Phase 1 in [phase-1-tickets.md](phase-1-tickets.md), Phase 2 in [phase-2-tickets.md](phase-2-tickets.md). Tick checkboxes as work lands.
 
 ### Commit Guide
 
@@ -170,7 +170,7 @@ I work across several projects and never know when I've done "enough" for the da
 | Feature | Engine | Why |
 |---|---|---|
 | R7 Natural-language input | Apple Foundation Models (on-device) | Fast, offline, free, private; structured output into `Task` fields is a small task |
-| R8 Plan my day | Claude API | Multi-step reasoning across tasks + targets |
+| R8 Plan my day | Claude API (`claude-opus-5-5`) | Multi-step reasoning across tasks + targets |
 | R9 Recap | Claude API | Better prose and judgment |
 | R10 Chat over my data | Claude API (tool use) | Needs reliable tool calling over local queries |
 
