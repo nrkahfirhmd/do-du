@@ -25,6 +25,9 @@ struct Do_DuApp: App {
 
     init() {
         LongRunAlert.register(container: sharedModelContainer)
+        #if os(macOS)
+        IdleStop.register(container: sharedModelContainer)
+        #endif
         #if DEBUG
         SampleData.seedIfRequested(sharedModelContainer.mainContext)
         #endif

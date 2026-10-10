@@ -14,6 +14,8 @@ struct SettingsView: View {
     @AppStorage(RecapReminder.minutesKey) private var recapMinutes = 18 * 60
     @AppStorage(Pomodoro.enabledKey) private var pomodoroOn = false
     @AppStorage(Pomodoro.minutesKey) private var pomodoroMinutes = 25
+    @AppStorage(IdleStop.enabledKey) private var idleStopOn = true
+    @AppStorage(IdleStop.minutesKey) private var idleStopMinutes = IdleStop.defaultMinutes
     @Query private var entries: [TimeEntry]
     @State private var export: CSVDocument?
 
@@ -29,6 +31,13 @@ struct SettingsView: View {
                 }
                 Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
                         value: $longRunHours, in: 0.5...12, step: 0.5)
+                #if os(macOS)
+                Toggle("Stop timer when Mac sleeps or is idle", isOn: $idleStopOn)
+                if idleStopOn {
+                    Stepper("Stop after \(idleStopMinutes) min idle",
+                            value: $idleStopMinutes, in: 2...120, step: 5)
+                }
+                #endif
             }
             Section("Recap") {
                 Toggle("Daily recap reminder", isOn: $recapOn)

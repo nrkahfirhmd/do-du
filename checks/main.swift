@@ -289,6 +289,15 @@ func checkCSV() throws {
     print("✓ CSV export")
 }
 
+func checkIdleStop() throws {
+    let now = Date(timeIntervalSince1970: 3_000_000)
+    precondition(IdleStop.stopDate(now: now, idleSeconds: 599, thresholdSeconds: 600) == nil, "below threshold keeps running")
+    precondition(IdleStop.stopDate(now: now, idleSeconds: 600, thresholdSeconds: 600) == now.addingTimeInterval(-600), "backdates to last activity")
+    precondition(IdleStop.stopDate(now: now, idleSeconds: 3600, thresholdSeconds: 600) == now.addingTimeInterval(-3600), "long idle backdates fully")
+    precondition(IdleStop.stopDate(now: now, idleSeconds: 600, thresholdSeconds: 0) == nil, "zero threshold never stops")
+    print("✓ idle stop date")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -300,4 +309,5 @@ try checkDayStartHour()
 try checkPlanMapping()
 try checkChatTools()
 try checkCSV()
+try checkIdleStop()
 print("All checks passed")
