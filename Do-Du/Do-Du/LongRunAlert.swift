@@ -34,7 +34,10 @@ enum LongRunAlert {
             intentIdentifiers: [])])
         delegate = Delegate(container: container)
         center.delegate = delegate
-        TimerService.onChange = { schedule(from: $0) }
+        TimerService.onChange = {
+            schedule(from: $0)
+            Pomodoro.schedule(from: $0)
+        }
     }
 
     /// Replaces any pending alert. `nil` cancels. Tapping the notification opens the app,
@@ -78,5 +81,32 @@ enum LongRunAlert {
         nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
                                                 willPresent notification: UNNotification) async
             -> UNNotificationPresentationOptions { [.banner, .sound] }
+    }
+}
+
+/// Optional "take a break" nudge at a fixed work length after each timer start.
+enum Pomodoro {
+    static let enabledKey = "pomodoroOn"
+    static let minutesKey = "pomodoroMinutes"
+    private static let requestID = "pomodoro"
+
+    static func schedule(from start: Date?) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [requestID])
+        let defaults = UserDefaults.standard
+        guard let start, defaults.bool(forKey: enabledKey) else { return }
+        let minutes = defaults.object(forKey: minutesKey) as? Int ?? 25
+        let fireIn = start.addingTimeInterval(Double(minutes) * 60).timeIntervalSinceNow
+        guard fireIn > 0 else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "Time for a break"
+        content.body = "\(minutes) minutes of focus done. Stretch, then keep going."
+        content.sound = .default
+        let request = UNNotificationRequest(identifier: requestID, content: content,
+                                            trigger: UNTimeIntervalNotificationTrigger(timeInterval: fireIn, repeats: false))
+        Task {
+            guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
+            try? await center.add(request)
+        }
     }
 }

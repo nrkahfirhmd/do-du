@@ -91,8 +91,8 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-29 · Pomodoro reminder — S
 **Req:** P1 · **Blocked by:** —
 
-- [ ] Settings: Pomodoro off / on with work length (default 25 min).
-- [ ] When on, a timer start schedules a "Time for a break" notification at the work length; stop cancels it.
+- [x] Settings: Pomodoro off / on with work length (default 25 min).
+- [x] When on, a timer start schedules a "Time for a break" notification at the work length; stop cancels it.
 
 ## DD-30 · Widgets + Live Activity — L · **Needs Xcode first**
 **Req:** P1 · **Blocked by:** manual setup

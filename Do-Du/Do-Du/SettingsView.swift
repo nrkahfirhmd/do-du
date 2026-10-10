@@ -12,6 +12,8 @@ struct SettingsView: View {
     @AppStorage(DayMath.startHourKey) private var dayStartHour = 0
     @AppStorage(RecapReminder.enabledKey) private var recapOn = false
     @AppStorage(RecapReminder.minutesKey) private var recapMinutes = 18 * 60
+    @AppStorage(Pomodoro.enabledKey) private var pomodoroOn = false
+    @AppStorage(Pomodoro.minutesKey) private var pomodoroMinutes = 25
     @Query private var entries: [TimeEntry]
     @State private var export: CSVDocument?
 
@@ -20,6 +22,10 @@ struct SettingsView: View {
             Section("Timer") {
                 Picker("Day starts at", selection: $dayStartHour) {
                     ForEach(0...6, id: \.self) { Text(String(format: "%d:00", $0)).tag($0) }
+                }
+                Toggle("Pomodoro break reminder", isOn: $pomodoroOn)
+                if pomodoroOn {
+                    Stepper("Break after \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
                 }
                 Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
                         value: $longRunHours, in: 0.5...12, step: 0.5)
