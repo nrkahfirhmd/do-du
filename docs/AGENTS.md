@@ -2,25 +2,74 @@
 
 > Personal to-do list + work timer. Purpose: answer one question at end of every day — **"Did I do enough today?"** — with data, not guilt.
 
-**Owner:** Kahfi R · **Status:** Draft v1 · **Last updated:** 2026-10-10
+**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–3 code complete, device checks pending · **Last updated:** 2026-10-10
+
+---
+
+## Current Version
+
+**1.0 (build 1)** — `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` in `Do-Du.xcodeproj`. Not released; personal builds from `main`.
+
+| Area | State | Built | Verified | Still to check (needs you / devices) |
+|---|---|---|---|---|
+| **Phase 1 — Core loop** (DD-01…14) | Done | Projects, categories, tasks, timer + quick timer, manual entries, long-run warning, Today verdict, Stats, Mac menu bar, iPhone, CloudKit sync | `checks/run.sh`; iPhone simulator | iCloud container in Xcode; cross-device sync test ([sync-test-plan.md](sync-test-plan.md)) |
+| **Phase 2 — AI assistant** (DD-20…30) | Done | Quick Add (on-device), Recap, Plan my day, Chat, day-start hour, CSV export, Pomodoro, widgets + Live Activity, Mac idle/sleep stop | Quick Add live in simulator; Claude paths offline + no-key UI | Claude features with your API key; widget + Live Activity on device |
+| **Phase 3 — Integrations** (DD-31…34) | Done | Notion import, Apple Calendar (read-only), Siri/Shortcuts, Reminders import | Parsing/mapping in `checks/run.sh`; Reminders permission + sheet in simulator | Live Notion import; Calendar access; Siri phrases; real reminders |
+
+**Known limits:** Notion is one-way (Notion wins); Calendar shows one calendar, read-only; Chat is read-only; widgets need the App Group (signed builds).
+
+**Updating this section:** bump `MARKETING_VERSION` for user-visible releases and `CURRENT_PROJECT_VERSION` for every build you install on a device; update the table and add any new decision below in the same commit as the change.
+
+## Decision Log
+
+Newest first. One line per decision: what, why. Reverse a decision by adding a new row, not editing an old one.
+
+| Date | Decision | Why |
+|---|---|---|
+| 2026-10-10 | Reminders import maps each **list name → project** (case-insensitive, never auto-created); links by `calendarItemExternalIdentifier` | Lists are how people already group reminders; external ID keeps one link across devices |
+| 2026-10-10 | All imports share one `TaskSource` path: finished items aren't offered as new; linked tasks refresh title/done/due on every import | Same rules everywhere; fixed linked rows never refreshing |
+| 2026-10-10 | Usage strings set as `INFOPLIST_KEY_*` build settings, using **full-access** keys (`NSCalendarsFullAccessUsageDescription`, `NSRemindersFullAccessUsageDescription`) | `requestFullAccessTo…` needs them; one place for both platforms |
+| 2026-10-10 | One `ModelContainer` per process: `SharedStore.shared`, used by app UI and Siri/Shortcuts intents | Two CloudKit containers on one store conflict; objects can't be related across contexts |
+| 2026-10-10 | Store lives in App Group `group.com.kv.Do-Du` (one-time move from the default location) | Widget extension must read the same data |
+| 2026-10-10 | Widget extension gets an explicit `Do-DuWidget/Info.plist` with `NSExtension` | Generated plist can't express the dictionary; iOS refused to install without it |
+| 2026-10-10 | Notion: one table, **one-way import, Notion wins**, `Notion-Version: 2022-06-28` | Simplest useful sync; newer versions move querying to data sources |
+| 2026-10-10 | Calendar: **one** calendar, read-only; meeting time feeds Plan my day | Enough for planning; no write-back risk |
+| 2026-10-10 | Siri "Add task" saves directly; the Siri dialog/Shortcuts result is the confirmation | Voice flow has no editor to confirm in |
+| 2026-10-10 | Mac stops the running timer on sleep/lock or after idle (default 10 min), backdated to last activity | Forgotten timers were the main data-quality risk |
+| 2026-10-10 | Mac menu-bar label is a **static symbol**; live clock only in the panel | A ticking label froze the app at launch |
+| 2026-10-10 | iPhone keeps five tabs (Today, Tasks, Assistant, Stats, Projects); Settings is a gear on Today | Avoids the "More" tab; Mac uses the Settings window |
+| 2026-10-10 | "Day starts at" setting (0:00–6:00); all day math goes through `DayMath` | Late-night work belongs to the previous day |
+| 2026-10-10 | Claude model `claude-opus-5-5` with server-side `fallbacks: "default"`; one constant in `ClaudeClient` | Anthropic's current default; cost is the owner's call, easy to change |
+| 2026-10-10 | AI split: on-device Apple Foundation Models for Quick Add; Claude for Plan, Recap, Chat | Free/private/offline where it's enough; Claude where reasoning matters |
+| 2026-10-10 | AI never writes without confirmation; numbers always come from `Stats`/`AISnapshot`, never the model | Trustworthy data is the product |
+| 2026-10-10 | Quick timer: time can run with **no task**; optional project; "No project" time counts toward no target until assigned | Starting work shouldn't require creating a task |
+| 2026-10-10 | Self-checks in `checks/run.sh` instead of an XCTest target | Fast, no test target to maintain; covers core logic |
+| 2026-10-10 | Sync: SwiftData + CloudKit private DB; models CloudKit-safe from day one; offline timer conflict → latest start wins | No backend; avoids later migration |
+| 2026-10-10 | One **multiplatform target** (macOS 27 + iOS 27, iPhone only) | All code shared; resolves Open Question 4 |
+| 2026-10-10 | Model named `TaskItem`, not `Task` | Avoids clashing with Swift concurrency `Task` |
+| 2026-10-10 | "Enough" = every active project hits its **daily target** | Owner's choice; time-based and unambiguous |
+| 2026-10-10 | Conventional Commits, one change per commit, no AI attribution trailers | Owner's commit guide (below) |
 
 ---
 
 ## For Coding Agents
 
-- **Stack:** SwiftUI + SwiftData, Xcode project at `Do-Du/Do-Du.xcodeproj`. One multiplatform target: macOS 27 + iOS 27 (iPhone). All code shared; use `#if os(macOS)` for platform-only UI (e.g. `MenuBarExtra`).
-- **Self-checks:** `checks/run.sh` compiles core files (models, `DayMath`, `Stats`, `TimerService`) with `checks/main.swift` and runs assertions. Run it whenever core logic changes. No XCTest target yet.
+- **Read first:** [Current Version](#current-version) and [Decision Log](#decision-log). Don't silently undo a logged decision; add a new row if you change one.
+- **Stack:** SwiftUI + SwiftData, Xcode project at `Do-Du/Do-Du.xcodeproj`. Targets: `Do-Du` (multiplatform: macOS 27 + iOS 27 iPhone; all code shared, `#if os(macOS)` for platform-only UI) and `DoDuWidget` (Today widget + iOS Live Activity).
+- **Data store:** always use `SharedStore.shared` (App Group store, CloudKit). Never create another `ModelContainer` in the app process; the widget opens the store read-only in its own process.
+- **Self-checks:** `checks/run.sh` compiles the pure/core files listed in it with `checks/main.swift` and runs assertions. Add a check for new logic and add new core files to the list. No XCTest target.
+- **Integrations** plug in as a `TaskSource` (`TaskSource.swift`) and import through `ExternalImportSheet<Source>`; don't touch core models for a new source.
+- **Privacy strings:** add `INFOPLIST_KEY_*` build settings on the `Do-Du` target (both configs), not per-platform plist files.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
 - **Claude calls** go through `ClaudeClient` (raw HTTPS; no Swift SDK). Keep each feature's system prompt stable (it's cached) and put changing data in the user message. Echo assistant `content` back unchanged in tool loops. Send Claude an `AISnapshot` or tool results, never raw store dumps.
 - **Day boundaries:** always use `DayMath.day` / `logicalDate` / `period` (they honour the "day starts at" setting); never `Calendar.startOfDay` for stats.
 - **Sync:** SwiftData + CloudKit (private database). No custom backend.
 - **Single user.** No auth, no accounts, no multi-tenant logic.
-- **Build in phase order** (see [Timeline](#timeline--phasing)). Do not start integrations before core loop works.
 - Models: `Project`, `Category`, `TaskItem`, `TimeEntry` in `Models.swift`. Model is `TaskItem`, not `Task`, to avoid clashing with Swift concurrency `Task`. Keep them CloudKit-compatible (defaults on every property, optional relationships, no `.unique`).
 - Secrets (API keys, OAuth tokens) go in Keychain, never in SwiftData or source.
 - **AI (hybrid):** Apple Foundation Models (on-device) for natural-language task input (R7). Claude API (`claude-opus-5-5`, Anthropic's default model; one constant in `ClaudeClient`) for plan, recap, chat (R8–R10). User's Claude API key stored in Keychain.
-- **Tickets:** Phase 1 in [phase-1-tickets.md](phase-1-tickets.md), Phase 2 in [phase-2-tickets.md](phase-2-tickets.md). Tick checkboxes as work lands.
+- **Tickets:** [phase-1](phase-1-tickets.md), [phase-2](phase-2-tickets.md), [phase-3](phase-3-tickets.md). Tick checkboxes as work lands; ticket files are the source of truth for status (the requirement checkboxes in this spec are scope, not status).
 
 ### Commit Guide
 
@@ -35,12 +84,13 @@ Refs: DD-XX
 ```
 
 - **Types:** `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `build`, `perf`, `style`.
-- **Scope** (optional): area touched — `models`, `timer`, `today`, `stats`, `tasks`, `projects`, `sync`, `ios`, `docs`.
+- **Scope** (optional): area touched — `models`, `timer`, `today`, `stats`, `tasks`, `projects`, `sync`, `ios`, `ai`, `widget`, `intents`, `notion`, `calendar`, `reminders`, `settings`, `docs`.
 - **Summary:** imperative mood ("add", not "added"), lowercase, no trailing period, ≤ 50 chars (hard max 72).
 - **Body:** explain *why* and any non-obvious decision. Skip for trivial changes. Blank line between summary and body.
 - **Footer:** `Refs: DD-XX` for the ticket. `BREAKING CHANGE: …` if data model changes need migration.
 - **One logical change per commit.** Commit after each finished ticket (or meaningful slice of one). Don't mix refactors with features.
 - **Every commit must build.** Run the build (and `checks/run.sh` when core logic changed) before committing.
+- **Keep this file current.** A change that ships a feature, alters behaviour or reverses a decision updates [Current Version](#current-version) and/or the [Decision Log](#decision-log) in the same commit.
 - **No AI attribution.** Do not add `Co-Authored-By` trailers or "Generated with" lines for AI assistants.
 - **Never commit:** `.DS_Store`, `xcuserdata/`, `DerivedData/`, secrets, API keys.
 - Stage files explicitly (`git add <paths>`), not `git add -A`, to avoid sweeping in junk.
@@ -76,7 +126,7 @@ I work across several projects and never know when I've done "enough" for the da
 
 | Non-goal | Why |
 |---|---|
-| Notion / Calendar / Reminders integrations | Ship core loop first. Phase 3. Data model must not block them (see P2). |
+| Two-way integrations (writing back to Notion, Calendar, Reminders) | Phase 3 shipped one-way/read-only only. Two-way Notion needs a conflict rule (Q7). |
 | Multi-user, sharing, teams | Personal app. Adds auth + permissions for zero value. |
 | Billing / invoicing from tracked time | Not the purpose. Export CSV later if needed. |
 | Android / Windows / web | Apple-only via SwiftUI. |
@@ -208,7 +258,7 @@ I work across several projects and never know when I've done "enough" for the da
 - [ ] Optional Pomodoro mode (work/break intervals) on top of the timer.
 - [ ] CSV export of time entries.
 
-### P2 — Future (Phase 3: Integrations) — design for, don't build
+### P2 — Phase 3: Integrations (shipped one-way; two-way is future)
 
 - **Notion:** two-way sync of tasks with a Notion database. → Task model needs `externalSource` + `externalID` fields from day one.
 - **Calendar (EventKit):** show today's events in Today view; meetings reduce available time in AI plan; optionally write time entries back as calendar blocks.
@@ -218,12 +268,14 @@ I work across several projects and never know when I've done "enough" for the da
 ## Data Model (sketch)
 
 ```
-Project    id, name, color, dailyTargetMinutes, activeWeekdays[], isArchived, createdAt
-Category   id, name, color
-TaskItem   id, title, notes, projectID, categoryID?, dueDate?, estimateMinutes?,
-           status(open|done), completedAt?, externalSource?, externalID?, createdAt
-TimeEntry  id, taskID?, projectID?, start, end?   // end == nil → running
-                                                // projectID only for task-less (quick) entries
+Project    name, colorName, dailyTargetMinutes, activeWeekdaysMask, isArchived, createdAt
+           tasks[] (cascade), looseEntries[] (quick-timer entries, cascade)
+Category   name, colorName, tasks[] (nullify)
+TaskItem   title, notes, project?, category?, dueDate?, estimateMinutes?, isDone, completedAt?,
+           externalSource? ("notion" | "reminders"), externalID?,
+           plannedFor?, planOrder, plannedMinutes?, entries[] (cascade), createdAt
+TimeEntry  task?, project?, start, end?   // end == nil → running
+                                         // project only for task-less (quick) entries
 ```
 
 Invariants: at most one `TimeEntry` with `end == nil`; `end > start`; derived stats are computed, not stored.
@@ -254,20 +306,20 @@ Measurement: computed in-app from SwiftData; self-rating is a one-tap question i
 | 1 | ~~AI provider~~ **Resolved 2026-10-10:** hybrid — on-device for NL input, Claude for plan/recap/chat. See Phase 2 table. | — | — |
 | 2 | Should "enough" also include must-do tasks, or stay purely time-based per project? | Me | No — start time-based |
 | 3 | Weekly targets in addition to daily (e.g. 10h/week, flexible across days)? | Me | No |
-| 4 | Minimum iOS version? (affects SwiftData/CloudKit features, Live Activities) | Eng | Blocks Phase 1 iOS work |
+| 4 | ~~Minimum iOS version~~ **Resolved 2026-10-10:** iOS 27, matching macOS 27. | — | — |
 | 5 | Can a task move to another project after time is logged? If yes, history moves with it. | Me | No |
 | 6 | What happens to "enough" if target is changed mid-day — use target at start of day or current? | Me | No — default: current |
-| 7 | Notion sync direction & conflict rule (Notion wins? Do-Du wins? last-write?) | Me / eng | Blocks Phase 3 only |
+| 7 | Notion two-way conflict rule (Do-Du wins? last-write?) — **v1 decided 2026-10-10:** one-way import, Notion wins. | Me | Blocks two-way sync only |
 
 ## Timeline & Phasing
 
 No hard deadlines (personal project). Ship each phase and use it daily before starting the next.
 
-| Phase | Scope | Done when |
-|---|---|---|
-| **1. Core loop** | R1–R6: projects, categories, tasks, timer, Today verdict, stats, Mac + iPhone sync | Used daily for 1 week on both devices without data issues |
-| **2. AI assistant** | R7 (on-device) + R8–R10 (Claude) + chosen P1 extras | Recap used ≥ 4 days/week |
-| **3. Integrations** | Notion, Calendar, Reminders, App Intents | Each integration behind `TaskSource`; core models untouched |
+| Phase | Scope | Done when | Status |
+|---|---|---|---|
+| **1. Core loop** | R1–R6: projects, categories, tasks, timer, Today verdict, stats, Mac + iPhone sync | Used daily for 1 week on both devices without data issues | Code done; sync test pending |
+| **2. AI assistant** | R7 (on-device) + R8–R10 (Claude) + chosen P1 extras | Recap used ≥ 4 days/week | Code done; live Claude test pending |
+| **3. Integrations** | Notion, Calendar, Reminders, App Intents | Each integration behind `TaskSource`; core models untouched | Code done (one-way); live tests pending |
 
 **Suggested Phase 1 order:** data models → task CRUD (macOS) → timer + menu bar → Today view → stats → add iOS target → CloudKit sync → cross-device timer tests.
 
