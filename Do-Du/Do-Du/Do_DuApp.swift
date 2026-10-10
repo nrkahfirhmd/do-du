@@ -14,6 +14,9 @@ struct Do_DuApp: App {
     let sharedModelContainer = SharedStore.shared
 
     init() {
+        #if canImport(UIKit)
+        DD.applyAppearance()
+        #endif
         LongRunAlert.register(container: sharedModelContainer)
         TimerWidget.register(container: sharedModelContainer)
         #if os(macOS)

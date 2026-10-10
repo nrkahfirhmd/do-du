@@ -44,11 +44,13 @@ struct TasksView: View {
                                 }
                         }
                     } header: {
-                        Label { Text(project.name) } icon: { ColorDot(color: project.color) }
+                        ProjectHeader(project: project, count: tasks.count)
                     }
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(DD.page)
         .overlay { emptyState }
         .navigationTitle("Tasks")
         .toolbar {
@@ -76,9 +78,12 @@ struct TasksView: View {
                     .keyboardShortcut("k")
                     .disabled(projects.isEmpty)
             }
+            ToolbarSpacer(.fixed)
             ToolbarItem {
                 Button("New Task", systemImage: "plus") { creating = true }
                     .keyboardShortcut("n")
+                    .buttonStyle(.borderedProminent)
+                    .tint(DD.forestFill)
                     .disabled(projects.isEmpty)
             }
         }
@@ -115,41 +120,82 @@ struct TasksView: View {
     }
 }
 
+/// Done circle, title + meta line, play/stop. Running rows tint mint.
 struct TaskRow: View {
     let task: TaskItem
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             Button {
-                withAnimation { task.setDone(!task.isDone) }
+                withAnimation(.easeInOut(duration: 0.2)) { task.setDone(!task.isDone) }
             } label: {
-                Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(task.isDone ? .green : .secondary)
-                    .imageScale(.large)
+                ZStack {
+                    Circle().strokeBorder(task.isDone ? DD.mint : DD.disabled, lineWidth: 2)
+                        .background(Circle().fill(task.isDone ? DD.mint : .clear))
+                    if task.isDone {
+                        Image(systemName: "checkmark").font(.system(size: 11, weight: .black)).foregroundStyle(DD.onMint)
+                    }
+                }
+                .frame(width: 24, height: 24)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .padding(.horizontal, -10)
             .accessibilityLabel(task.isDone ? "Mark open" : "Mark done")
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(task.title).strikethrough(task.isDone).foregroundStyle(task.isDone ? .secondary : .primary)
-                HStack(spacing: 8) {
-                    if let c = task.category { Label { Text(c.name) } icon: { ColorDot(color: c.color) } }
-                    if let due = task.dueDate {
-                        Label(Calendar.current.isDateInToday(due) ? "Today" : due.formatted(date: .abbreviated, time: .omitted),
-                              systemImage: "calendar")
-                            .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? .red : .secondary)
+                Text(task.title).font(.body).lineLimit(1)
+                    .strikethrough(task.isDone)
+                    .foregroundStyle(task.isDone ? DD.ink3 : DD.ink)
+                if !meta.isEmpty {
+                    HStack(spacing: 10) {
+                        if let c = task.category {
+                            HStack(spacing: 4) { Circle().fill(c.color).frame(width: 7, height: 7); Text(c.name) }
+                        }
+                        if let due = task.dueDate {
+                            Text("Due " + (Calendar.current.isDateInToday(due) ? "today" : due.formatted(.dateTime.day().month(.abbreviated))))
+                                .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? DD.danger : DD.ink3)
+                        }
+                        if let est = task.estimateMinutes { Text("~" + TimeInterval(est * 60).hoursMinutes) }
                     }
-                    if let est = task.estimateMinutes {
-                        Label(TimeInterval(est * 60).hoursMinutes, systemImage: "hourglass")
-                    }
+                    .font(.footnote).foregroundStyle(DD.ink3).lineLimit(1)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
-            Spacer()
+            Spacer(minLength: 0)
             if !task.isDone { TimerButton(task: task) }
         }
-        .listRowBackground(task.isRunning ? Color.accentColor.opacity(0.12) : nil)
+        .frame(minHeight: 60)
+        .listRowBackground(task.isRunning ? DD.runningRow : DD.surface)
+    }
+
+    private var meta: [String] {
+        [task.category?.name, task.dueDate.map { _ in "due" }, task.estimateMinutes.map { _ in "est" }].compactMap { $0 }
+    }
+}
+
+/// Project section header: white name on a capsule in the project colour, plus the count.
+struct ProjectHeader: View {
+    let project: Project
+    let count: Int
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(project.name).font(.rounded(13, .bold)).foregroundStyle(.white)
+                .padding(.horizontal, 10).frame(height: 24)
+                .background(headerColor, in: Capsule())
+            Text("\(count) task\(count == 1 ? "" : "s")").font(.footnote).foregroundStyle(DD.ink3)
+        }
+        .textCase(nil)
+    }
+
+    /// White text needs a dark enough capsule: the light swatches step down to pine.
+    private var headerColor: Color {
+        switch Palette.canonical(project.colorName) {
+        case "seafoam", "slate": Palette.color("pine")
+        case "forest": DD.forestFill
+        default: project.color
+        }
     }
 }
 

@@ -98,3 +98,19 @@ extension Font {
 extension Shape where Self == RoundedRectangle {
     static func dd(_ radius: CGFloat) -> RoundedRectangle { RoundedRectangle(cornerRadius: radius, style: .continuous) }
 }
+
+#if canImport(UIKit)
+extension DD {
+    /// Navigation titles in SF Rounded heavy, forest (UIKit appearance; SwiftUI has no API for it).
+    static func applyAppearance() {
+        func rounded(_ size: CGFloat, _ weight: UIFont.Weight) -> UIFont {
+            let base = UIFont.systemFont(ofSize: size, weight: weight)
+            return base.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: size) } ?? base
+        }
+        let ink = UIColor(DD.forest)
+        let bar = UINavigationBar.appearance()
+        bar.largeTitleTextAttributes = [.font: rounded(38, .heavy), .foregroundColor: ink, .kern: -0.6]
+        bar.titleTextAttributes = [.font: rounded(17, .bold), .foregroundColor: ink]
+    }
+}
+#endif

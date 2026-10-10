@@ -16,9 +16,18 @@ struct TimerButton: View {
         Button {
             TimerService.toggle(task, in: context)
         } label: {
-            Image(systemName: running ? "stop.circle.fill" : "play.circle")
-                .imageScale(.large)
-                .foregroundStyle(running ? Color.red : Color.accentColor)
+            Group {
+                if running {
+                    RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(.white).frame(width: 11, height: 11)
+                } else {
+                    Image(systemName: "play.fill").font(.system(size: 13, weight: .bold)).foregroundStyle(DD.forest)
+                        .offset(x: 1)
+                }
+            }
+            .frame(width: 36, height: 36)
+            .background(running ? DD.forestFill : DD.fill, in: Circle())
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(running ? "Stop timer" : "Start timer")
