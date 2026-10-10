@@ -7,8 +7,14 @@ import SwiftUI
 import SwiftData
 
 struct SettingsView: View {
+    @AppStorage(LongRunAlert.thresholdKey) private var longRunHours = LongRunAlert.defaultHours
+
     var body: some View {
         Form {
+            Section("Timer") {
+                Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
+                        value: $longRunHours, in: 0.5...12, step: 0.5)
+            }
             CategoriesSection()
         }
         .formStyle(.grouped)

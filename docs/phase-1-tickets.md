@@ -76,9 +76,9 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-08 · Long-run warning — S
 **Req:** R3 · **Blocked by:** DD-05
 
-- [ ] Local notification when timer exceeds threshold (default 3h, Settings).
-- [ ] Notification actions: "Stop now", "Stop at…" (opens edit), "Keep going".
-- [ ] Rescheduled on start, cancelled on stop.
+- [x] Local notification when timer exceeds threshold (default 3h, Settings).
+- [x] Notification actions: "Stop now", "Keep going" (re-warns after another threshold). Tapping the notification opens the app to fix the entry ("stop at…").
+- [x] Rescheduled on start, cancelled on stop, re-synced when app becomes active (timer started on another device).
 
 ## DD-09 · Today view — M
 **Req:** R4 · **Blocked by:** DD-02, DD-06

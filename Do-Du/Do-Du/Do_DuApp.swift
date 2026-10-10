@@ -21,6 +21,10 @@ struct Do_DuApp: App {
         }
     }()
 
+    init() {
+        LongRunAlert.register(container: sharedModelContainer)
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

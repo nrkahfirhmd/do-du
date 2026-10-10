@@ -28,7 +28,10 @@ struct ContentView: View {
         }
         .tabViewStyle(.sidebarAdaptable)
         .onChange(of: scenePhase, initial: true) {
-            if scenePhase == .active { TimerService.resolveConflicts(in: context) }
+            guard scenePhase == .active else { return }
+            TimerService.resolveConflicts(in: context)
+            // Timer may have been started on another device.
+            LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
         }
     }
 }
