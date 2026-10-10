@@ -37,8 +37,9 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] Notes: native title + date subtitle instead of a custom toolbar title; Tasks, Stats, Assistant and Projects reuse the restyled shared views (Projects grid adapts to 4+ columns); Tasks keeps the list layout rather than a multi-column table. Space uses a key-press handler on Today so it never steals spaces from text fields. Verified light + dark via a sandboxed test build.
 
 ## DD-45 · Mac menu-bar panel + global hotkey — M
-- [ ] Panel restyle (hero card, verdict line, Recent, footer). Menu-bar icon stays a static symbol.
-- [ ] **New behaviour:** ⌘⇧T global hotkey (Carbon `RegisterEventHotKey`, no Accessibility permission) toggles the timer from any app; Shortcuts actions stay.
+- [x] Panel restyle (hero card, verdict line, Recent, footer). Menu-bar icon stays a static symbol.
+- [x] **New behaviour:** ⌘⇧T global hotkey (Carbon `RegisterEventHotKey`, no Accessibility permission) toggles the timer from any app; Shortcuts actions stay.
+- [x] Settings toggle (Mac, on by default). Registration verified (`noErr`) in a sandboxed build; the key press itself and the panel visuals still need a check on your Mac (keystrokes need Accessibility, opening the menu-bar panel needs a click).
 
 ## DD-46 · Widgets — L
 - [ ] Restyle Today small/medium, add large; small Timer widget; Lock Screen circular / rectangular / inline.

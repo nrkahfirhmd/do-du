@@ -21,6 +21,7 @@ struct Do_DuApp: App {
         TimerWidget.register(container: sharedModelContainer)
         #if os(macOS)
         IdleStop.register(container: sharedModelContainer)
+        GlobalHotKey.register(container: sharedModelContainer)
         #endif
         #if DEBUG
         SampleData.seedIfRequested(sharedModelContainer.mainContext)

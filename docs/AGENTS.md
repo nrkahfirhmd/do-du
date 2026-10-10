@@ -26,6 +26,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | Mac global hotkey **⌘⇧T** toggles the timer from any app (Carbon `RegisterEventHotKey`), on by default with a Settings switch; Shortcuts actions stay | Owner asked for a real hotkey plus Shortcuts. Note: it takes ⌘⇧T from other apps (e.g. browsers' "Reopen closed tab") while on |
 | 2026-10-11 | iPhone keeps the **native** Liquid Glass tab bar (tinted forest) and shows the running timer in the native `tabViewBottomAccessory` | Handoff prefers native controls; the system bar can't take a solid forest selection capsule |
 | 2026-10-11 | **Redesign** (handoff in `docs/design_handoff_dodu_app/`, git-ignored): timer-first Today, forest/sage/mint palette, SF Rounded numbers. Tokens live in `DesignSystem.swift` (`DD`); shared views in `DesignComponents.swift` | High-fidelity handoff; one source for tokens |
 | 2026-10-11 | **Dark mode** adapted from the light tokens: brand hues kept, neutrals inverted, text on mint always forest (`DD.onMint`); forest splits into `DD.forest` (ink) and `DD.forestFill` (surfaces) | Handoff defines light only |
