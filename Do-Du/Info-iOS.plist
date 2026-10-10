@@ -8,7 +8,5 @@
 	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Do-Du shows today's meetings in Today and fits the day plan around them.</string>
 </dict>
 </plist>

@@ -442,6 +442,7 @@
 				"INFOPLIST_FILE[sdk=iphone*]" = "Info-iOS.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Do-Du";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Do-Du shows today's meetings in Today and fits the day plan around them.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Do-Du shows your meetings in Today and plans around them.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
@@ -494,6 +495,7 @@
 				"INFOPLIST_FILE[sdk=iphone*]" = "Info-iOS.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Do-Du";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Do-Du shows today's meetings in Today and fits the day plan around them.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Do-Du shows your meetings in Today and plans around them.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
