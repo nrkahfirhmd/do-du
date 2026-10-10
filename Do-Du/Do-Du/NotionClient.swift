@@ -40,7 +40,9 @@ enum NotionClient: TaskSource {
     static let id = "notion"
     static let displayName = "Notion"
     static let databaseKey = "notionDatabaseID"
-    private static let apiVersion = "2022-06-01"
+    // Must be a released Notion-Version. 2022-06-28 keeps POST /v1/databases/{id}/query;
+    // 2025-09-03 and later move querying to data sources and need a different endpoint.
+    private static let apiVersion = "2022-06-28"
     private static let endpoint = URL(string: "https://api.notion.com/v1")!
     private static let pageSize = 100
     private static let doneNames = ["done", "completed", "complete"]
