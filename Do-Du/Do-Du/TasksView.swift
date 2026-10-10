@@ -117,7 +117,8 @@ struct TaskRow: View {
                 HStack(spacing: 8) {
                     if let c = task.category { Label { Text(c.name) } icon: { ColorDot(color: c.color) } }
                     if let due = task.dueDate {
-                        Label(due.formatted(.relative(presentation: .named)), systemImage: "calendar")
+                        Label(Calendar.current.isDateInToday(due) ? "Today" : due.formatted(date: .abbreviated, time: .omitted),
+                              systemImage: "calendar")
                             .foregroundStyle(due < DayMath.day(.now).start && !task.isDone ? .red : .secondary)
                     }
                     if let est = task.estimateMinutes {
