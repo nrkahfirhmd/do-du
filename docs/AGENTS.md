@@ -88,7 +88,7 @@ I work across several projects and never know when I've done "enough" for the da
 | **Project** | Container for work (e.g. "Do-Du", "Client X"). Has a **daily target** (minutes) and optional active weekdays. |
 | **Category** | Cross-project tag describing work type (e.g. Deep Work, Admin, Meetings, Learning). A task has 0–1 category. |
 | **Task** | Unit of work. Belongs to exactly one project. Has title, optional notes, optional due date, optional estimate, status (open / done). |
-| **Time Entry** | One continuous timer session: task, start, end. Time always attaches to a task (and therefore a project). |
+| **Time Entry** | One continuous timer session: start, end, and a task — or, for a **quick session**, no task and an optional project. Quick sessions without a project are "No project" time: tracked, but not counted toward any target until assigned. |
 | **Enough** | A project is "enough" today when tracked time ≥ its daily target. Day is "enough" when every project scheduled for today is enough. |
 
 ## User Stories
@@ -102,6 +102,8 @@ I work across several projects and never know when I've done "enough" for the da
 
 **Doing**
 - As me, I want to start a timer on any task in one action so that tracking never slows me down.
+- As me, when I'm too lazy to create a task, I want to start a timer with no task (optionally picking a project) so that I still track the work.
+- As me, I want to assign a project to task-less time later so that it counts toward that project's target.
 - As me, I want only one timer running at a time, and starting a new one stops the old one, so that time is never double-counted.
 - As me, I want the running timer visible in the macOS menu bar and iOS Live Activity so that I always know it's on.
 - As me, I want to add or edit time entries manually so that I can fix a forgotten start/stop.
@@ -136,6 +138,7 @@ I work across several projects and never know when I've done "enough" for the da
 
 **R3. Timer**
 - [ ] Start/stop on any task. Max one running timer globally (across devices).
+- [ ] Quick timer: start without a task from Today / menu bar, optionally with a project. Project can be set while running or later; "No project" time shows on Today and Stats but counts toward no target.
 - Given timer A is running, when I start timer on task B, then A stops at that instant and B starts.
 - [ ] Elapsed time computed from stored `start` timestamp (not an in-memory counter) — survives quit, sleep, crash.
 - [ ] Manual entry add/edit/delete. End must be after start; entries for the same time span cannot overlap.
@@ -217,7 +220,8 @@ Project    id, name, color, dailyTargetMinutes, activeWeekdays[], isArchived, cr
 Category   id, name, color
 TaskItem   id, title, notes, projectID, categoryID?, dueDate?, estimateMinutes?,
            status(open|done), completedAt?, externalSource?, externalID?, createdAt
-TimeEntry  id, taskID, start, end?          // end == nil  → running
+TimeEntry  id, taskID?, projectID?, start, end?   // end == nil → running
+                                                // projectID only for task-less (quick) entries
 ```
 
 Invariants: at most one `TimeEntry` with `end == nil`; `end > start`; derived stats are computed, not stored.
