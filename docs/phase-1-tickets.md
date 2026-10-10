@@ -118,7 +118,7 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-13 · Cross-device timer test pass — M
 **Req:** R6 · **Blocked by:** DD-11, DD-12
 
-Manual test script, written as checklist in this file or `docs/`.
+Manual test script: [sync-test-plan.md](sync-test-plan.md). **Status: script ready, not yet run** (needs two signed-in devices). Conflict rule itself is covered by `checks/run.sh`.
 
 - [ ] Start on Mac → iPhone shows running, same elapsed (±few s).
 - [ ] Start on Mac, stop on iPhone → one entry, correct end.
