@@ -44,35 +44,51 @@ struct StatsView: View {
                 .labelsHidden()
                 HStack {
                     Button("Previous", systemImage: "chevron.left") { shift(-1) }.labelStyle(.iconOnly)
+                        .frame(width: 44, height: 44)
                     Spacer()
-                    Text(title(range)).font(.headline)
+                    Text(title(range)).font(.headline).foregroundStyle(DD.ink)
                     Spacer()
                     Button("Next", systemImage: "chevron.right") { shift(1) }
                         .labelStyle(.iconOnly)
+                        .frame(width: 44, height: 44)
                         .disabled(range.end > now)
                 }
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(DD.sage)
                 .buttonStyle(.borderless)
             }
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
 
             Section {
-                LabeledContent("Total tracked", value: byProject.reduce(0) { $0 + $1.seconds }.hoursMinutes)
-                LabeledContent("Enough days", value: workDays == 0 ? "—" : "\(enoughDays) of \(workDays)")
+                HStack(spacing: 10) {
+                    StatTile(label: "Total tracked", value: byProject.reduce(0) { $0 + $1.seconds }.hoursMinutes, tone: .forest)
+                    StatTile(label: "Enough days", value: workDays == 0 ? "—" : "\(enoughDays) of \(workDays)", tone: .mint)
+                }
             }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets())
 
             Section("By project") {
-                if byProject.isEmpty { Text("No time tracked.").foregroundStyle(.secondary) }
+                if byProject.isEmpty { Text("No time tracked.").foregroundStyle(DD.ink3) }
                 else { TotalsChart(rows: byProject, color: projectColor) }
             }
+            .listRowBackground(DD.surface)
 
             Section("By category") {
-                if byCategory.isEmpty { Text("No time tracked.").foregroundStyle(.secondary) }
+                if byCategory.isEmpty { Text("No time tracked.").foregroundStyle(DD.ink3) }
                 else { TotalsChart(rows: byCategory, color: categoryColor) }
             }
+            .listRowBackground(DD.surface)
 
             if period != .day, !byProject.isEmpty {
                 Section("Daily trend") { trendChart(days: days, now: now) }
+                    .listRowBackground(DD.surface)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(DD.page)
         .navigationTitle("Stats")
     }
 
@@ -91,7 +107,7 @@ struct StatsView: View {
             ForEach(Array(rows.enumerated()), id: \.offset) { _, r in
                 BarMark(x: .value("Day", r.day, unit: .day), y: .value("Hours", r.hours))
                     .foregroundStyle(by: .value("Project", r.project))
-                    .cornerRadius(4)
+                    .cornerRadius(5)
             }
             if let selectedDay {
                 RuleMark(x: .value("Day", selectedDay, unit: .day))
@@ -129,10 +145,10 @@ struct StatsView: View {
             .sorted { $0.seconds > $1.seconds }
     }
 
-    private func projectColor(_ name: String) -> Color { projects.first { $0.name == name }?.color ?? .gray }
+    private func projectColor(_ name: String) -> Color { projects.first { $0.name == name }?.color ?? DD.disabled }
 
     private func categoryColor(_ name: String) -> Color {
-        entries.lazy.compactMap { $0.task?.category }.first { $0.name == name }?.color ?? .gray
+        entries.lazy.compactMap { $0.task?.category }.first { $0.name == name }?.color ?? DD.disabled
     }
 
     private func shift(_ n: Int) {
@@ -162,15 +178,16 @@ struct TotalsChart: View {
 
     var body: some View {
         Chart(rows) { r in
-            BarMark(x: .value("Hours", r.seconds / 3600), y: .value("Name", r.name))
+            BarMark(x: .value("Hours", r.seconds / 3600), y: .value("Name", r.name), height: .fixed(16))
                 .foregroundStyle(color(r.name))
-                .cornerRadius(4)
+                .cornerRadius(8)
                 .annotation(position: .trailing) {
-                    Text(r.seconds.hoursMinutes).font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                    Text(r.seconds.hoursMinutes).font(.rounded(13, .semibold)).foregroundStyle(DD.ink3).monospacedDigit()
                 }
         }
         .chartXAxis(.hidden)
-        .frame(height: CGFloat(rows.count) * 32 + 8)
+        .chartYAxis { AxisMarks { AxisValueLabel().font(.subheadline).foregroundStyle(DD.ink) } }
+        .frame(height: CGFloat(rows.count) * 36 + 8)
         .padding(.vertical, 4)
     }
 }
