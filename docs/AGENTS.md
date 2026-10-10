@@ -8,11 +8,14 @@
 
 ## For Coding Agents
 
-- **Stack:** SwiftUI + SwiftData, Xcode project at `Do-Du/Do-Du.xcodeproj`. Current target: macOS 27. iOS target to be added (see Phase 1).
+- **Stack:** SwiftUI + SwiftData, Xcode project at `Do-Du/Do-Du.xcodeproj`. One multiplatform target: macOS 27 + iOS 27 (iPhone). All code shared; use `#if os(macOS)` for platform-only UI (e.g. `MenuBarExtra`).
+- **Self-checks:** `checks/run.sh` compiles core files (models, `DayMath`, `Stats`, `TimerService`) with `checks/main.swift` and runs assertions. Run it whenever core logic changes. No XCTest target yet.
+- **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
+- **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
 - **Sync:** SwiftData + CloudKit (private database). No custom backend.
 - **Single user.** No auth, no accounts, no multi-tenant logic.
 - **Build in phase order** (see [Timeline](#timeline--phasing)). Do not start integrations before core loop works.
-- `Item.swift` is Xcode template code — replace with real models (`Project`, `Category`, `TaskItem`, `TimeEntry`). Model is `TaskItem`, not `Task`, to avoid clashing with Swift concurrency `Task`.
+- Models: `Project`, `Category`, `TaskItem`, `TimeEntry` in `Models.swift`. Model is `TaskItem`, not `Task`, to avoid clashing with Swift concurrency `Task`. Keep them CloudKit-compatible (defaults on every property, optional relationships, no `.unique`).
 - Secrets (API keys, OAuth tokens) go in Keychain, never in SwiftData or source.
 - **AI (hybrid):** Apple Foundation Models (on-device) for natural-language task input (R7). Claude API (`claude-sonnet-5-5`) for plan, recap, chat (R8–R10). User's Claude API key stored in Keychain.
 - **Tickets:** Phase 1 breakdown in [phase-1-tickets.md](phase-1-tickets.md). Tick checkboxes as work lands.
