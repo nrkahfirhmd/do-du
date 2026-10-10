@@ -9,6 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some View {
         TabView {
             Tab("Tasks", systemImage: "checklist") {
@@ -24,6 +27,9 @@ struct ContentView: View {
             #endif
         }
         .tabViewStyle(.sidebarAdaptable)
+        .onChange(of: scenePhase, initial: true) {
+            if scenePhase == .active { TimerService.resolveConflicts(in: context) }
+        }
     }
 }
 

@@ -64,6 +64,43 @@ func checkDayMath() throws {
     print("✓ day math + verdicts + conflicts")
 }
 
+func checkTimer() throws {
+    let url = FileManager.default.temporaryDirectory.appending(path: "dodu-timer-check-\(UUID()).store")
+    func open() throws -> ModelContext {
+        ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(url: url)))
+    }
+    var ctx = try open()
+    let p = Project(name: "P"), a = TaskItem(title: "a", project: p), b = TaskItem(title: "b", project: p)
+    ctx.insert(p); ctx.insert(a); ctx.insert(b)
+    let t0 = Date(timeIntervalSince1970: 1_000_000)
+
+    // Switching tasks closes the old entry at the same instant.
+    TimerService.start(a, in: ctx, at: t0)
+    TimerService.start(b, in: ctx, at: t0 + 600)
+    let running = TimerService.running(in: ctx)
+    precondition(running.count == 1 && running[0].task == b, "one running timer")
+    precondition(a.entries?.first?.end == t0 + 600, "old timer stopped at switch")
+
+    // Relaunch: running entry and its start survive.
+    ctx = try open()
+    let reopened = TimerService.running(in: ctx)
+    precondition(reopened.count == 1 && reopened[0].start == t0 + 600, "running survives relaunch")
+
+    // Sync conflict: two running entries → latest start kept, other closed at that start.
+    let bb = reopened[0].task!
+    ctx.insert(TimeEntry(task: bb, start: t0 + 900))
+    try ctx.save()
+    TimerService.resolveConflicts(in: ctx)
+    let after = TimerService.running(in: ctx)
+    precondition(after.count == 1 && after[0].start == t0 + 900, "latest start wins")
+    precondition(reopened[0].end == t0 + 900, "older closed at newer start")
+
+    TimerService.stop(in: ctx, at: t0 + 1200)
+    precondition(TimerService.running(in: ctx).isEmpty, "stop")
+    print("✓ timer switch, relaunch, conflict resolution")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
+try checkTimer()
 print("All checks passed")

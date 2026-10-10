@@ -52,11 +52,11 @@ Pure functions (no UI) that every view reuses.
 
 One place that owns start/stop. Views never write `TimeEntry` directly.
 
-- [ ] `start(task)`: stops any running entry at same instant, creates new one.
-- [ ] `stop()`: sets `end = now`.
-- [ ] Elapsed always `now - start` from stored data; correct after quit, sleep, crash.
-- [ ] On launch: if >1 running entry found (e.g. sync), keep latest start, stop others at that start time.
-- [ ] Tests: switch tasks, relaunch with running entry, two running entries resolved.
+- [x] `start(task)`: stops any running entry at same instant, creates new one.
+- [x] `stop()`: sets `end = now`.
+- [x] Elapsed always `now - start` from stored data; correct after quit, sleep, crash.
+- [x] On launch: if >1 running entry found (e.g. sync), keep latest start, stop others at that start time.
+- [x] Tests: switch tasks, relaunch with running entry, two running entries resolved.
 
 ## DD-06 · Timer UI + menu bar (macOS) — M
 **Req:** R3 · **Blocked by:** DD-04, DD-05
