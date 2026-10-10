@@ -298,6 +298,28 @@ func checkIdleStop() throws {
     print("✓ idle stop date")
 }
 
+func checkSharedStore() throws {
+    let fm = FileManager.default
+    let group = fm.temporaryDirectory.appendingPathComponent("dodu-group-\(UUID())")
+    let url = SharedStore.storeURL(groupURL: group)!
+    precondition(url.lastPathComponent == "Do-Du.store", "group file name")
+    precondition(SharedStore.storeURL(groupURL: nil) == nil, "nil group → nil (fallback)")
+    precondition(SharedStore.legacyStoreURL(appSupport: group).lastPathComponent == "default.store", "legacy name")
+
+    // Moves legacy + wal/shm once; second run is a no-op.
+    let legacyDir = fm.temporaryDirectory.appendingPathComponent("dodu-legacy-\(UUID())")
+    try fm.createDirectory(at: legacyDir, withIntermediateDirectories: true)
+    let legacy = legacyDir.appendingPathComponent("default.store")
+    try "x".write(to: legacy, atomically: true, encoding: .utf8)
+    try "w".write(to: URL(fileURLWithPath: legacy.path + "-wal"), atomically: true, encoding: .utf8)
+    let target = group.appendingPathComponent("Do-Du.store")
+    precondition(SharedStore.migrate(from: legacy, to: target, fileManager: fm) == target, "migrates")
+    precondition(fm.fileExists(atPath: target.path) && fm.fileExists(atPath: target.path + "-wal"), "wal moved")
+    precondition(!fm.fileExists(atPath: legacy.path), "legacy gone")
+    precondition(SharedStore.migrate(from: legacy, to: target, fileManager: fm) == nil, "no-op when target exists")
+    print("✓ shared store location + migration")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -310,4 +332,5 @@ try checkPlanMapping()
 try checkChatTools()
 try checkCSV()
 try checkIdleStop()
+try checkSharedStore()
 print("All checks passed")

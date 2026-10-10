@@ -94,12 +94,12 @@ Pure function: models + date range → compact text Claude can read.
 - [x] Settings: Pomodoro off / on with work length (default 25 min).
 - [x] When on, a timer start schedules a "Time for a break" notification at the work length; stop cancels it.
 
-## DD-30 · Widgets + Live Activity — L · **Needs Xcode first**
-**Req:** P1 · **Blocked by:** manual setup
+## DD-30 · Widgets + Live Activity — L · **Shipped; needs device check**
 
-- [ ] **Manual:** in Xcode add a Widget Extension target and an App Group (`group.com.kv.Do-Du`) to app + extension (registers with your team).
-- [ ] Move the SwiftData store into the App Group container (data migration).
-- [ ] Today progress widget (macOS + iOS), running-timer Live Activity / Dynamic Island (iOS).
+- [x] Widget Extension target `DoDuWidget` (multiplatform macOS + iOS) and App Group (`group.com.kv.Do-Du`) on app + extension (profiles generated via `-allowProvisioningUpdates`).
+- [x] SwiftData store moved into the App Group container (`SharedStore`, one-time migration of `default.store*`).
+- [x] Today progress widget (macOS + iOS), running-timer Live Activity / Dynamic Island (iOS).
+- [ ] **Manual:** run on Mac + iPhone, add the Today widget and start a timer to see the Live Activity; confirm the store migrated (old `default.store` gone).
 
 ---
 
