@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 110;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -42,7 +42,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		70E9CBE28A790C18FC061A3E /* DoDuWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; name = DoDuWidget.appex; path = DoDuWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		70E9CBE28A790C18FC061A3E /* DoDuWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DoDuWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		76542EFE317F12117EB94944 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "Do-Du/SharedStore.swift"; sourceTree = "<group>"; };
 		96257A3703B584B4467BF345 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = "Do-Du/Models.swift"; sourceTree = "<group>"; };
 		99C0F4767AD6B165B3D3AC91 /* Stats.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Stats.swift; path = "Do-Du/Stats.swift"; sourceTree = "<group>"; };
@@ -50,14 +50,12 @@
 		CC95D978307A3F3B00E2933C /* Do-Du.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Do-Du.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D06CE9163C07A4ACF0CFB2D3 /* DayMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DayMath.swift; path = "Do-Du/DayMath.swift"; sourceTree = "<group>"; };
 		EF31CB8C4E5A86AA1199EC25 /* TimerActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimerActivity.swift; path = "Do-Du/TimerActivity.swift"; sourceTree = "<group>"; };
-		F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Do-DuWidgetBundle.swift"; path = "Do-DuWidgetBundle.swift"; sourceTree = "<group>"; };
+		F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Do-DuWidgetBundle.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CC95D97A307A3F3B00E2933C /* Do-Du */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = "Do-Du";
 			sourceTree = "<group>";
 		};
@@ -73,8 +71,10 @@
 		};
 		CC95D975307A3F3B00E2933C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -116,7 +116,6 @@
 				F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */,
 				BAE7BB302BDBBFF9D6C01410 /* TodayWidget.swift */,
 			);
-			name = "Do-DuWidget";
 			path = "Do-DuWidget";
 			sourceTree = "<group>";
 		};
@@ -136,6 +135,8 @@
 			dependencies = (
 			);
 			name = DoDuWidget;
+			packageProductDependencies = (
+			);
 			productName = DoDuWidget;
 			productReference = 70E9CBE28A790C18FC061A3E /* DoDuWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -158,6 +159,8 @@
 				CC95D97A307A3F3B00E2933C /* Do-Du */,
 			);
 			name = "Do-Du";
+			packageProductDependencies = (
+			);
 			productName = "Do-Du";
 			productReference = CC95D978307A3F3B00E2933C /* Do-Du.app */;
 			productType = "com.apple.product-type.application";
@@ -210,8 +213,10 @@
 		};
 		CC95D976307A3F3B00E2933C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
@@ -232,8 +237,10 @@
 		};
 		CC95D974307A3F3B00E2933C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
 			files = (
 			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
@@ -444,6 +451,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Do-Du shows today's meetings in Today and fits the day plan around them.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Do-Du shows your meetings in Today and plans around them.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Do-Du imports your reminders as tasks. It never changes them.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphone*]" = YES;
@@ -497,6 +505,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Do-Du shows today's meetings in Today and fits the day plan around them.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Do-Du shows your meetings in Today and plans around them.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Do-Du imports your reminders as tasks. It never changes them.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphone*]" = YES;
@@ -546,6 +555,7 @@
 				CC95D983307A3F3C00E2933C /* Debug */,
 				CC95D984307A3F3C00E2933C /* Release */,
 			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		CC95D985307A3F3C00E2933C /* Build configuration list for PBXNativeTarget "Do-Du" */ = {
@@ -554,6 +564,7 @@
 				CC95D986307A3F3C00E2933C /* Debug */,
 				CC95D987307A3F3C00E2933C /* Release */,
 			);
+			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

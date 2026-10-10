@@ -416,6 +416,38 @@ func checkNotion() throws {    var cal = Calendar(identifier: .gregorian)
     print("✓ notion import")
 }
 
+func checkRemindersImport() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let d = RemindersSource.draft(id: "r1", title: "  Pay rent ", isDone: false,
+                                  due: DateComponents(year: 2026, month: 10, day: 31, hour: 9),
+                                  list: "Home", calendar: cal)!
+    precondition(d.source == "reminders" && d.title == "Pay rent" && d.projectName == "Home", "mapping")
+    precondition(d.dueDate == ISO8601DateFormatter().date(from: "2026-10-31T00:00:00Z"), "due at start of day")
+    precondition(RemindersSource.draft(id: "r2", title: "   ", isDone: false, due: nil, list: nil, calendar: cal) == nil, "untitled skipped")
+
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let home = Project(name: "home")
+    ctx.insert(home)
+    let done = ExternalDraft(source: "reminders", externalID: "r3", title: "Old", isDone: true, dueDate: nil, projectName: "Home")
+    // Import: list "Home" matches project "home"; finished reminders are not offered as new.
+    let split1 = RemindersSource.split([d, done], tasks: [])
+    precondition(split1.new.map(\.externalID) == ["r1"] && split1.linked.isEmpty, "done not offered")
+    let r1 = RemindersSource.apply(split1.new, projects: [home], in: ctx)
+    precondition(r1.inserted == 1, "inserted")
+    // Later the reminder is completed in Reminders: it's linked now and refreshes.
+    var completed = d
+    completed.isDone = true
+    let tasks = try ctx.fetch(FetchDescriptor<TaskItem>())
+    let split2 = RemindersSource.split([completed], tasks: tasks)
+    precondition(split2.new.isEmpty && split2.linked.count == 1, "linked")
+    let r2 = RemindersSource.apply(split2.new + split2.linked, projects: [home], in: ctx)
+    precondition(r2.updated == 1 && tasks[0].isDone, "linked task refreshed")
+    // Same external ID from Notion would be a different link.
+    precondition(NotionClient.split([d], tasks: tasks).new.count == 1, "links are per source")
+    print("✓ reminders import")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -432,4 +464,5 @@ try checkSharedStore()
 try checkNotion()
 try checkMeetings()
 try checkIntents()
+try checkRemindersImport()
 print("All checks passed")

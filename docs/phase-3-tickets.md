@@ -37,10 +37,22 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [x] Global hotkey ships via Shortcuts: assign a key to the Start/Stop/Add actions in Shortcuts settings — no custom hotkey daemon.
 - [ ] **Manual:** run on iPhone/Mac, try the three Shortcuts actions + one Siri phrase.
 
+## DD-34 · Apple Reminders one-way import — S–M
+
+- [x] `RemindersSource: TaskSource` (EventKit, full reminders access). Each reminder list name → project, matched case-insensitively; never auto-created.
+- [x] Links by `calendarItemExternalIdentifier` (falls back to the local ID) so the same reminder links once across devices.
+- [x] Shared import logic moved into `TaskSource` (`split`, `resolveProject`, `apply`); one `ExternalImportSheet<Source>` for Notion and Reminders. Tasks → Import menu.
+- [x] Finished items are no longer offered as new tasks (both sources).
+- [x] Fixed: linked rows now actually refresh on import (the old Notion sheet only applied new rows despite saying linked rows refresh).
+- [x] Settings → Reminders: access status / allow button. `NSRemindersFullAccessUsageDescription` on both platforms.
+- [x] Self-check (`checks/run.sh`): mapping, untitled skipped, done-not-offered, linked refresh, per-source links. Simulator: permission + sheet verified (no sample reminders).
+- [ ] **Manual:** import a few real reminders on Mac/iPhone; complete one in Reminders, import again, confirm the task is marked done.
+
 ---
 
 ## Order
 
 1. **DD-31** (this branch), verified against the live Notion API.
 2. **DD-32**, then **DD-33**.
-3. Later, only on request: two-way Notion sync (needs conflict rule, spec open Q7), Reminders import (reuses `TaskSource`).
+3. **DD-34** Reminders import (done).
+4. Later, only on request: two-way Notion sync (needs conflict rule, spec open Q7).

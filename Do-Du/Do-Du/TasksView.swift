@@ -20,6 +20,7 @@ struct TasksView: View {
     @State private var entriesFor: TaskItem?
     @State private var quickAdd = false
     @State private var notionImport = false
+    @State private var remindersImport = false
 
     var body: some View {
         List {
@@ -64,8 +65,11 @@ struct TasksView: View {
                 }
             }
             ToolbarItem {
-                Button("Import from Notion", systemImage: "square.and.arrow.down") { notionImport = true }
-                    .disabled(projects.isEmpty)
+                Menu("Import", systemImage: "square.and.arrow.down") {
+                    Button("From Notion") { notionImport = true }
+                    Button("From Reminders") { remindersImport = true }
+                }
+                .disabled(projects.isEmpty)
             }
             ToolbarItem {
                 Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
@@ -82,7 +86,8 @@ struct TasksView: View {
         .sheet(item: $editing) { TaskEditor(task: $0) }
         .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
         .sheet(isPresented: $quickAdd) { QuickAddSheet() }
-        .sheet(isPresented: $notionImport) { NotionImportSheet() }
+        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
+        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
     }
 
     private var hasFilter: Bool { status != .open || categoryFilter != nil || dueTodayOnly }
