@@ -14,6 +14,9 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
+            Tab("Today", systemImage: "sun.max") {
+                NavigationStack { TodayView() }
+            }
             Tab("Tasks", systemImage: "checklist") {
                 NavigationStack { TasksView() }
             }

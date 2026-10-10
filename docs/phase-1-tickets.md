@@ -83,10 +83,10 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-09 · Today view — M
 **Req:** R4 · **Blocked by:** DD-02, DD-06
 
-- [ ] Default screen. Per active-today project: tracked / target + progress bar.
-- [ ] Overall banner: *Not yet* (time left) / *Enough* / *Rest day*.
-- [ ] Updates live while timer runs.
-- [ ] Tasks due today listed with start buttons.
+- [x] Default screen. Per active-today project: tracked / target + progress bar.
+- [x] Overall banner: *Not yet* (time left) / *Enough* / *Rest day*.
+- [x] Updates live while timer runs.
+- [x] Tasks due today listed with start buttons.
 
 ## DD-10 · Statistics view — M
 **Req:** R5 · **Blocked by:** DD-02
