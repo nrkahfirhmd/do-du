@@ -14,8 +14,12 @@ enum SharedStore {
     static let appGroupID = "group.com.kv.Do-Du"
     static let fileName = "Do-Du.store"
 
+    /// The App Group folder, or nil when this build can't use it. On macOS the system
+    /// returns a path even without the entitlement (unsigned/ad-hoc builds), so check access.
     static var groupURL: URL? {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
+        guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID),
+              FileManager.default.isWritableFile(atPath: url.path) else { return nil }
+        return url
     }
 
     /// Store URL inside `group`, or nil when the App Group is unavailable
