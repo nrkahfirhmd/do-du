@@ -23,6 +23,9 @@ struct Do_DuApp: App {
 
     init() {
         LongRunAlert.register(container: sharedModelContainer)
+        #if DEBUG
+        SampleData.seedIfRequested(sharedModelContainer.mainContext)
+        #endif
     }
 
     var body: some Scene {

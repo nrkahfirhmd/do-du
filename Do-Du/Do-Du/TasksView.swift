@@ -28,7 +28,7 @@ struct TasksView: View {
                         ForEach(tasks) { task in
                             TaskRow(task: task)
                                 .contentShape(Rectangle())
-                                .onTapGesture(count: 2) { editing = task }
+                                .onTapGesture { editing = task }
                                 .contextMenu {
                                     Button("Edit") { editing = task }
                                     Button("Time Entries…") { entriesFor = task }

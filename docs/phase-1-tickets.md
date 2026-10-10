@@ -99,11 +99,11 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-11 · iOS target — L
 **Req:** R6 · **Blocked by:** DD-09, DD-10, DD-07
 
-- [ ] Add iOS app target sharing models, timer service, stats code (shared group, not copies).
-- [ ] Min iOS = 27 (assumed to match macOS 27 — confirm, spec Open Question 4).
-- [ ] iPhone layouts: Today, Projects/Tasks, Stats, Settings tabs.
-- [ ] Timer start/stop ≤ 2 taps from Today and task list.
-- [ ] Long-run notification works on iOS.
+- [x] iOS added as a second platform on the same multiplatform target — all code shared, no copies.
+- [x] Min iOS = 27 (assumed to match macOS 27 — confirm, spec Open Question 4). Verified on iPhone 18 Pro simulator, iOS 27.0.
+- [x] iPhone layouts: Today, Tasks, Stats, Projects, Settings tabs (same sidebar-adaptable TabView as macOS).
+- [x] Timer start/stop ≤ 2 taps from Today and task list.
+- [x] Long-run notification works on iOS.
 
 ## DD-12 · CloudKit sync — M
 **Req:** R6 · **Blocked by:** DD-01 (can start any time after), needed before DD-13
