@@ -21,5 +21,49 @@ func checkModelRoundTrip() throws {
     print("✓ model round trip + cascade")
 }
 
+func checkDayMath() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    func d(_ s: String) -> Date { iso.date(from: s)! }
+    let monday = d("2026-10-12T12:00:00Z"), saturday = d("2026-10-10T12:00:00Z")
+    let mon = DayMath.day(monday, calendar: cal)
+
+    // Midnight split: 23:00 Sun → 01:00 Mon gives 1h to Monday.
+    precondition(DayMath.overlap(start: d("2026-10-11T23:00:00Z"), end: d("2026-10-12T01:00:00Z"), with: mon) == 3600, "midnight split")
+
+    // Weekday mask.
+    precondition(DayMath.isActive(mask: Weekdays.monToFri, on: monday, calendar: cal), "monday active")
+    precondition(!DayMath.isActive(mask: Weekdays.monToFri, on: saturday, calendar: cal), "saturday inactive")
+
+    // Verdicts.
+    precondition(DayMath.verdict([]) == .restDay, "rest day")
+    precondition(DayMath.verdict([(3600, 3600)]) == .enough, "exactly met")
+    precondition(DayMath.verdict([(1800, 3600), (7200, 3600)]) == .notYet(remaining: 1800), "over-target does not offset others")
+
+    // Model-level: running entry counts to now; archived and weekend projects excluded.
+    let container = try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    let ctx = container.mainContext
+    let p = Project(name: "A", dailyTargetMinutes: 60), archived = Project(name: "B", dailyTargetMinutes: 60)
+    archived.isArchived = true
+    let t = TaskItem(title: "t", project: p)
+    [p, archived].forEach(ctx.insert); ctx.insert(t)
+    ctx.insert(TimeEntry(task: t, start: d("2026-10-12T09:00:00Z")))  // running
+    try ctx.save()
+    let now = d("2026-10-12T09:30:00Z")
+    precondition(p.tracked(in: mon, now: now) == 1800, "running entry counts to now")
+    precondition(Stats.verdict(for: [p, archived], on: monday, now: now, calendar: cal) == .notYet(remaining: 1800), "archived excluded")
+    precondition(Stats.verdict(for: [p], on: d("2026-10-12T10:00:00Z"), now: d("2026-10-12T10:00:00Z"), calendar: cal) == .enough, "met later")
+    precondition(Stats.verdict(for: [p], on: saturday, calendar: cal) == .restDay, "weekend rest day")
+
+    // Overlap detection and running-timer conflict rule.
+    let spans = [(start: d("2026-10-12T09:00:00Z"), end: d("2026-10-12T10:00:00Z"))]
+    precondition(DayMath.firstConflict(start: d("2026-10-12T10:00:00Z"), end: d("2026-10-12T11:00:00Z"), in: spans) == nil, "touching ok")
+    precondition(DayMath.firstConflict(start: d("2026-10-12T09:59:00Z"), end: d("2026-10-12T11:00:00Z"), in: spans) == 0, "overlap caught")
+    precondition(DayMath.runningToKeep([d("2026-10-12T09:00:00Z"), d("2026-10-12T09:05:00Z")]) == 1, "latest start wins")
+    print("✓ day math + verdicts + conflicts")
+}
+
 try checkModelRoundTrip()
+try checkDayMath()
 print("All checks passed")

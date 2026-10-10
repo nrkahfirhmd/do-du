@@ -24,11 +24,11 @@ Replace template `Item.swift` with SwiftData models `Project`, `Category`, `Task
 
 Pure functions (no UI) that every view reuses.
 
-- [ ] `minutes(for project, on day)` and `minutes(for category, in range)`.
-- [ ] Entries crossing local midnight split across days.
-- [ ] Running entry counts up to `now`.
-- [ ] `verdict(for day) -> .notYet | .enough | .restDay` (rest day = no project active that weekday).
-- [ ] Tests: midnight split, running entry, rest day, target exactly met, archived project excluded.
+- [x] `minutes(for project, on day)` and `minutes(for category, in range)`.
+- [x] Entries crossing local midnight split across days.
+- [x] Running entry counts up to `now`.
+- [x] `verdict(for day) -> .notYet | .enough | .restDay` (rest day = no project active that weekday).
+- [x] Tests: midnight split, running entry, rest day, target exactly met, archived project excluded.
 
 ## DD-03 · Projects & categories CRUD (macOS) — M
 **Req:** R1 · **Blocked by:** DD-01
