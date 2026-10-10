@@ -17,6 +17,7 @@ struct ContentView: View {
     @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
     private var running: [TimeEntry]
     @State private var tab = AppTab.today
+    @AppStorage("assistantMode") private var assistantMode = AssistantView.Mode.recap
 
     var body: some View {
         TabView(selection: $tab) {
@@ -41,7 +42,9 @@ struct ContentView: View {
         .tint(DD.forest)
         #if os(iOS)
         // Running timer stays visible and stoppable on every tab except Today.
-        .tabViewBottomAccessory(isEnabled: running.first != nil && tab != .today) {
+        // Hidden in Chat too, where the message field needs the space.
+        .tabViewBottomAccessory(isEnabled: running.first != nil && tab != .today
+                                && !(tab == .assistant && assistantMode == .chat)) {
             if let entry = running.first {
                 TimerAccessory(entry: entry) { tab = .today }
             }
