@@ -1,0 +1,186 @@
+//
+//  StatsView.swift
+//  Do-Du
+//
+
+import SwiftUI
+import SwiftData
+import Charts
+
+struct StatsView: View {
+    enum Period: String, CaseIterable, Identifiable {
+        case day = "Day", week = "Week", month = "Month"
+        var id: Self { self }
+        var component: Calendar.Component {
+            switch self { case .day: .day; case .week: .weekOfYear; case .month: .month }
+        }
+    }
+
+    @Query(sort: \Project.createdAt) private var projects: [Project]
+    @Query private var entries: [TimeEntry]
+    @State private var period = Period.week
+    @State private var anchor = Date.now
+    @State private var selectedDay: Date?
+
+    private let cal = Calendar.current
+
+    var body: some View {
+        let now = Date.now
+        let range = cal.dateInterval(of: period.component, for: anchor)!
+        let days = daysIn(range)
+        let byProject = totals(in: range, now: now) { $0.task?.project?.name }
+        let byCategory = totals(in: range, now: now) { $0.task?.category?.name ?? "Uncategorized" }
+        let pastDays = days.filter { $0 <= now }
+        let verdicts = pastDays.map { Stats.verdict(for: projects, on: $0, now: now) }
+        let workDays = verdicts.filter { $0 != .restDay }.count
+        let enoughDays = verdicts.filter { $0 == .enough }.count
+
+        List {
+            Section {
+                Picker("Period", selection: $period) {
+                    ForEach(Period.allCases) { Text($0.rawValue) }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                HStack {
+                    Button("Previous", systemImage: "chevron.left") { shift(-1) }.labelStyle(.iconOnly)
+                    Spacer()
+                    Text(title(range)).font(.headline)
+                    Spacer()
+                    Button("Next", systemImage: "chevron.right") { shift(1) }
+                        .labelStyle(.iconOnly)
+                        .disabled(range.end > now)
+                }
+                .buttonStyle(.borderless)
+            }
+
+            Section {
+                LabeledContent("Total tracked", value: byProject.reduce(0) { $0 + $1.seconds }.hoursMinutes)
+                LabeledContent("Enough days", value: workDays == 0 ? "—" : "\(enoughDays) of \(workDays)")
+            }
+
+            Section("By project") {
+                if byProject.isEmpty { Text("No time tracked.").foregroundStyle(.secondary) }
+                else { TotalsChart(rows: byProject, color: projectColor) }
+            }
+
+            Section("By category") {
+                if byCategory.isEmpty { Text("No time tracked.").foregroundStyle(.secondary) }
+                else { TotalsChart(rows: byCategory, color: categoryColor) }
+            }
+
+            if period != .day, !byProject.isEmpty {
+                Section("Daily trend") { trendChart(days: days, now: now) }
+            }
+        }
+        .navigationTitle("Stats")
+    }
+
+    // MARK: Charts
+
+    private func trendChart(days: [Date], now: Date) -> some View {
+        let names = projects.map(\.name)
+        let rows = days.flatMap { day -> [(day: Date, project: String, hours: Double)] in
+            let interval = DayMath.day(day)
+            return projects.compactMap { p in
+                let h = p.tracked(in: interval, now: now) / 3600
+                return h > 0 ? (day, p.name, h) : nil
+            }
+        }
+        return Chart {
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, r in
+                BarMark(x: .value("Day", r.day, unit: .day), y: .value("Hours", r.hours))
+                    .foregroundStyle(by: .value("Project", r.project))
+                    .cornerRadius(4)
+            }
+            if let selectedDay {
+                RuleMark(x: .value("Day", selectedDay, unit: .day))
+                    .foregroundStyle(.secondary.opacity(0.3))
+                    .annotation(position: .top, overflowResolution: .init(x: .fit, y: .disabled)) {
+                        let interval = DayMath.day(selectedDay)
+                        VStack(alignment: .leading) {
+                            Text(selectedDay.formatted(.dateTime.weekday().day().month())).font(.caption.bold())
+                            ForEach(projects.filter { $0.tracked(in: interval, now: now) > 0 }) { p in
+                                Text("\(p.name): \(p.tracked(in: interval, now: now).hoursMinutes)").font(.caption)
+                            }
+                        }
+                        .padding(6)
+                        .background(.background, in: RoundedRectangle(cornerRadius: 6))
+                        .shadow(radius: 2)
+                    }
+            }
+        }
+        .chartForegroundStyleScale(domain: names, range: projects.map(\.color))
+        .chartXSelection(value: $selectedDay)
+        .chartYAxisLabel("Hours")
+        .chartLegend(.visible)
+        .frame(height: 220)
+        .padding(.vertical, 8)
+    }
+
+    // MARK: Data
+
+    private func totals(in range: DateInterval, now: Date,
+                        by key: (TimeEntry) -> String?) -> [TotalsChart.Row] {
+        Dictionary(grouping: entries) { key($0) ?? "" }
+            .filter { !$0.key.isEmpty }
+            .map { TotalsChart.Row(name: $0.key, seconds: $0.value.tracked(in: range, now: now)) }
+            .filter { $0.seconds > 0 }
+            .sorted { $0.seconds > $1.seconds }
+    }
+
+    private func projectColor(_ name: String) -> Color { projects.first { $0.name == name }?.color ?? .gray }
+
+    private func categoryColor(_ name: String) -> Color {
+        entries.lazy.compactMap { $0.task?.category }.first { $0.name == name }?.color ?? .gray
+    }
+
+    private func daysIn(_ range: DateInterval) -> [Date] {
+        var days: [Date] = []
+        var d = range.start
+        while d < range.end {
+            days.append(d)
+            d = cal.date(byAdding: .day, value: 1, to: d)!
+        }
+        return days
+    }
+
+    private func shift(_ n: Int) {
+        anchor = cal.date(byAdding: period.component, value: n, to: anchor)!
+        selectedDay = nil
+    }
+
+    private func title(_ range: DateInterval) -> String {
+        switch period {
+        case .day: range.start.formatted(.dateTime.weekday(.wide).day().month())
+        case .week: "\(range.start.formatted(.dateTime.day().month())) – \(range.end.addingTimeInterval(-1).formatted(.dateTime.day().month()))"
+        case .month: range.start.formatted(.dateTime.month(.wide).year())
+        }
+    }
+}
+
+/// Horizontal bars with the value labeled at the end (doubles as the table view).
+struct TotalsChart: View {
+    struct Row: Identifiable {
+        let name: String
+        let seconds: TimeInterval
+        var id: String { name }
+    }
+
+    let rows: [Row]
+    let color: (String) -> Color
+
+    var body: some View {
+        Chart(rows) { r in
+            BarMark(x: .value("Hours", r.seconds / 3600), y: .value("Name", r.name))
+                .foregroundStyle(color(r.name))
+                .cornerRadius(4)
+                .annotation(position: .trailing) {
+                    Text(r.seconds.hoursMinutes).font(.caption).foregroundStyle(.secondary).monospacedDigit()
+                }
+        }
+        .chartXAxis(.hidden)
+        .frame(height: CGFloat(rows.count) * 32 + 8)
+        .padding(.vertical, 4)
+    }
+}

@@ -20,6 +20,9 @@ struct ContentView: View {
             Tab("Tasks", systemImage: "checklist") {
                 NavigationStack { TasksView() }
             }
+            Tab("Stats", systemImage: "chart.bar") {
+                NavigationStack { StatsView() }
+            }
             Tab("Projects", systemImage: "folder") {
                 NavigationStack { ProjectsView() }
             }

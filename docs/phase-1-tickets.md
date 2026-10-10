@@ -91,10 +91,10 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-10 · Statistics view — M
 **Req:** R5 · **Blocked by:** DD-02
 
-- [ ] Range picker: day / week / month, prev/next.
-- [ ] Time by project and by category (Swift Charts bar).
-- [ ] "Enough" days count in range.
-- [ ] Per-project daily trend chart.
+- [x] Range picker: day / week / month, prev/next.
+- [x] Time by project and by category (Swift Charts bar).
+- [x] "Enough" days count in range.
+- [x] Per-project daily trend chart.
 
 ## DD-11 · iOS target — L
 **Req:** R6 · **Blocked by:** DD-09, DD-10, DD-07
