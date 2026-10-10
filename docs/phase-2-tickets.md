@@ -53,9 +53,10 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-24 · Recap (daily / weekly) — M
 **Req:** R9 · **Blocked by:** DD-21, DD-22
 
-- [ ] Assistant tab → Recap: Today / This week. Shows computed numbers first (tracked, per project vs target, enough days, No project time, tasks done), then Claude's short write-up.
-- [ ] Prompt: use only provided numbers, one observation, under ~120 words, mention No project time if any.
-- [ ] Optional end-of-day reminder (Settings: off / time). Local notification with locally computed totals — no network call in the background.
+- [x] Assistant tab (Settings moved to a gear on Today on iPhone to keep five tabs) → Recap: Today / This week. Shows computed numbers first (tracked, per project vs target, enough days, No project time, tasks done), then Claude's short write-up.
+- [x] Prompt: use only provided numbers, one observation, under ~120 words, mention No project time if any.
+- [x] Optional daily reminder (Settings → Recap: off / time). Repeating local notification with generic text (a repeating trigger can't compute totals at fire time); no network call in the background.
+- [ ] **Not yet verified against the live API** — needs your Claude key. No-key path verified in simulator.
 
 ## DD-25 · Plan my day — M
 **Req:** R8 · **Blocked by:** DD-21, DD-22

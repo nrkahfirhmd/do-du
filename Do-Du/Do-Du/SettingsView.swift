@@ -9,6 +9,8 @@ import SwiftData
 struct SettingsView: View {
     @AppStorage(LongRunAlert.thresholdKey) private var longRunHours = LongRunAlert.defaultHours
     @AppStorage(DayMath.startHourKey) private var dayStartHour = 0
+    @AppStorage(RecapReminder.enabledKey) private var recapOn = false
+    @AppStorage(RecapReminder.minutesKey) private var recapMinutes = 18 * 60
 
     var body: some View {
         Form {
@@ -19,6 +21,17 @@ struct SettingsView: View {
                 Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
                         value: $longRunHours, in: 0.5...12, step: 0.5)
             }
+            Section("Recap") {
+                Toggle("Daily recap reminder", isOn: $recapOn)
+                if recapOn {
+                    DatePicker("Remind at", selection: Binding(
+                        get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
+                        set: { recapMinutes = Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0) }),
+                               displayedComponents: .hourAndMinute)
+                }
+            }
+            .onChange(of: recapOn) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
+            .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
             CategoriesSection()
             ClaudeKeySection()
             Section("Sync") {

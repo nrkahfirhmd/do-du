@@ -21,17 +21,15 @@ struct ContentView: View {
             Tab("Tasks", systemImage: "checklist") {
                 NavigationStack { TasksView() }
             }
+            Tab("Assistant", systemImage: "sparkles") {
+                NavigationStack { RecapView() }
+            }
             Tab("Stats", systemImage: "chart.bar") {
                 NavigationStack { StatsView() }
             }
             Tab("Projects", systemImage: "folder") {
                 NavigationStack { ProjectsView() }
             }
-            #if !os(macOS)
-            Tab("Settings", systemImage: "gear") {
-                NavigationStack { SettingsView() }
-            }
-            #endif
         }
         .tabViewStyle(.sidebarAdaptable)
         .onChange(of: scenePhase, initial: true) {

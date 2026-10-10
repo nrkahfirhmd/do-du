@@ -12,6 +12,7 @@ struct TodayView: View {
     private var dueTasks: [TaskItem]
     @Query(filter: #Predicate<TimeEntry> { $0.task == nil && $0.project == nil }) private var unassigned: [TimeEntry]
     @State private var showUnassigned = false
+    @State private var showSettings = false
 
     var body: some View {
         // ponytail: recomputes all of today's totals every 5s; cache per-day totals if history gets large.
@@ -59,6 +60,15 @@ struct TodayView: View {
         }
         .navigationTitle("Today")
         .sheet(isPresented: $showUnassigned) { UnassignedEntriesView() }
+        #if !os(macOS)
+        // iPhone keeps five tabs; Settings lives here. macOS uses the Settings window.
+        .toolbar { Button("Settings", systemImage: "gear") { showSettings = true } }
+        .sheet(isPresented: $showSettings) {
+            NavigationStack {
+                SettingsView().toolbar { Button("Done") { showSettings = false } }
+            }
+        }
+        #endif
     }
 }
 
