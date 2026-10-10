@@ -19,9 +19,10 @@ enum TimerService {
     }
 
     /// Stops whatever is running at the same instant, then starts `task`.
-    static func start(_ task: TaskItem, in context: ModelContext, at now: Date = .now) {
+    /// `task == nil` is a quick timer, optionally logged straight to `project`.
+    static func start(_ task: TaskItem?, project: Project? = nil, in context: ModelContext, at now: Date = .now) {
         for entry in running(in: context) { entry.end = now }
-        context.insert(TimeEntry(task: task, start: now))
+        context.insert(TimeEntry(task: task, project: project, start: now))
         try? context.save()
         onChange?(now)
     }

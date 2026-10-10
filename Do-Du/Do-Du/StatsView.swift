@@ -28,7 +28,7 @@ struct StatsView: View {
         let now = Date.now
         let range = cal.dateInterval(of: period.component, for: anchor)!
         let days = daysIn(range)
-        let byProject = totals(in: range, now: now) { $0.task?.project?.name }
+        let byProject = totals(in: range, now: now) { $0.effectiveProject?.name ?? "No project" }
         let byCategory = totals(in: range, now: now) { $0.task?.category?.name ?? "Uncategorized" }
         let pastDays = days.filter { $0 <= now }
         let verdicts = pastDays.map { Stats.verdict(for: projects, on: $0, now: now) }

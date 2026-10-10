@@ -126,6 +126,17 @@ Manual test script: [sync-test-plan.md](sync-test-plan.md). **Status: script rea
 - [ ] Edit entry on one device → reflected on other.
 - [ ] Delete project on one device → gone on other, no orphan entries.
 
+## DD-14 · Quick timer without a task — M
+**Req:** R3 · **Blocked by:** DD-05, DD-09 · Added after first build: "I can turn on the timer without a to-do."
+
+- [x] `TimeEntry.task` optional; new optional `TimeEntry.project` for task-less entries (`Project.looseEntries`, cascade delete).
+- [x] `TimerService.start(nil, project:)` — same single-running rule.
+- [x] Today + macOS menu bar: **Start Timer** when nothing runs (tap = no project, menu = pick project).
+- [x] Running quick session shows "Add project" menu to assign/change project.
+- [x] "No project" row on Today (not counted toward targets) → sheet to assign project, edit or delete entries.
+- [x] Stats group task-less time as "No project".
+- [x] Self-check: quick switch, project counts, assign later, cascade. Verified on iOS 27 simulator incl. migration of existing store.
+
 ---
 
 ## Order & parallelism

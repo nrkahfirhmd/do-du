@@ -100,7 +100,40 @@ func checkTimer() throws {
     print("✓ timer switch, relaunch, conflict resolution")
 }
 
+func checkQuickTimer() throws {
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "P", dailyTargetMinutes: 30, activeWeekdaysMask: Weekdays.all), t = TaskItem(title: "t", project: p)
+    ctx.insert(p); ctx.insert(t)
+    let t0 = Date(timeIntervalSince1970: 2_000_000)
+    let day = DayMath.day(t0)
+
+    // Quick timer with no project: tracked, but counts toward no project.
+    TimerService.start(nil, in: ctx, at: t0)
+    TimerService.start(nil, project: p, in: ctx, at: t0 + 600)   // switch: closes the first
+    let first = try ctx.fetch(FetchDescriptor<TimeEntry>(predicate: #Predicate { $0.project == nil && $0.task == nil }))
+    precondition(first.count == 1 && first[0].end == t0 + 600, "quick timer switch")
+    precondition(p.tracked(in: day, now: t0 + 1200) == 600, "project quick entry counts toward project")
+
+    // Assigning the loose entry later moves its time to the project.
+    first[0].project = p
+    try ctx.save()
+    precondition(p.tracked(in: day, now: t0 + 1200) == 1200, "assigned later counts")
+
+    // Starting a task timer stops the quick one; entry from task does not set project.
+    TimerService.start(t, in: ctx, at: t0 + 1200)
+    precondition(TimerService.running(in: ctx).first?.task == t, "task timer replaces quick")
+    precondition(t.entries?.first?.project == nil, "task entries derive project from task")
+    precondition(p.tracked(in: day, now: t0 + 1800) == 1800, "all three count once")
+
+    // Deleting the project removes its loose entries too.
+    ctx.delete(p); try ctx.save()
+    let remaining = try ctx.fetchCount(FetchDescriptor<TimeEntry>())
+    precondition(remaining == 0, "cascade loose entries")
+    print("✓ quick timer without task")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
+try checkQuickTimer()
 print("All checks passed")

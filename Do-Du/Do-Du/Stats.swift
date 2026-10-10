@@ -14,7 +14,7 @@ extension Collection where Element == TimeEntry {
 }
 
 extension Project {
-    var allEntries: [TimeEntry] { (tasks ?? []).flatMap { $0.entries ?? [] } }
+    var allEntries: [TimeEntry] { (tasks ?? []).flatMap { $0.entries ?? [] } + (looseEntries ?? []) }
 
     func tracked(in range: DateInterval, now: Date = .now) -> TimeInterval {
         allEntries.tracked(in: range, now: now)

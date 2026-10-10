@@ -23,6 +23,10 @@ final class Project {
     @Relationship(deleteRule: .cascade, inverse: \TaskItem.project)
     var tasks: [TaskItem]? = []
 
+    /// Quick-timer entries logged straight to the project, without a task.
+    @Relationship(deleteRule: .cascade, inverse: \TimeEntry.project)
+    var looseEntries: [TimeEntry]? = []
+
     init(name: String, colorName: String = Palette.names[0], dailyTargetMinutes: Int = 0,
          activeWeekdaysMask: Int = Weekdays.monToFri) {
         self.name = name
@@ -88,15 +92,21 @@ final class TimeEntry {
     var start: Date = Date.now
     /// `nil` while the timer is running.
     var end: Date?
+    /// Nil for a quick timer started without a task.
     var task: TaskItem?
+    /// Only set for task-less entries; task entries get their project from the task.
+    var project: Project?
 
-    init(task: TaskItem?, start: Date = .now, end: Date? = nil) {
+    init(task: TaskItem?, project: Project? = nil, start: Date = .now, end: Date? = nil) {
         self.task = task
+        self.project = task == nil ? project : nil
         self.start = start
         self.end = end
     }
 
     var isRunning: Bool { end == nil }
+    var effectiveProject: Project? { task?.project ?? project }
+    var title: String { task?.title ?? "Quick session" }
     func duration(now: Date = .now) -> TimeInterval { (end ?? now).timeIntervalSince(start) }
 }
 

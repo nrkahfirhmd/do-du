@@ -25,6 +25,51 @@ struct TimerButton: View {
     }
 }
 
+/// Start a timer without a task. Tap = no project; the menu picks one.
+struct QuickStartButton: View {
+    @Environment(\.modelContext) private var context
+    @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
+
+    var body: some View {
+        Menu {
+            ForEach(projects) { p in
+                Button(p.name) { TimerService.start(nil, project: p, in: context) }
+            }
+        } label: {
+            Label("Start Timer", systemImage: "play.fill")
+                .frame(maxWidth: .infinity)
+        } primaryAction: {
+            TimerService.start(nil, in: context)
+        }
+        .menuStyle(.button)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .accessibilityHint("Starts a timer without a task. Hold or use the menu to pick a project.")
+    }
+}
+
+/// Lets a task-less entry pick (or change) its project.
+struct ProjectAssignMenu: View {
+    let entry: TimeEntry
+    @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
+
+    var body: some View {
+        Menu {
+            Button("No project") { entry.project = nil }
+            ForEach(projects) { p in Button(p.name) { entry.project = p } }
+        } label: {
+            if let p = entry.project {
+                Label { Text(p.name) } icon: { ColorDot(color: p.color) }
+            } else {
+                Label("Add project", systemImage: "folder.badge.plus")
+            }
+        }
+        .labelStyle(.titleAndIcon)
+        .buttonStyle(.borderless)
+        .font(.caption)
+    }
+}
+
 /// Live "1:02:03" for a start date.
 struct ElapsedText: View {
     let start: Date
@@ -46,8 +91,12 @@ struct RunningTimerBar: View {
             HStack {
                 Image(systemName: "timer").foregroundStyle(.red)
                 VStack(alignment: .leading) {
-                    Text(entry.task?.title ?? "Untitled").lineLimit(1)
-                    if let p = entry.task?.project { Text(p.name).font(.caption).foregroundStyle(.secondary) }
+                    Text(entry.title).lineLimit(1)
+                    if entry.task == nil {
+                        ProjectAssignMenu(entry: entry)
+                    } else if let p = entry.effectiveProject {
+                        Text(p.name).font(.caption).foregroundStyle(.secondary)
+                    }
                 }
                 Spacer()
                 ElapsedText(start: entry.start).font(.title3)
@@ -56,6 +105,8 @@ struct RunningTimerBar: View {
                     .tint(.red)
                     .buttonStyle(.borderedProminent)
             }
+        } else {
+            QuickStartButton()
         }
     }
 }

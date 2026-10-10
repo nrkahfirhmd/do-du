@@ -62,7 +62,8 @@ struct TimeEntriesView: View {
 }
 
 struct EntryEditor: View {
-    let task: TaskItem
+    /// Nil when editing a quick-timer entry.
+    let task: TaskItem?
     let entry: TimeEntry?
     @Environment(\.modelContext) private var context
     // ponytail: loads every entry for overlap checks; fine for one person's history, use a date-bounded predicate if it grows huge.
@@ -104,7 +105,7 @@ struct EntryEditor: View {
                                          in: others.map { ($0.start, $0.end ?? now) }) {
             let o = others[i]
             let t = { (d: Date) in d.formatted(date: .abbreviated, time: .shortened) }
-            return "Overlaps \"\(o.task?.title ?? "another entry")\" (\(t(o.start)) – \(o.end.map(t) ?? "now"))."
+            return "Overlaps \"\(o.title)\" (\(t(o.start)) – \(o.end.map(t) ?? "now"))."
         }
         return nil
     }
@@ -114,5 +115,50 @@ struct EntryEditor: View {
         e.start = start
         if !isRunning { e.end = end }
         if entry == nil { context.insert(e) }
+    }
+}
+
+/// Quick-timer entries with no project yet. Assigning a project moves them out of this list.
+struct UnassignedEntriesView: View {
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    @Query(filter: #Predicate<TimeEntry> { $0.task == nil && $0.project == nil }, sort: \TimeEntry.start, order: .reverse)
+    private var entries: [TimeEntry]
+    @State private var editing: TimeEntry?
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if entries.isEmpty { Text("All time is assigned.").foregroundStyle(.secondary) }
+                ForEach(entries) { entry in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(entry.start.formatted(date: .abbreviated, time: .shortened))
+                            ProjectAssignMenu(entry: entry)
+                        }
+                        Spacer()
+                        if entry.isRunning {
+                            ElapsedText(start: entry.start).foregroundStyle(.red)
+                        } else {
+                            Text(entry.duration().hoursMinutes).monospacedDigit()
+                        }
+                    }
+                    .contextMenu {
+                        Button("Edit Time") { editing = entry }
+                        Button("Delete", role: .destructive) { context.delete(entry) }
+                    }
+                    .swipeActions {
+                        Button("Delete", role: .destructive) { context.delete(entry) }
+                        Button("Edit") { editing = entry }
+                    }
+                }
+            }
+            .navigationTitle("No Project")
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
+            .sheet(item: $editing) { EntryEditor(task: nil, entry: $0) }
+        }
+        #if os(macOS)
+        .frame(minWidth: 380, minHeight: 360)
+        #endif
     }
 }

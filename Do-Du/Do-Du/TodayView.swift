@@ -10,6 +10,8 @@ struct TodayView: View {
     @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
     @Query(filter: #Predicate<TaskItem> { !$0.isDone && $0.dueDate != nil }, sort: \TaskItem.dueDate)
     private var dueTasks: [TaskItem]
+    @Query(filter: #Predicate<TimeEntry> { $0.task == nil && $0.project == nil }) private var unassigned: [TimeEntry]
+    @State private var showUnassigned = false
 
     var body: some View {
         // ponytail: recomputes all of today's totals every 5s; cache per-day totals if history gets large.
@@ -25,6 +27,25 @@ struct TodayView: View {
                         ForEach(active) { ProjectProgressRow(project: $0, tracked: $0.tracked(in: day, now: now)) }
                     }
                 }
+                let loose = unassigned.tracked(in: day, now: now)
+                if loose > 0 {
+                    Section {
+                        Button { showUnassigned = true } label: {
+                            HStack {
+                                Label {
+                                    Text("No project")
+                                    Text("Not counted toward targets. Tap to assign.")
+                                } icon: {
+                                    Image(systemName: "questionmark.folder")
+                                }
+                                Spacer()
+                                Text(loose.hoursMinutes).monospacedDigit().foregroundStyle(.secondary)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
                 if FileManager.default.ubiquityIdentityToken == nil {
                     Section { ICloudStatus().font(.footnote) }
                 }
@@ -37,6 +58,7 @@ struct TodayView: View {
             }
         }
         .navigationTitle("Today")
+        .sheet(isPresented: $showUnassigned) { UnassignedEntriesView() }
     }
 }
 
