@@ -42,6 +42,22 @@ enum SharedStore {
         return migrate(from: legacyStoreURL(appSupport: support), to: target, fileManager: fileManager)
     }
 
+    /// App Store configuration: group container with CloudKit, falling back
+    /// to the default location when the App Group is unavailable.
+    static func modelConfiguration() -> ModelConfiguration {
+        let schema = Schema(allModels)
+        migrateIfNeeded()
+        if let url = storeURL(groupURL: groupURL) {
+            return ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .automatic)
+        }
+        return ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
+    }
+
+    /// Opens the same store the app uses. Used by Siri/Shortcuts intents.
+    static func container() throws -> ModelContainer {
+        try ModelContainer(for: Schema(allModels), configurations: [modelConfiguration()])
+    }
+
     /// Pure move helper: `from` (+ `-wal`/`-shm`) → `to`. Nil when skipped.
     @discardableResult
     static func migrate(from legacy: URL, to target: URL, fileManager: FileManager = .default) -> URL? {

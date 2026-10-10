@@ -30,8 +30,12 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 
 ## DD-33 · App Intents / Shortcuts — S–M
 
-- [ ] Intents: start timer (task picker), stop timer, add task (opens Quick Add prefill).
-- [ ] Global Quick Add hotkey on macOS (R7 promised it; today it's ⌘K in-app only).
+- [x] Intents: start timer (optional task entity), stop timer, add task (title + optional project entity). Entities identify store objects by Codable `PersistentIdentifier`, resolving gracefully when deleted.
+- [x] `AppShortcutsProvider` phrases for all three; shared `SharedStore.container()` so intents open the same store.
+- [x] Add creates the task directly (no URL-scheme prefill infra); Siri dialog + Shortcuts result is the confirmation checkpoint.
+- [x] Self-check (`checks/run.sh`): entity ID round-trip + query resolution.
+- [x] Global hotkey ships via Shortcuts: assign a key to the Start/Stop/Add actions in Shortcuts settings — no custom hotkey daemon.
+- [ ] **Manual:** run on iPhone/Mac, try the three Shortcuts actions + one Siri phrase.
 
 ---
 

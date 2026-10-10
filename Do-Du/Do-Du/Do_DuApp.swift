@@ -11,22 +11,13 @@ import SwiftData
 @main
 struct Do_DuApp: App {
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema(allModels)
         // Group container so the widget extension reads the same store.
         // Falls back to the default location when the App Group is
         // unavailable (e.g. unsigned builds).
-        SharedStore.migrateIfNeeded()
-        let modelConfiguration: ModelConfiguration
-        if let url = SharedStore.storeURL(groupURL: SharedStore.groupURL) {
-            modelConfiguration = ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .automatic)
-        } else {
-            // `.automatic` syncs to the first iCloud container in the entitlements;
-            // without entitlements (e.g. unsigned builds) it stays local-only.
-            modelConfiguration = ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
-        }
+        let modelConfiguration = SharedStore.modelConfiguration()
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(for: Schema(allModels), configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }

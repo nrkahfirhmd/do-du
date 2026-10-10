@@ -320,6 +320,22 @@ func checkSharedStore() throws {
     print("✓ shared store location + migration")
 }
 
+func checkIntents() throws {
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "P")
+    let t = TaskItem(title: "Deep work", project: p)
+    ctx.insert(p); ctx.insert(t)
+    try ctx.save()
+    let entity = TaskItemEntity(id: TaskItemEntity.id(for: t.persistentModelID), title: t.title, projectName: "P")
+    let back = TaskItemEntity.pid(from: entity.id)
+    precondition(back == t.persistentModelID, "entity id round-trips to the same task")
+    precondition(TaskItemEntity.pid(from: "!!!") == nil, "garbage id resolves to nil")
+    // Resolution the way queries do it: match open tasks by identifier.
+    let open = try ctx.fetch(FetchDescriptor<TaskItem>(predicate: #Predicate { !$0.isDone }))
+    precondition(open.first { $0.persistentModelID == back }?.title == "Deep work", "query resolves")
+    print("✓ intent entities")
+}
+
 func checkMeetings() throws {
     var cal = Calendar(identifier: .gregorian)
     cal.timeZone = TimeZone(identifier: "UTC")!
@@ -415,4 +431,5 @@ try checkIdleStop()
 try checkSharedStore()
 try checkNotion()
 try checkMeetings()
+try checkIntents()
 print("All checks passed")
