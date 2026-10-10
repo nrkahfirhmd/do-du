@@ -44,11 +44,11 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-23 · Natural-language task input (on-device) — M
 **Req:** R7 · **Blocked by:** —
 
-- [ ] "Quick add" field on Tasks (⌘K on Mac): type a sentence, e.g. "Add 2h design review to Do-Du tomorrow".
-- [ ] `FoundationModels` guided generation into a `@Generable` draft: title, project name, category name, due-in-days, estimate minutes.
-- [ ] Project/category matched case-insensitively to existing ones. Unknown project → editor opens with project unselected (never auto-created).
-- [ ] Always opens the task editor pre-filled for confirmation; nothing saved silently.
-- [ ] Model unavailable (no Apple Intelligence, not ready) → editor opens with the text as title.
+- [x] "Quick Add" (sparkles) on Tasks, ⌘K on Mac: type a sentence, e.g. "Add 2h design review to Do-Du tomorrow". Verified on iOS 27 simulator: title, project, due tomorrow, 2h estimate all filled.
+- [x] `FoundationModels` guided generation into a `@Generable` draft: title, project name, category name, due-in-days, estimate minutes.
+- [x] Project/category matched case-insensitively to existing ones. Unknown project → editor opens with project unselected (never auto-created).
+- [x] Always opens the task editor pre-filled for confirmation; nothing saved silently.
+- [x] Model unavailable (no Apple Intelligence, not ready) → editor opens with the text as title.
 
 ## DD-24 · Recap (daily / weekly) — M
 **Req:** R9 · **Blocked by:** DD-21, DD-22

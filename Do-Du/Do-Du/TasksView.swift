@@ -18,6 +18,7 @@ struct TasksView: View {
     @State private var creating = false
     @State private var editing: TaskItem?
     @State private var entriesFor: TaskItem?
+    @State private var quickAdd = false
 
     var body: some View {
         List {
@@ -62,6 +63,11 @@ struct TasksView: View {
                 }
             }
             ToolbarItem {
+                Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
+                    .keyboardShortcut("k")
+                    .disabled(projects.isEmpty)
+            }
+            ToolbarItem {
                 Button("New Task", systemImage: "plus") { creating = true }
                     .keyboardShortcut("n")
                     .disabled(projects.isEmpty)
@@ -70,6 +76,7 @@ struct TasksView: View {
         .sheet(isPresented: $creating) { TaskEditor(task: nil) }
         .sheet(item: $editing) { TaskEditor(task: $0) }
         .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
+        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
     }
 
     private var hasFilter: Bool { status != .open || categoryFilter != nil || dueTodayOnly }
@@ -137,7 +144,8 @@ struct TaskRow: View {
 
 struct TaskEditor: View {
     let task: TaskItem?
-    var defaultProject: Project?
+    /// New-task starting values (Quick Add). Ignored when editing.
+    var prefill: TaskPrefill?
     @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
     @Query(sort: \Category.name) private var categories: [Category]
@@ -174,7 +182,18 @@ struct TaskEditor: View {
 
     private func load() {
         guard let task else {
-            project = defaultProject ?? projects.first
+            guard let prefill else {
+                project = projects.first
+                return
+            }
+            // Unmatched project stays nil so the user must choose; nothing is guessed.
+            title = prefill.title
+            project = prefill.project
+            category = prefill.category
+            hasDue = prefill.dueDate != nil
+            due = prefill.dueDate ?? .now
+            hasEstimate = prefill.estimateMinutes != nil
+            estimate = prefill.estimateMinutes ?? 30
             return
         }
         title = task.title

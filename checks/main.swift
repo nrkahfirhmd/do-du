@@ -189,10 +189,30 @@ func checkSnapshot() throws {
     print("✓ AI snapshot")
 }
 
+func checkQuickAddMapping() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let p = Project(name: "Do-Du"), c = Category(name: "Deep Work")
+    let now = ISO8601DateFormatter().date(from: "2026-10-12T15:00:00Z")!
+    let hit = QuickAddParser.prefill(from: TaskDraft(title: " Design review ", project: "do-du", category: "deep work",
+                                                     dueInDays: 1, estimateMinutes: 120),
+                                     projects: [p], categories: [c], now: now, calendar: cal)
+    precondition(hit.title == "Design review" && hit.project === p && hit.category === c, "case-insensitive match")
+    precondition(hit.dueDate == ISO8601DateFormatter().date(from: "2026-10-13T00:00:00Z"), "tomorrow at start of day")
+    precondition(hit.estimateMinutes == 120, "estimate")
+    let miss = QuickAddParser.prefill(from: TaskDraft(title: "Call", project: "Unknown", category: "",
+                                                      dueInDays: -1, estimateMinutes: 0),
+                                      projects: [p], categories: [c], now: now, calendar: cal)
+    precondition(miss.project == nil && miss.category == nil && miss.dueDate == nil && miss.estimateMinutes == nil,
+                 "unknown project never guessed")
+    print("✓ quick add mapping")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
 try checkQuickTimer()
 try checkClaudeClient()
 try checkSnapshot()
+try checkQuickAddMapping()
 print("All checks passed")
