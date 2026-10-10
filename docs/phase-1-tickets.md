@@ -41,11 +41,11 @@ Pure functions (no UI) that every view reuses.
 ## DD-04 · Tasks CRUD & list (macOS) — M
 **Req:** R2 · **Blocked by:** DD-03
 
-- [ ] Task list for selected project; "All" view grouped by project.
-- [ ] Create/edit: title, project (required), category, notes, due date, estimate.
-- [ ] Filters: category, open/done, due today.
-- [ ] Mark done / reopen (sets/clears `completedAt`).
-- [ ] Empty states for no projects / no tasks.
+- [x] Task list grouped by project (one section per active project).
+- [x] Create/edit: title, project (required), category, notes, due date, estimate.
+- [x] Filters: category, open/done, due today.
+- [x] Mark done / reopen (sets/clears `completedAt`).
+- [x] Empty states for no projects / no tasks.
 
 ## DD-05 · Timer service — L
 **Req:** R3 · **Blocked by:** DD-01
