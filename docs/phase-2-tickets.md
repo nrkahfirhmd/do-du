@@ -18,9 +18,9 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Work top to bottom
 ## DD-20 · Claude API key in Keychain + AI settings — S
 **Req:** R8–R10 · **Blocked by:** —
 
-- [ ] `Keychain` helper (Security framework): save / read / delete one generic password item.
-- [ ] Settings → "Claude" section: secure field, Save, Remove, status line (key set / not set). Key never shown back in full.
-- [ ] Key never stored in SwiftData, UserDefaults, logs or source.
+- [x] `Keychain` helper (Security framework): save / read / delete one generic password item.
+- [x] Settings → "Claude" section: secure field, Save, Remove, status line (key set / not set). Key never shown back in full.
+- [x] Key never stored in SwiftData, UserDefaults, logs or source.
 
 ## DD-21 · Claude client — M
 **Req:** R8–R10 · **Blocked by:** DD-20

@@ -16,6 +16,7 @@ struct SettingsView: View {
                         value: $longRunHours, in: 0.5...12, step: 0.5)
             }
             CategoriesSection()
+            ClaudeKeySection()
             Section("Sync") {
                 ICloudStatus()
             }
@@ -93,4 +94,43 @@ struct ICloudStatus: View {
             }
         }
     }
+}
+
+/// Claude API key for Plan, Recap and Chat. Stored only in Keychain.
+struct ClaudeKeySection: View {
+    @State private var hasKey = ClaudeKey.current != nil
+    @State private var draft = ""
+
+    var body: some View {
+        Section {
+            if hasKey {
+                LabeledContent("API key", value: ClaudeKey.masked ?? "Saved")
+                Button("Remove Key", role: .destructive) {
+                    ClaudeKey.remove()
+                    hasKey = false
+                }
+            } else {
+                SecureField("Claude API key", text: $draft)
+                    .textContentType(.password)
+                    .autocorrectionDisabled()
+                Button("Save Key") {
+                    hasKey = ClaudeKey.save(draft.trimmingCharacters(in: .whitespacesAndNewlines))
+                    draft = ""
+                }
+                .disabled(draft.isBlank)
+            }
+        } header: {
+            Text("Claude")
+        } footer: {
+            Text("Used for Plan my day, Recap and Chat. Stored in your Keychain on this device only; get a key at console.anthropic.com.")
+        }
+    }
+}
+
+enum ClaudeKey {
+    private static let account = "claude-api-key"
+    static var current: String? { Keychain.read(account) }
+    static var masked: String? { current.map { "…" + $0.suffix(4) } }
+    static func save(_ key: String) -> Bool { !key.isEmpty && Keychain.save(key, for: account) }
+    static func remove() { Keychain.delete(account) }
 }
