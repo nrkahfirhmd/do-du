@@ -132,8 +132,35 @@ func checkQuickTimer() throws {
     print("✓ quick timer without task")
 }
 
+func checkClaudeClient() throws {
+    let req = ClaudeRequest(system: "sys", messages: [["role": "user", "content": "hi"]],
+                            tools: [["name": "t", "input_schema": ["type": "object"]]],
+                            effort: "medium", schema: ["type": "object"])
+    let body = ClaudeClient.body(req)
+    precondition(body["model"]?.string == "claude-opus-5-5", "model")
+    precondition(body["max_tokens"]?.int == 16000, "max_tokens")
+    precondition(body["fallbacks"]?.string == "default", "fallbacks")
+    precondition(body["output_config"]?["effort"]?.string == "medium", "effort")
+    precondition(body["output_config"]?["format"]?["type"]?.string == "json_schema", "schema")
+    precondition(body["system"]?.array?.first?["cache_control"]?["type"]?.string == "ephemeral", "cache")
+    let encoded = String(decoding: body.encoded(), as: UTF8.self)
+    precondition(encoded.contains("\"max_tokens\":16000"), "ints encode without .0")
+
+    let text = try ClaudeClient.parse(Data(#"{"content":[{"type":"thinking","thinking":"","signature":"abc"},{"type":"text","text":"Hello"}],"stop_reason":"end_turn"}"#.utf8))
+    precondition(text.text == "Hello" && text.content.count == 2, "text + thinking kept for echo")
+
+    let tool = try ClaudeClient.parse(Data(#"{"content":[{"type":"tool_use","id":"tu1","name":"time_summary","input":{"start":"2026-10-01"}}],"stop_reason":"tool_use"}"#.utf8))
+    precondition(tool.toolUses == [ToolUse(id: "tu1", name: "time_summary", input: ["start": "2026-10-01"])], "tool_use")
+
+    var refused = false
+    do { _ = try ClaudeClient.parse(Data(#"{"content":[],"stop_reason":"refusal"}"#.utf8)) } catch ClaudeError.refused { refused = true }
+    precondition(refused, "refusal")
+    print("✓ Claude request body + response parsing")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
 try checkQuickTimer()
+try checkClaudeClient()
 print("All checks passed")

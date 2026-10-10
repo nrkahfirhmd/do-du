@@ -25,11 +25,11 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Work top to bottom
 ## DD-21 · Claude client — M
 **Req:** R8–R10 · **Blocked by:** DD-20
 
-- [ ] `ClaudeClient` over `URLSession`: `POST /v1/messages`, headers `x-api-key`, `anthropic-version: 2023-06-01`.
-- [ ] Model `claude-opus-5-5`, `output_config.effort` per feature, server-side `fallbacks: "default"` (`anthropic-beta: server-side-fallback-2026-07-01`).
-- [ ] Optional structured output (`output_config.format` JSON schema) and client tools with a tool-use loop. History is append-only (assistant `content` echoed back unchanged).
-- [ ] Typed errors: no key, offline, 401 bad key, 429/529 busy (one retry after `retry-after`), refusal, other HTTP. Each maps to a short user-facing message.
-- [ ] Self-check: request body encodes correctly; canned responses decode text, `tool_use`, and `refusal`.
+- [x] `ClaudeClient` over `URLSession`: `POST /v1/messages`, headers `x-api-key`, `anthropic-version: 2023-06-01`.
+- [x] Model `claude-opus-5-5`, `output_config.effort` per feature, server-side `fallbacks: "default"` (`anthropic-beta: server-side-fallback-2026-07-01`).
+- [x] Optional structured output (`output_config.format` JSON schema) and client tools with a tool-use loop. History is append-only (assistant `content` echoed back unchanged).
+- [x] Typed errors: no key, offline, 401 bad key, 429/529 busy (one retry after `retry-after`), refusal, other HTTP. Each maps to a short user-facing message.
+- [x] Self-check: request body encodes correctly; canned responses decode text, `tool_use`, and `refusal`.
 
 ## DD-22 · AI data snapshot — M
 **Req:** R8–R10 · **Blocked by:** —

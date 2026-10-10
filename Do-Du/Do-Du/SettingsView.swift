@@ -126,11 +126,3 @@ struct ClaudeKeySection: View {
         }
     }
 }
-
-enum ClaudeKey {
-    private static let account = "claude-api-key"
-    static var current: String? { Keychain.read(account) }
-    static var masked: String? { current.map { "…" + $0.suffix(4) } }
-    static func save(_ key: String) -> Bool { !key.isEmpty && Keychain.save(key, for: account) }
-    static func remove() { Keychain.delete(account) }
-}

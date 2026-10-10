@@ -5,6 +5,6 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$ROOT/Do-Du/Do-Du"
 OUT="${TMPDIR:-/tmp}/dodu-checks"
 xcrun swiftc -default-isolation MainActor -o "$OUT" \
-  "$SRC/Models.swift" "$SRC/DayMath.swift" "$SRC/Stats.swift" "$SRC/TimerService.swift" \
+  "$SRC/Models.swift" "$SRC/DayMath.swift" "$SRC/Stats.swift" "$SRC/TimerService.swift" "$SRC/Keychain.swift" "$SRC/ClaudeClient.swift" \
   "$ROOT/checks/main.swift"
 "$OUT"
