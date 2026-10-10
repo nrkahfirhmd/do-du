@@ -25,9 +25,10 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] **New behaviour:** timer accessory via native `tabViewBottomAccessory` on every tab except Today (tap → Today, Stop). Verified in simulator.
 
 ## DD-43 · iPhone tabs, sheets, menus — L
-- [ ] Tasks: coloured project capsule headers, restyled TaskRow + play button.
-- [ ] Assistant (Recap / Chat bubbles), Stats (tiles + bars), Projects (colour tiles + New project tile).
-- [ ] Shared sheet layout (Cancel/Save capsules), menus.
+- [x] Tasks: coloured project capsule headers, restyled TaskRow + play button.
+- [x] Assistant (Recap / Chat bubbles), Stats (tiles + bars), Projects (colour tiles + New project tile).
+- [x] Shared sheet layout: native glass toolbar (ink Cancel, forest Save/Accept/Import/Next via `ddPrimary()`), inline title, surface groups on white (`ddForm()` / `ddRows()`), mint switches (`MintSwitch`). Menus stay native.
+- [x] Verified in iOS simulator: Tasks, Projects, Stats, Recap, Chat, task editor, Settings.
 
 ## DD-44 · Mac window — L
 - [ ] NavigationSplitView sidebar (sections, projects with today %, mini timer card), toolbar (Quick Add ⌘K, Plan My Day).

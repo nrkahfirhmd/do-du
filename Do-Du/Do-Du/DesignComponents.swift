@@ -265,3 +265,29 @@ func highlighted(_ before: String, _ key: String, _ after: String = "") -> Text 
     tag.foregroundColor = DD.onMint
     return Text("\(before)\(Text(tag))\(after)")
 }
+
+/// Native switch, mint when on (handoff: "Toggle on" is mint), whatever the surrounding tint.
+struct MintSwitch: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        Toggle(configuration).toggleStyle(.switch).tint(DD.mint)
+    }
+}
+
+extension View {
+    /// Sheet and settings forms: white page, surface groups, sage actions.
+    func ddForm() -> some View {
+        self.formStyle(.grouped)
+            .scrollContentBackground(.hidden)
+            .background(DD.page)
+            .tint(DD.sage)
+            .toggleStyle(MintSwitch())
+    }
+
+    /// Rows inside a form or list group sit on the surface colour.
+    func ddRows() -> some View { listRowBackground(DD.surface) }
+
+    /// Primary sheet action (Save, Accept, Import): forest capsule, white text.
+    func ddPrimary() -> some View {
+        buttonStyle(.borderedProminent).tint(DD.forestFill)
+    }
+}

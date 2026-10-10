@@ -71,13 +71,16 @@ struct EditorSheet<Content: View>: View {
 
     var body: some View {
         NavigationStack {
-            Form { content }
-                .formStyle(.grouped)
+            Form { content.ddRows() }
+                .ddForm()
                 .navigationTitle(title)
+                #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+                #endif
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+                    ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.tint(DD.ink) }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") { save(); dismiss() }.disabled(!canSave)
+                        Button("Save") { save(); dismiss() }.ddPrimary().disabled(!canSave)
                     }
                 }
         }

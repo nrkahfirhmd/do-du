@@ -26,50 +26,55 @@ struct ExternalImportSheet<Source: TaskSource>: View {
     var body: some View {
         NavigationStack {
             List {
-                if loading {
-                    ProgressView("Reading \(Source.displayName)…")
-                } else if let error {
-                    Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
-                    Button("Try Again", action: load)
-                } else if drafts.isEmpty {
-                    Text("Nothing new in \(Source.displayName).").foregroundStyle(.secondary)
-                } else {
-                    Section {
-                        ForEach(drafts) { d in
-                            Toggle(isOn: Binding(
-                                get: { included.contains(d.externalID) },
-                                set: { included.insertOrRemove(d.externalID, $0) })) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(d.title).lineLimit(2)
-                                    Text(rowSubtitle(d)).font(.caption).foregroundStyle(.secondary)
+                Group {
+                    if loading {
+                        ProgressView("Reading \(Source.displayName)…")
+                    } else if let error {
+                        Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
+                        Button("Try Again", action: load)
+                    } else if drafts.isEmpty {
+                        Text("Nothing new in \(Source.displayName).").foregroundStyle(.secondary)
+                    } else {
+                        Section {
+                            ForEach(drafts) { d in
+                                Toggle(isOn: Binding(
+                                    get: { included.contains(d.externalID) },
+                                    set: { included.insertOrRemove(d.externalID, $0) })) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(d.title).lineLimit(2)
+                                        Text(rowSubtitle(d)).font(.caption).foregroundStyle(.secondary)
+                                    }
                                 }
+                                Picker("Project", selection: Binding(
+                                    get: { picks[d.externalID] ?? "" },
+                                    set: { picks[d.externalID] = $0 })) {
+                                    ForEach(projects.map(\.name), id: \.self) { Text($0) }
+                                }
+                                .pickerStyle(.menu)
                             }
-                            Picker("Project", selection: Binding(
-                                get: { picks[d.externalID] ?? "" },
-                                set: { picks[d.externalID] = $0 })) {
-                                ForEach(projects.map(\.name), id: \.self) { Text($0) }
-                            }
-                            .pickerStyle(.menu)
+                        } footer: {
+                            Text("Finished items aren't offered. Nothing is saved until you import.")
                         }
-                    } footer: {
-                        Text("Finished items aren't offered. Nothing is saved until you import.")
                     }
-                }
-                if !loading, error == nil, !linked.isEmpty {
-                    Section {
-                        Text("\(linked.count) linked task\(linked.count == 1 ? "" : "s") will refresh title, done and due date.")
-                            .foregroundStyle(.secondary)
+                    if !loading, error == nil, !linked.isEmpty {
+                        Section {
+                            Text("\(linked.count) linked task\(linked.count == 1 ? "" : "s") will refresh title, done and due date.")
+                                .foregroundStyle(.secondary)
+                        }
                     }
-                }
-                if let result {
-                    Section { Text(result).foregroundStyle(.secondary) }
-                }
+                    if let result {
+                        Section { Text(result).foregroundStyle(.secondary) }
+                    }
+                            }
+                .ddRows()
             }
+            .ddForm()
             .navigationTitle("Import from \(Source.displayName)")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button(result == nil ? "Cancel" : "Done") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Import") { importSelected() }
+                        .ddPrimary()
                         .disabled(loading || error != nil || result != nil || (included.isEmpty && linked.isEmpty))
                 }
             }

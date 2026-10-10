@@ -21,51 +21,54 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Timer") {
-                Picker("Day starts at", selection: $dayStartHour) {
-                    ForEach(0...6, id: \.self) { Text(String(format: "%d:00", $0)).tag($0) }
+            Group {
+                Section("Timer") {
+                    Picker("Day starts at", selection: $dayStartHour) {
+                        ForEach(0...6, id: \.self) { Text(String(format: "%d:00", $0)).tag($0) }
+                    }
+                    Toggle("Pomodoro break reminder", isOn: $pomodoroOn)
+                    if pomodoroOn {
+                        Stepper("Break after \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
+                    }
+                    Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
+                            value: $longRunHours, in: 0.5...12, step: 0.5)
+                    #if os(macOS)
+                    Toggle("Stop timer when Mac sleeps or is idle", isOn: $idleStopOn)
+                    if idleStopOn {
+                        Stepper("Stop after \(idleStopMinutes) min idle",
+                                value: $idleStopMinutes, in: 2...120, step: 5)
+                    }
+                    #endif
                 }
-                Toggle("Pomodoro break reminder", isOn: $pomodoroOn)
-                if pomodoroOn {
-                    Stepper("Break after \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
+                Section("Recap") {
+                    Toggle("Daily recap reminder", isOn: $recapOn)
+                    if recapOn {
+                        DatePicker("Remind at", selection: Binding(
+                            get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
+                            set: { recapMinutes = Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0) }),
+                                   displayedComponents: .hourAndMinute)
+                    }
                 }
-                Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
-                        value: $longRunHours, in: 0.5...12, step: 0.5)
-                #if os(macOS)
-                Toggle("Stop timer when Mac sleeps or is idle", isOn: $idleStopOn)
-                if idleStopOn {
-                    Stepper("Stop after \(idleStopMinutes) min idle",
-                            value: $idleStopMinutes, in: 2...120, step: 5)
+                .onChange(of: recapOn) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
+                .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
+                CategoriesSection()
+                ClaudeKeySection()
+                NotionSettingsSection()
+                RemindersSettingsSection()
+                CalendarSettingsSection()
+                Section("Sync") {
+                    ICloudStatus()
                 }
-                #endif
+                Section("Data") {
+                    Button("Export Time Entries (CSV)…", systemImage: "square.and.arrow.up") {
+                        export = CSVDocument(text: TimeEntryCSV.make(entries))
+                    }
+                    .disabled(entries.isEmpty)
+                }
             }
-            Section("Recap") {
-                Toggle("Daily recap reminder", isOn: $recapOn)
-                if recapOn {
-                    DatePicker("Remind at", selection: Binding(
-                        get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
-                        set: { recapMinutes = Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0) }),
-                               displayedComponents: .hourAndMinute)
-                }
-            }
-            .onChange(of: recapOn) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
-            .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
-            CategoriesSection()
-            ClaudeKeySection()
-            NotionSettingsSection()
-            RemindersSettingsSection()
-            CalendarSettingsSection()
-            Section("Sync") {
-                ICloudStatus()
-            }
-            Section("Data") {
-                Button("Export Time Entries (CSV)…", systemImage: "square.and.arrow.up") {
-                    export = CSVDocument(text: TimeEntryCSV.make(entries))
-                }
-                .disabled(entries.isEmpty)
-            }
+            .ddRows()
         }
-        .formStyle(.grouped)
+        .ddForm()
         .navigationTitle("Settings")
         .fileExporter(isPresented: .init(get: { export != nil }, set: { if !$0 { export = nil } }),
                       document: export, contentType: .commaSeparatedText,

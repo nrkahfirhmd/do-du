@@ -19,37 +19,41 @@ struct PlanSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                if loading {
-                    ProgressView("Planning your day…")
-                } else if let error {
-                    Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
-                    Button("Try Again", action: plan)
-                } else {
-                    if !note.isEmpty { Section { Text(note) } }
-                    Section {
-                        if items.isEmpty { Text("Nothing to plan.").foregroundStyle(.secondary) }
-                        ForEach($items) { $item in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(item.task.title)
-                                    Spacer()
-                                    Stepper("\(TimeInterval(item.minutes * 60).hoursMinutes)",
-                                            value: $item.minutes, in: 5...600, step: 15)
-                                        .fixedSize()
+                Group {
+                    if loading {
+                        ProgressView("Planning your day…")
+                    } else if let error {
+                        Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange)
+                        Button("Try Again", action: plan)
+                    } else {
+                        if !note.isEmpty { Section { Text(note) } }
+                        Section {
+                            if items.isEmpty { Text("Nothing to plan.").foregroundStyle(.secondary) }
+                            ForEach($items) { $item in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack {
+                                        Text(item.task.title)
+                                        Spacer()
+                                        Stepper("\(TimeInterval(item.minutes * 60).hoursMinutes)",
+                                                value: $item.minutes, in: 5...600, step: 15)
+                                            .fixedSize()
+                                    }
+                                    Text([item.task.project?.name, item.reason].compactMap { $0 }.joined(separator: " · "))
+                                        .font(.caption).foregroundStyle(.secondary)
                                 }
-                                Text([item.task.project?.name, item.reason].compactMap { $0 }.joined(separator: " · "))
-                                    .font(.caption).foregroundStyle(.secondary)
                             }
+                            .onMove { items.move(fromOffsets: $0, toOffset: $1) }
+                            .onDelete { items.remove(atOffsets: $0) }
+                        } header: {
+                            Text("Total \(TimeInterval(items.reduce(0) { $0 + $1.minutes } * 60).hoursMinutes)")
+                        } footer: {
+                            Text("Drag to reorder, swipe to remove. Nothing is saved until you accept.")
                         }
-                        .onMove { items.move(fromOffsets: $0, toOffset: $1) }
-                        .onDelete { items.remove(atOffsets: $0) }
-                    } header: {
-                        Text("Total \(TimeInterval(items.reduce(0) { $0 + $1.minutes } * 60).hoursMinutes)")
-                    } footer: {
-                        Text("Drag to reorder, swipe to remove. Nothing is saved until you accept.")
                     }
-                }
+                            }
+                .ddRows()
             }
+            .ddForm()
             .navigationTitle("Plan My Day")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Discard") { dismiss() } }
@@ -58,6 +62,7 @@ struct PlanSheet: View {
                         DayPlanner.accept(items, allTasks: tasks)
                         dismiss()
                     }
+                    .ddPrimary()
                     .disabled(loading || error != nil || items.isEmpty)
                 }
                 #if !os(macOS)
