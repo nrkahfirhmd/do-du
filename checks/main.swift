@@ -158,9 +158,41 @@ func checkClaudeClient() throws {
     print("✓ Claude request body + response parsing")
 }
 
+func checkSnapshot() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    func d(_ s: String) -> Date { iso.date(from: s)! }
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "Do-Du", dailyTargetMinutes: 60, activeWeekdaysMask: Weekdays.monToFri)
+    let a = TaskItem(title: "Spec", project: p), b = TaskItem(title: "Ship", project: p)
+    b.dueDate = d("2026-10-13T00:00:00Z"); b.estimateMinutes = 30
+    a.setDone(true); a.completedAt = d("2026-10-12T15:00:00Z")
+    [p].forEach(ctx.insert); [a, b].forEach(ctx.insert)
+    ctx.insert(TimeEntry(task: a, start: d("2026-10-12T09:00:00Z"), end: d("2026-10-12T10:30:00Z")))
+    ctx.insert(TimeEntry(task: nil, start: d("2026-10-12T11:00:00Z"), end: d("2026-10-12T11:20:00Z")))
+    try ctx.save()
+    let now = d("2026-10-13T08:00:00Z")
+    let snap = AISnapshot(projects: [p], entries: try ctx.fetch(FetchDescriptor<TimeEntry>()), tasks: [a, b],
+                          range: DateInterval(start: d("2026-10-12T00:00:00Z"), end: d("2026-10-14T00:00:00Z")),
+                          now: now, calendar: cal)
+    let t = snap.text
+    precondition(t.contains("- Do-Du: 60m/day · Mon Tue Wed Thu Fri"), "project line")
+    precondition(t.contains("Tracked in range:\n- Do-Du: 90m"), "tracked")
+    precondition(t.contains("No project (not counted toward targets): 20m"), "no project")
+    precondition(t.contains("2026-10-12 Mon: enough | Do-Du 90/60"), "day verdict")
+    precondition(t.contains("2026-10-13 Tue: not enough (60m short) | Do-Du 0/60"), "today")
+    precondition(!t.contains("2026-10-14"), "future days omitted")
+    precondition(t.contains("[0] Ship · Do-Du · due 2026-10-13 Tue · est 30m"), "open task")
+    precondition(t.contains("- Spec · Do-Du · 2026-10-12 Mon"), "completed")
+    precondition(snap.openTasks == [b], "index map")
+    print("✓ AI snapshot")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
 try checkQuickTimer()
 try checkClaudeClient()
+try checkSnapshot()
 print("All checks passed")

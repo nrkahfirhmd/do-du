@@ -36,10 +36,10 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Work top to bottom
 
 Pure function: models + date range → compact text Claude can read.
 
-- [ ] Projects (target, active today?), tracked per project for the range, "No project" time, per-day verdicts.
-- [ ] Open tasks (title, project, category, due, estimate) and tasks completed in range.
-- [ ] Deterministic ordering (stable prompt → cacheable), durations as minutes.
-- [ ] Self-check against fixed data.
+- [x] Projects (target, active today?), tracked per project for the range, "No project" time, per-day verdicts.
+- [x] Open tasks (title, project, category, due, estimate) and tasks completed in range.
+- [x] Deterministic ordering (stable prompt → cacheable), durations as minutes.
+- [x] Self-check against fixed data.
 
 ## DD-23 · Natural-language task input (on-device) — M
 **Req:** R7 · **Blocked by:** —
