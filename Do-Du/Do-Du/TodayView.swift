@@ -49,7 +49,7 @@ struct TodayView: View {
                 if FileManager.default.ubiquityIdentityToken == nil {
                     Section { ICloudStatus().font(.footnote) }
                 }
-                let due = dueTasks.filter { $0.dueDate! < day.end && $0.project?.isArchived == false }
+                let due = dueTasks.filter { $0.dueDate! <= DayMath.logicalDate(now) && $0.project?.isArchived == false }
                 if !due.isEmpty {
                     Section("Due today") {
                         ForEach(due) { TaskRow(task: $0) }

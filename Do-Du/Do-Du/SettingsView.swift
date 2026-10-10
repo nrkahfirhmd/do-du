@@ -8,10 +8,14 @@ import SwiftData
 
 struct SettingsView: View {
     @AppStorage(LongRunAlert.thresholdKey) private var longRunHours = LongRunAlert.defaultHours
+    @AppStorage(DayMath.startHourKey) private var dayStartHour = 0
 
     var body: some View {
         Form {
             Section("Timer") {
+                Picker("Day starts at", selection: $dayStartHour) {
+                    ForEach(0...6, id: \.self) { Text(String(format: "%d:00", $0)).tag($0) }
+                }
                 Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
                         value: $longRunHours, in: 0.5...12, step: 0.5)
             }

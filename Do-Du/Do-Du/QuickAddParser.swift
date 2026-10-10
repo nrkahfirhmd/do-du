@@ -59,7 +59,7 @@ enum QuickAddParser {
             project: match(d.project, in: projects, \.name),
             category: match(d.category, in: categories, \.name),
             dueDate: d.dueInDays >= 0
-                ? calendar.date(byAdding: .day, value: d.dueInDays, to: calendar.startOfDay(for: now)) : nil,
+                ? calendar.date(byAdding: .day, value: d.dueInDays, to: DayMath.logicalDate(now, calendar: calendar)) : nil,
             estimateMinutes: d.estimateMinutes > 0 ? d.estimateMinutes : nil)
     }
 }

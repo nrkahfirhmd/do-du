@@ -82,11 +82,11 @@ struct TasksView: View {
     private var hasFilter: Bool { status != .open || categoryFilter != nil || dueTodayOnly }
 
     private func visibleTasks(in project: Project) -> [TaskItem] {
-        let today = DayMath.day(.now)
+        let today = DayMath.logicalDate(.now)
         return (project.tasks ?? [])
             .filter { status == .all || $0.isDone == (status == .done) }
             .filter { categoryFilter == nil || $0.category == categoryFilter }
-            .filter { !dueTodayOnly || ($0.dueDate.map { $0 < today.end } ?? false) }
+            .filter { !dueTodayOnly || ($0.dueDate.map { $0 <= today } ?? false) }
             .sorted { ($0.dueDate ?? .distantFuture, $0.createdAt) < ($1.dueDate ?? .distantFuture, $1.createdAt) }
     }
 
@@ -126,7 +126,7 @@ struct TaskRow: View {
                     if let due = task.dueDate {
                         Label(Calendar.current.isDateInToday(due) ? "Today" : due.formatted(date: .abbreviated, time: .omitted),
                               systemImage: "calendar")
-                            .foregroundStyle(due < DayMath.day(.now).start && !task.isDone ? .red : .secondary)
+                            .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? .red : .secondary)
                     }
                     if let est = task.estimateMinutes {
                         Label(TimeInterval(est * 60).hoursMinutes, systemImage: "hourglass")

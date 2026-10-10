@@ -76,8 +76,8 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-27 · Day start hour — S
 **Req:** P1 · **Blocked by:** —
 
-- [ ] Settings: day starts at 0:00–6:00 (default 0). Work before that hour counts toward the previous day.
-- [ ] `DayMath.day` honours it everywhere (Today, Stats, verdicts, recap). Self-check.
+- [x] Settings: day starts at 0:00–6:00 (default 0). Work before that hour counts toward the previous day.
+- [x] `DayMath.day` honours it everywhere (Today, Stats, verdicts, recap). Self-check.
 
 ## DD-28 · CSV export — S
 **Req:** P1 · **Blocked by:** —

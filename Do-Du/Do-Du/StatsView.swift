@@ -26,11 +26,11 @@ struct StatsView: View {
 
     var body: some View {
         let now = Date.now
-        let range = cal.dateInterval(of: period.component, for: anchor)!
-        let days = daysIn(range)
+        let range = DayMath.period(period.component, for: anchor)
+        let days = DayMath.logicalDates(in: range)
         let byProject = totals(in: range, now: now) { $0.effectiveProject?.name ?? "No project" }
         let byCategory = totals(in: range, now: now) { $0.task?.category?.name ?? "Uncategorized" }
-        let pastDays = days.filter { $0 <= now }
+        let pastDays = days.map { DayMath.dayStarting($0).start }.filter { $0 <= now }
         let verdicts = pastDays.map { Stats.verdict(for: projects, on: $0, now: now) }
         let workDays = verdicts.filter { $0 != .restDay }.count
         let enoughDays = verdicts.filter { $0 == .enough }.count
@@ -81,7 +81,7 @@ struct StatsView: View {
     private func trendChart(days: [Date], now: Date) -> some View {
         let names = projects.map(\.name)
         let rows = days.flatMap { day -> [(day: Date, project: String, hours: Double)] in
-            let interval = DayMath.day(day)
+            let interval = DayMath.dayStarting(day)
             return projects.compactMap { p in
                 let h = p.tracked(in: interval, now: now) / 3600
                 return h > 0 ? (day, p.name, h) : nil
@@ -97,7 +97,7 @@ struct StatsView: View {
                 RuleMark(x: .value("Day", selectedDay, unit: .day))
                     .foregroundStyle(.secondary.opacity(0.3))
                     .annotation(position: .top, overflowResolution: .init(x: .fit, y: .disabled)) {
-                        let interval = DayMath.day(selectedDay)
+                        let interval = DayMath.dayStarting(selectedDay)
                         VStack(alignment: .leading) {
                             Text(selectedDay.formatted(.dateTime.weekday().day().month())).font(.caption.bold())
                             ForEach(projects.filter { $0.tracked(in: interval, now: now) > 0 }) { p in
@@ -133,16 +133,6 @@ struct StatsView: View {
 
     private func categoryColor(_ name: String) -> Color {
         entries.lazy.compactMap { $0.task?.category }.first { $0.name == name }?.color ?? .gray
-    }
-
-    private func daysIn(_ range: DateInterval) -> [Date] {
-        var days: [Date] = []
-        var d = range.start
-        while d < range.end {
-            days.append(d)
-            d = cal.date(byAdding: .day, value: 1, to: d)!
-        }
-        return days
     }
 
     private func shift(_ n: Int) {

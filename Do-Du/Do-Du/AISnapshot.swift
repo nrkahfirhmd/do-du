@@ -42,11 +42,10 @@ struct AISnapshot {
         if loose > 0 { lines.append("- No project (not counted toward targets): \(mins(loose))") }
 
         lines += ["", "Days (verdict | tracked/target per active project):"]
-        var d = calendar.startOfDay(for: range.start)
-        while d < clipped.end {
-            let interval = DayMath.day(d, calendar: calendar)
-            let verdict = Stats.verdict(for: projects, on: d, now: now, calendar: calendar)
-            let parts = projects.filter { $0.isActive(on: d, calendar: calendar) }
+        for d in DayMath.logicalDates(in: clipped, calendar: calendar) {
+            let interval = DayMath.dayStarting(d, calendar: calendar)
+            let verdict = Stats.verdict(for: projects, on: interval.start, now: now, calendar: calendar)
+            let parts = projects.filter { $0.isActive(on: interval.start, calendar: calendar) }
                 .map { "\($0.name) \(Int($0.tracked(in: interval, now: now) / 60))/\($0.dailyTargetMinutes)" }
             let v: String = switch verdict {
             case .enough: "enough"
@@ -54,7 +53,6 @@ struct AISnapshot {
             case .notYet(let r): "not enough (\(mins(r)) short)"
             }
             lines.append("- \(day.string(from: d)): \(v)\(parts.isEmpty ? "" : " | " + parts.joined(separator: ", "))")
-            d = calendar.date(byAdding: .day, value: 1, to: d)!
         }
 
         let open = tasks.filter { !$0.isDone && $0.project?.isArchived == false }

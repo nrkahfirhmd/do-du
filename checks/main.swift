@@ -208,6 +208,21 @@ func checkQuickAddMapping() throws {
     print("✓ quick add mapping")
 }
 
+func checkDayStartHour() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    func d(_ s: String) -> Date { iso.date(from: s)! }
+    // 02:00 Tuesday with a 3:00 day start still belongs to Monday.
+    let late = d("2026-10-13T02:00:00Z")
+    precondition(DayMath.logicalDate(late, calendar: cal, startHour: 3) == d("2026-10-12T00:00:00Z"), "late night → previous day")
+    precondition(DayMath.day(late, calendar: cal, startHour: 3) == DateInterval(start: d("2026-10-12T03:00:00Z"), end: d("2026-10-13T03:00:00Z")), "shifted interval")
+    precondition(DayMath.day(late, calendar: cal, startHour: 0).start == d("2026-10-13T00:00:00Z"), "default midnight")
+    let week = DayMath.period(.weekOfYear, for: late, calendar: cal, startHour: 3)
+    precondition(DayMath.logicalDates(in: week, calendar: cal, startHour: 3).count == 7, "7 days in week")
+    print("✓ day start hour")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -215,4 +230,5 @@ try checkQuickTimer()
 try checkClaudeClient()
 try checkSnapshot()
 try checkQuickAddMapping()
+try checkDayStartHour()
 print("All checks passed")
