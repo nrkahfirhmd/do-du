@@ -80,10 +80,14 @@ struct PlanSheet: View {
         error = nil
         Task {
             do {
+                let events = await CalendarAccess.todayEvents(now: now)
+                var prompt = "\(snapshot.text)\n\n\(DayPlanner.remainingLine(projects: projects, now: now))"
+                if let meetings = DayPlanner.meetingsLine(events.map { ($0.title, $0.start, $0.end) }) {
+                    prompt += "\n\n\(meetings)"
+                }
                 let res = try await ClaudeClient.send(ClaudeRequest(
                     system: DayPlanner.system,
-                    messages: [["role": "user", "content": .string(
-                        "\(snapshot.text)\n\n\(DayPlanner.remainingLine(projects: projects, now: now))\n\nPlan my day.")]],
+                    messages: [["role": "user", "content": .string(prompt + "\n\nPlan my day.")]],
                     effort: "medium",
                     schema: DayPlanner.schema))
                 guard let parsed = DayPlanner.items(from: res.text, openTasks: snapshot.openTasks) else {

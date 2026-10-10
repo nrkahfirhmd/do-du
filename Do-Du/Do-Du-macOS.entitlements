@@ -16,5 +16,7 @@
 	<array>
 		<string>group.com.kv.Do-Du</string>
 	</array>
+	<key>com.apple.security.personal-information.calendars</key>
+	<true/>
 </dict>
 </plist>

@@ -14,6 +14,7 @@ struct TodayView: View {
     @State private var showUnassigned = false
     @State private var showSettings = false
     @State private var planning = false
+    @State private var meetings: [DayEvent] = []
 
     var body: some View {
         // ponytail: recomputes all of today's totals every 5s; cache per-day totals if history gets large.
@@ -25,6 +26,17 @@ struct TodayView: View {
                 Section { RunningTimerBar() }
                 Section { VerdictBanner(verdict: Stats.verdict(for: projects, on: now, now: now)) }
                 PlanSection(now: now)
+                if !meetings.isEmpty {
+                    Section("Schedule") {
+                        ForEach(Array(meetings.enumerated()), id: \.offset) { _, m in
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(m.title).lineLimit(1)
+                                Text("\(m.start.formatted(date: .omitted, time: .shortened)) – \(m.end.formatted(date: .omitted, time: .shortened))")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
                 if !active.isEmpty {
                     Section("Projects") {
                         ForEach(active) { ProjectProgressRow(project: $0, tracked: $0.tracked(in: day, now: now)) }
@@ -61,6 +73,7 @@ struct TodayView: View {
             }
         }
         .navigationTitle("Today")
+        .task { meetings = await CalendarAccess.todayEvents() }
         .sheet(isPresented: $showUnassigned) { UnassignedEntriesView() }
         .sheet(isPresented: $planning) { PlanSheet() }
         .toolbar {

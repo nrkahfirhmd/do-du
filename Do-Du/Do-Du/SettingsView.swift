@@ -53,6 +53,7 @@ struct SettingsView: View {
             CategoriesSection()
             ClaudeKeySection()
             NotionSettingsSection()
+            CalendarSettingsSection()
             Section("Sync") {
                 ICloudStatus()
             }

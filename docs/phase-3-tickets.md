@@ -22,10 +22,11 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 
 ## DD-32 · Apple Calendar, one calendar, read-only — M
 
-- [ ] Settings: pick 1 `EKCalendar`; `NSCalendarsUsageDescription` + Calendar permission.
-- [ ] Today view shows today's events from that calendar.
-- [ ] Plan my day subtracts meeting time from available time.
-- [ ] No writes in v1 (focus-block write-back is a later opt-in).
+- [x] Settings: pick 1 `EKCalendar`; `NSCalendarsFullAccessUsageDescription` (iOS) + usage key (macOS) + `personal-information.calendars` sandbox entitlement.
+- [x] Today view shows today's events from that calendar ("Schedule" section; silent when unconfigured/denied).
+- [x] Plan my day appends meeting time to the prompt (`DayPlanner.meetingsLine`, covered in `checks/run.sh`).
+- [x] No writes in v1.
+- [ ] **Manual:** grant access, pick the calendar, confirm events show in Today and the plan mentions them.
 
 ## DD-33 · App Intents / Shortcuts — S–M
 

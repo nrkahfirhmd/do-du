@@ -320,8 +320,21 @@ func checkSharedStore() throws {
     print("✓ shared store location + migration")
 }
 
-func checkNotion() throws {
+func checkMeetings() throws {
     var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    func d(_ s: String) -> Date { ISO8601DateFormatter().date(from: s)! }
+    precondition(DayPlanner.meetingsLine([]) == nil, "free day")
+    let line = DayPlanner.meetingsLine([
+        (title: "Standup", start: d("2026-10-13T09:00:00Z"), end: d("2026-10-13T09:30:00Z")),
+        (title: "Review", start: d("2026-10-13T14:00:00Z"), end: d("2026-10-13T15:00:00Z")),
+    ])!
+    precondition(line.contains("1h 30m"), "totaled")
+    precondition(line.contains("Standup") || line.contains("09:00"), "lists meetings")
+    print("✓ meetings line")
+}
+
+func checkNotion() throws {    var cal = Calendar(identifier: .gregorian)
     cal.timeZone = TimeZone(identifier: "UTC")!
 
     // Database ID forms.
@@ -401,4 +414,5 @@ try checkCSV()
 try checkIdleStop()
 try checkSharedStore()
 try checkNotion()
+try checkMeetings()
 print("All checks passed")

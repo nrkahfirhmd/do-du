@@ -58,6 +58,16 @@ enum DayPlanner {
         return parts.isEmpty ? "Remaining today: rest day (no active projects)." : "Remaining today: " + parts.joined(separator: ", ")
     }
 
+    /// Meeting context for the prompt. Nil when the day is free.
+    static func meetingsLine(_ events: [(title: String, start: Date, end: Date)]) -> String? {
+        guard !events.isEmpty else { return nil }
+        let total = events.reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }
+        let times = events.map {
+            "\($0.title) \($0.start.formatted(date: .omitted, time: .shortened))–\($0.end.formatted(date: .omitted, time: .shortened))"
+        }.joined(separator: ", ")
+        return "Meetings today: \(total.hoursMinutes) (\(times)). Fit the plan around them."
+    }
+
     /// Maps the model's JSON onto real tasks. Unknown or repeated indexes are dropped; minutes clamped.
     static func items(from text: String, openTasks: [TaskItem]) -> (items: [PlanItem], note: String)? {
         guard let json = try? JSONDecoder().decode(JSON.self, from: Data(text.utf8)),
