@@ -44,7 +44,7 @@ struct CalendarSettingsSection: View {
     }
 
     private func reload() async {
-        status = await CalendarAccess.authorization()
+        status = CalendarAccess.authorization()
         options = await CalendarAccess.calendars()
         if !calendarID.isEmpty && !options.contains(where: { $0.id == calendarID }) {
             calendarID = ""
