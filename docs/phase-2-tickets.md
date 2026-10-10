@@ -61,10 +61,11 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-25 · Plan my day — M
 **Req:** R8 · **Blocked by:** DD-21, DD-22
 
-- [ ] `TaskItem` gains `plannedFor: Date?`, `planOrder: Int`, `plannedMinutes: Int?` (optional, CloudKit-safe).
-- [ ] "Plan my day" on Today → Claude returns structured JSON: ordered task picks with minutes and a one-line reason, plus a short note. Picks reference tasks by index into the list sent; unknown indexes dropped.
-- [ ] Review sheet: accept, reorder, remove items, or discard. Accept writes the plan; nothing written before.
-- [ ] Today shows "Plan" section in order with start buttons; clear plan.
+- [x] `TaskItem` gains `plannedFor: Date?`, `planOrder: Int`, `plannedMinutes: Int?` (optional, CloudKit-safe).
+- [x] "Plan my day" on Today → Claude returns structured JSON: ordered task picks with minutes and a one-line reason, plus a short note. Picks reference tasks by index into the list sent; unknown indexes dropped.
+- [x] Review sheet: accept, reorder, remove items, or discard. Accept writes the plan; nothing written before.
+- [x] Today shows "Plan" section in order with start buttons; clear plan.
+- [ ] **Not yet verified against the live API** — needs your Claude key. No-key path, store migration and JSON mapping verified.
 
 ## DD-26 · Chat over my data — L
 **Req:** R10 · **Blocked by:** DD-21, DD-22

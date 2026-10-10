@@ -68,6 +68,10 @@ final class TaskItem {
     /// Phase 3 integrations (Notion, Reminders, …). Nil for tasks created in Do-Du.
     var externalSource: String?
     var externalID: String?
+    /// Logical date this task is planned for (Plan my day), with its order and minutes.
+    var plannedFor: Date?
+    var planOrder: Int = 0
+    var plannedMinutes: Int?
 
     var project: Project?
     var category: Category?

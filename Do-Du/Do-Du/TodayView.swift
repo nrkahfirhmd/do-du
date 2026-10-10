@@ -13,6 +13,7 @@ struct TodayView: View {
     @Query(filter: #Predicate<TimeEntry> { $0.task == nil && $0.project == nil }) private var unassigned: [TimeEntry]
     @State private var showUnassigned = false
     @State private var showSettings = false
+    @State private var planning = false
 
     var body: some View {
         // ponytail: recomputes all of today's totals every 5s; cache per-day totals if history gets large.
@@ -23,6 +24,7 @@ struct TodayView: View {
             List {
                 Section { RunningTimerBar() }
                 Section { VerdictBanner(verdict: Stats.verdict(for: projects, on: now, now: now)) }
+                PlanSection(now: now)
                 if !active.isEmpty {
                     Section("Projects") {
                         ForEach(active) { ProjectProgressRow(project: $0, tracked: $0.tracked(in: day, now: now)) }
@@ -60,6 +62,12 @@ struct TodayView: View {
         }
         .navigationTitle("Today")
         .sheet(isPresented: $showUnassigned) { UnassignedEntriesView() }
+        .sheet(isPresented: $planning) { PlanSheet() }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Plan My Day", systemImage: "sparkles") { planning = true }
+            }
+        }
         #if !os(macOS)
         // iPhone keeps five tabs; Settings lives here. macOS uses the Settings window.
         .toolbar { Button("Settings", systemImage: "gear") { showSettings = true } }

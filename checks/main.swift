@@ -223,6 +223,26 @@ func checkDayStartHour() throws {
     print("✓ day start hour")
 }
 
+func checkPlanMapping() throws {
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "P")
+    let a = TaskItem(title: "a", project: p), b = TaskItem(title: "b", project: p), old = TaskItem(title: "old", project: p)
+    ctx.insert(p); [a, b, old].forEach(ctx.insert)
+    let json = #"{"items":[{"task":1,"minutes":2000,"reason":"due"},{"task":7,"minutes":30,"reason":"x"},{"task":1,"minutes":30,"reason":"dup"},{"task":0,"minutes":1,"reason":"short"}],"note":"ok"}"#
+    let parsed = DayPlanner.items(from: json, openTasks: [a, b])!
+    precondition(parsed.items.map(\.task) == [b, a], "unknown + duplicate indexes dropped, order kept")
+    precondition(parsed.items.map(\.minutes) == [600, 5], "minutes clamped")
+    precondition(parsed.note == "ok", "note")
+    precondition(DayPlanner.items(from: "not json", openTasks: [a]) == nil, "bad json")
+
+    let now = Date.now
+    old.plannedFor = DayMath.logicalDate(now)
+    DayPlanner.accept(parsed.items, allTasks: [a, b, old], now: now)
+    precondition(old.plannedFor == nil, "previous plan cleared")
+    precondition(b.plannedFor == DayMath.logicalDate(now) && b.planOrder == 0 && a.planOrder == 1 && a.plannedMinutes == 5, "plan written in order")
+    print("✓ plan mapping + accept")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -231,4 +251,5 @@ try checkClaudeClient()
 try checkSnapshot()
 try checkQuickAddMapping()
 try checkDayStartHour()
+try checkPlanMapping()
 print("All checks passed")
