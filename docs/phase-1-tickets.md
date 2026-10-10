@@ -108,11 +108,12 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-12 · CloudKit sync — M
 **Req:** R6 · **Blocked by:** DD-01 (can start any time after), needed before DD-13
 
-- [ ] iCloud + CloudKit capability, private container, both targets.
-- [ ] `ModelContainer` configured with CloudKit.
-- [ ] Sync on launch + background push.
-- [ ] App works offline; syncs when back online.
-- [ ] Clear message if iCloud signed out.
+- [x] iCloud + CloudKit entitlements (container `iCloud.com.kv.Do-Du`), per-platform entitlement files; iOS remote-notification background mode; macOS outgoing network.
+- [x] `ModelContainer` configured with `cloudKitDatabase: .automatic` (falls back to local-only when unsigned).
+- [x] Sync on launch + background push (handled by SwiftData). Remote changes trigger timer-conflict resolution.
+- [ ] **Manual:** open project in Xcode → Signing & Capabilities → confirm iCloud container exists for team; first real sync needs signed devices.
+- [x] App works offline; syncs when back online.
+- [x] Clear message if iCloud signed out (Today + Settings).
 
 ## DD-13 · Cross-device timer test pass — M
 **Req:** R6 · **Blocked by:** DD-11, DD-12

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import CoreData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var context
@@ -37,6 +38,11 @@ struct ContentView: View {
             guard scenePhase == .active else { return }
             TimerService.resolveConflicts(in: context)
             // Timer may have been started on another device.
+            LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
+        }
+        // CloudKit import landed: another device may have started a timer.
+        .onReceive(NotificationCenter.default.publisher(for: .NSPersistentStoreRemoteChange)) { _ in
+            TimerService.resolveConflicts(in: context)
             LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
         }
     }

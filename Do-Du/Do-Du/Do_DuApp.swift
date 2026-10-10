@@ -12,7 +12,9 @@ import SwiftData
 struct Do_DuApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema(allModels)
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        // `.automatic` syncs to the first iCloud container in the entitlements;
+        // without entitlements (e.g. unsigned builds) it stays local-only.
+        let modelConfiguration = ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])

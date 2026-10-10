@@ -16,6 +16,9 @@ struct SettingsView: View {
                         value: $longRunHours, in: 0.5...12, step: 0.5)
             }
             CategoriesSection()
+            Section("Sync") {
+                ICloudStatus()
+            }
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
@@ -73,6 +76,21 @@ struct CategoryEditor: View {
         .onAppear {
             name = category?.name ?? ""
             colorName = category?.colorName ?? Palette.names[0]
+        }
+    }
+}
+
+/// iCloud account state. Data always saves locally; it syncs once signed in.
+struct ICloudStatus: View {
+    var body: some View {
+        if FileManager.default.ubiquityIdentityToken != nil {
+            Label("iCloud sync on", systemImage: "checkmark.icloud")
+        } else {
+            Label {
+                Text("Not signed in to iCloud. Data is saved on this device only; sign in to sync between devices.")
+            } icon: {
+                Image(systemName: "icloud.slash").foregroundStyle(.orange)
+            }
         }
     }
 }

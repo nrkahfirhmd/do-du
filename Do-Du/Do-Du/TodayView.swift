@@ -25,6 +25,9 @@ struct TodayView: View {
                         ForEach(active) { ProjectProgressRow(project: $0, tracked: $0.tracked(in: day, now: now)) }
                     }
                 }
+                if FileManager.default.ubiquityIdentityToken == nil {
+                    Section { ICloudStatus().font(.footnote) }
+                }
                 let due = dueTasks.filter { $0.dueDate! < day.end && $0.project?.isArchived == false }
                 if !due.isEmpty {
                     Section("Due today") {
