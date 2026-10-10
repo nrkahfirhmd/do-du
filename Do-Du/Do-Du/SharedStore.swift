@@ -53,10 +53,17 @@ enum SharedStore {
         return ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
     }
 
-    /// Opens the same store the app uses. Used by Siri/Shortcuts intents.
-    static func container() throws -> ModelContainer {
-        try ModelContainer(for: Schema(allModels), configurations: [modelConfiguration()])
-    }
+    /// The one container for this process: app UI, timers and Siri/Shortcuts intents.
+    /// Never open a second container on this store in the same process: two
+    /// CloudKit-mirrored containers conflict, and objects fetched from one context
+    /// can't be related to objects inserted in another.
+    static let shared: ModelContainer = {
+        do {
+            return try ModelContainer(for: Schema(allModels), configurations: [modelConfiguration()])
+        } catch {
+            fatalError("Could not create ModelContainer: \(error)")
+        }
+    }()
 
     /// Pure move helper: `from` (+ `-wal`/`-shm`) → `to`. Nil when skipped.
     @discardableResult

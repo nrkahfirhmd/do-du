@@ -10,18 +10,8 @@ import SwiftData
 
 @main
 struct Do_DuApp: App {
-    var sharedModelContainer: ModelContainer = {
-        // Group container so the widget extension reads the same store.
-        // Falls back to the default location when the App Group is
-        // unavailable (e.g. unsigned builds).
-        let modelConfiguration = SharedStore.modelConfiguration()
-
-        do {
-            return try ModelContainer(for: Schema(allModels), configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    // Same instance Siri/Shortcuts intents use (App Group store, CloudKit sync).
+    let sharedModelContainer = SharedStore.shared
 
     init() {
         LongRunAlert.register(container: sharedModelContainer)

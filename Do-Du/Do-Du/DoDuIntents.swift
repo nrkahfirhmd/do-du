@@ -106,7 +106,7 @@ private extension TaskItemEntity {
 
 @MainActor
 private func openTasks() -> [TaskItem] {
-    guard let ctx = try? SharedStore.container().mainContext else { return [] }
+    let ctx = SharedStore.shared.mainContext
     return (try? ctx.fetch(FetchDescriptor<TaskItem>(
         predicate: #Predicate { !$0.isDone },
         sortBy: [SortDescriptor(\.createdAt)]))) ?? []
@@ -114,7 +114,7 @@ private func openTasks() -> [TaskItem] {
 
 @MainActor
 private func allProjects() -> [Project] {
-    guard let ctx = try? SharedStore.container().mainContext else { return [] }
+    let ctx = SharedStore.shared.mainContext
     return (try? ctx.fetch(FetchDescriptor<Project>(sortBy: [SortDescriptor(\.createdAt)]))) ?? []
 }
 
@@ -133,7 +133,7 @@ struct StartTimerIntent: AppIntent {
     nonisolated func perform() async throws -> some IntentResult & ProvidesDialog {
         let pid = task.flatMap { TaskItemEntity.pid(from: $0.id) }
         let dialog = await MainActor.run { () -> String in
-            guard let ctx = try? SharedStore.container().mainContext else { return "Couldn't open Do-Du data." }
+            let ctx = SharedStore.shared.mainContext
             var target: TaskItem?
             if let pid {
                 target = openTasks().first { $0.persistentModelID == pid }
@@ -155,7 +155,7 @@ struct StopTimerIntent: AppIntent {
 
     nonisolated func perform() async throws -> some IntentResult & ProvidesDialog {
         let dialog = await MainActor.run { () -> String in
-            guard let ctx = try? SharedStore.container().mainContext else { return "Couldn't open Do-Du data." }
+            let ctx = SharedStore.shared.mainContext
             guard TimerService.current(in: ctx) != nil else { return "No timer is running." }
             TimerService.stop(in: ctx)
             return "Timer stopped."
@@ -179,7 +179,7 @@ struct AddTaskIntent: AppIntent {
         let name = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let pid = project.flatMap { ProjectEntity.pid(from: $0.id) }
         let dialog = await MainActor.run { () -> String in
-            guard let ctx = try? SharedStore.container().mainContext else { return "Couldn't open Do-Du data." }
+            let ctx = SharedStore.shared.mainContext
             guard !name.isEmpty else { return "Give the task a title first." }
             let projects = allProjects()
             guard let chosen = pid.flatMap({ id in projects.first { $0.persistentModelID == id } })
