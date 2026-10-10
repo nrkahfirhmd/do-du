@@ -31,9 +31,10 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] Verified in iOS simulator: Tasks, Projects, Stats, Recap, Chat, task editor, Settings.
 
 ## DD-44 · Mac window — L
-- [ ] NavigationSplitView sidebar (sections, projects with today %, mini timer card), toolbar (Quick Add ⌘K, Plan My Day).
-- [ ] Today two-column (128pt clock hero, verdict card, tiles, Sessions today table, No project row); Tasks tables; Stats; Assistant; Projects grid.
-- [ ] Space starts/stops the timer in the window.
+- [x] NavigationSplitView sidebar (sections, projects with today %, mini timer card), toolbar (Quick Add ⌘K, Plan My Day).
+- [x] Today two-column (128pt clock hero, verdict card, tiles, Sessions today table, No project row); Tasks tables; Stats; Assistant; Projects grid.
+- [x] Space starts/stops the timer in the window.
+- [x] Notes: native title + date subtitle instead of a custom toolbar title; Tasks, Stats, Assistant and Projects reuse the restyled shared views (Projects grid adapts to 4+ columns); Tasks keeps the list layout rather than a multi-column table. Space uses a key-press handler on Today so it never steals spaces from text fields. Verified light + dark via a sandboxed test build.
 
 ## DD-45 · Mac menu-bar panel + global hotkey — M
 - [ ] Panel restyle (hero card, verdict line, Recent, footer). Menu-bar icon stays a static symbol.

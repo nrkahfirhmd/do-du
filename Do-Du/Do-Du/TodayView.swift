@@ -222,7 +222,10 @@ struct ProjectTile: View {
             HStack {
                 Text(project.name).font(.ddHeadlineRounded).lineLimit(1)
                 Spacer(minLength: 8)
-                Text(met ? "DONE ✓" : "\(max(0, target - tracked).hoursMinutes) left").font(.rounded(13, .heavy)).lineLimit(1)
+                // Small (Mac) tiles only flag DONE; there is no room for "… left".
+                if met || ringSize >= 90 {
+                    Text(met ? "DONE ✓" : "\(max(0, target - tracked).hoursMinutes) left").font(.rounded(13, .heavy)).lineLimit(1)
+                }
             }
             ProgressRing(value: value, size: ringSize, thickness: ringSize * 0.115,
                          color: met ? DD.onMint : ringColor,

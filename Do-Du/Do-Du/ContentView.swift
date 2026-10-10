@@ -20,6 +20,9 @@ struct ContentView: View {
     @AppStorage("assistantMode") private var assistantMode = AssistantView.Mode.recap
 
     var body: some View {
+        #if os(macOS)
+        MacRootView().modifier(TimerSync())
+        #else
         TabView(selection: $tab) {
             Tab("Today", systemImage: "sun.max", value: AppTab.today) {
                 NavigationStack { TodayView() }.tint(DD.sage)
@@ -50,6 +53,19 @@ struct ContentView: View {
             }
         }
         #endif
+        .modifier(TimerSync())
+        #endif
+    }
+}
+
+/// Resolves duplicate running timers and reschedules the long-run alert on activation
+/// and when CloudKit imports land.
+struct TimerSync: ViewModifier {
+    @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
+
+    func body(content: Content) -> some View {
+        content
         .onChange(of: scenePhase, initial: true) {
             guard scenePhase == .active else { return }
             TimerService.resolveConflicts(in: context)
