@@ -61,10 +61,10 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-06 · Timer UI + menu bar (macOS) — M
 **Req:** R3 · **Blocked by:** DD-04, DD-05
 
-- [ ] Play/stop button on every task row (1 click).
-- [ ] Running task highlighted in list.
-- [ ] `MenuBarExtra`: running task name + elapsed, stop button, quick-start from recent tasks.
-- [ ] Keyboard shortcut to stop current timer.
+- [x] Play/stop button on every task row (1 click).
+- [x] Running task highlighted in list.
+- [x] `MenuBarExtra`: running task name + elapsed, stop button, quick-start from recent tasks.
+- [x] Keyboard shortcut to stop current timer (⌘. in Timer menu).
 
 ## DD-07 · Manual time entries — M
 **Req:** R3 · **Blocked by:** DD-05

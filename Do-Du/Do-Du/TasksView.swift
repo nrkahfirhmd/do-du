@@ -124,7 +124,9 @@ struct TaskRow: View {
                 .foregroundStyle(.secondary)
             }
             Spacer()
+            if !task.isDone { TimerButton(task: task) }
         }
+        .listRowBackground(task.isRunning ? Color.accentColor.opacity(0.12) : nil)
     }
 }
 

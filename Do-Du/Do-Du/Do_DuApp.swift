@@ -26,8 +26,21 @@ struct Do_DuApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+        .commands {
+            CommandMenu("Timer") {
+                Button("Stop Timer") { TimerService.stop(in: sharedModelContainer.mainContext) }
+                    .keyboardShortcut(".", modifiers: .command)
+            }
+        }
 
         #if os(macOS)
+        MenuBarExtra {
+            MenuBarPanel().modelContainer(sharedModelContainer)
+        } label: {
+            MenuBarLabel().modelContainer(sharedModelContainer)
+        }
+        .menuBarExtraStyle(.window)
+
         Settings {
             SettingsView()
         }
