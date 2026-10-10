@@ -70,10 +70,11 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-26 · Chat over my data — L
 **Req:** R10 · **Blocked by:** DD-21, DD-22
 
-- [ ] Assistant tab → Chat. Conversation in memory only (not synced).
-- [ ] Read-only client tools: `time_summary(start, end, group_by)`, `list_tasks(status, project, due_before)`, `day_verdicts(start, end)`. Results computed locally.
-- [ ] Tool-use loop with a step cap; errors returned as `is_error` tool results.
-- [ ] No write tools in v1 (spec: writes need confirmation; none needed yet).
+- [x] Assistant tab → Recap | Chat switch → Chat. Conversation in memory only (not synced).
+- [x] Read-only client tools: `time_summary(start, end, group_by)`, `list_tasks(status, project, due_before)`, `day_verdicts(start, end)`. Results computed locally.
+- [x] Tool-use loop with a step cap; errors returned as `is_error` tool results.
+- [x] No write tools in v1 (spec: writes need confirmation; none needed yet).
+- [ ] **Not yet verified against the live API** — needs your Claude key. Tools verified by `checks/run.sh`; UI verified in simulator.
 
 ## DD-27 · Day start hour — S
 **Req:** P1 · **Blocked by:** —

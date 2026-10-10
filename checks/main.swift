@@ -243,6 +243,38 @@ func checkPlanMapping() throws {
     print("✓ plan mapping + accept")
 }
 
+func checkChatTools() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    func d(_ s: String) -> Date { iso.date(from: s)! }
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "Do-Du", dailyTargetMinutes: 60, activeWeekdaysMask: Weekdays.all), c = Category(name: "Deep Work")
+    let t = TaskItem(title: "Spec", project: p, category: c)
+    t.dueDate = d("2026-10-13T00:00:00Z")
+    ctx.insert(p); ctx.insert(c); ctx.insert(t)
+    ctx.insert(TimeEntry(task: t, start: d("2026-10-12T09:00:00Z"), end: d("2026-10-12T10:00:00Z")))
+    ctx.insert(TimeEntry(task: nil, start: d("2026-10-12T11:00:00Z"), end: d("2026-10-12T11:30:00Z")))
+    try ctx.save()
+    let tools = ChatTools(projects: [p], entries: try ctx.fetch(FetchDescriptor<TimeEntry>()), tasks: [t],
+                          now: d("2026-10-13T12:00:00Z"), calendar: cal)
+    func call(_ name: String, _ input: JSON) -> (result: String, isError: Bool) { tools.run(ToolUse(id: "x", name: name, input: input)) }
+
+    let byProject = call("time_summary", ["start": "2026-10-12", "end": "2026-10-12", "group_by": "project"])
+    precondition(!byProject.isError && byProject.result == "Do-Du: 60m\nNo project: 30m\nTotal: 90m", "by project")
+    let byCat = call("time_summary", ["start": "2026-10-12", "end": "2026-10-13", "group_by": "category"])
+    precondition(byCat.result.contains("Deep Work: 60m") && byCat.result.contains("Uncategorized: 30m"), "by category")
+    let byDay = call("time_summary", ["start": "2026-10-12", "end": "2026-10-13", "group_by": "day"])
+    precondition(byDay.result == "2026-10-12: 90m\n2026-10-13: 0m", "by day")
+    let verdicts = call("day_verdicts", ["start": "2026-10-12", "end": "2026-10-14"])
+    precondition(verdicts.result == "2026-10-12: enough | Do-Du 60/60\n2026-10-13: not enough (60m short) | Do-Du 0/60", "verdicts, future skipped")
+    let list = call("list_tasks", ["status": "open", "project": "do-du", "due_before": "2026-10-13"])
+    precondition(list.result == "Spec · Do-Du · Deep Work · due 2026-10-13", "list tasks")
+    precondition(call("time_summary", ["start": "bad", "end": "2026-10-12", "group_by": "day"]).isError, "bad date is_error")
+    precondition(call("delete_everything", [:]).isError, "unknown tool")
+    print("✓ chat tools")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -252,4 +284,5 @@ try checkSnapshot()
 try checkQuickAddMapping()
 try checkDayStartHour()
 try checkPlanMapping()
+try checkChatTools()
 print("All checks passed")

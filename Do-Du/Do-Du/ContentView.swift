@@ -22,7 +22,7 @@ struct ContentView: View {
                 NavigationStack { TasksView() }
             }
             Tab("Assistant", systemImage: "sparkles") {
-                NavigationStack { RecapView() }
+                NavigationStack { AssistantView() }
             }
             Tab("Stats", systemImage: "chart.bar") {
                 NavigationStack { StatsView() }
