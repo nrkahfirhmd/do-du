@@ -42,7 +42,9 @@ enum JSON: Codable, Equatable, ExpressibleByStringLiteral, ExpressibleByIntegerL
     }
 
     subscript(key: String) -> JSON? { if case .object(let o) = self { o[key] } else { nil } }
+    var object: [String: JSON]? { if case .object(let o) = self { o } else { nil } }
     var string: String? { if case .string(let s) = self { s } else { nil } }
+    var bool: Bool? { if case .bool(let b) = self { b } else { nil } }
     var int: Int? { if case .number(let n) = self { Int(n) } else { nil } }
     var array: [JSON]? { if case .array(let a) = self { a } else { nil } }
 

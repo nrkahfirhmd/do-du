@@ -320,6 +320,73 @@ func checkSharedStore() throws {
     print("✓ shared store location + migration")
 }
 
+func checkNotion() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+
+    // Database ID forms.
+    let plain = "a1b2c3d4e5f60718293a4b5c6d7e8f90"
+    precondition(NotionClient.normalizeDatabaseID(plain) == plain, "bare id")
+    precondition(NotionClient.normalizeDatabaseID("a1b2c3d4-e5f6-0718-293a-4b5c6d7e8f90") == plain, "hyphenated")
+    precondition(NotionClient.normalizeDatabaseID("https://www.notion.so/My-Tasks-\(plain)?v=deadbeefdeadbeefdeadbeefdeadbeef") == plain, "url")
+    precondition(NotionClient.normalizeDatabaseID("xyz") == "", "garbage rejected")
+
+    // Request body + error mapping.
+    let body = NotionClient.queryBody(cursor: nil)
+    precondition(body["page_size"]?.int == 100 && body["start_cursor"] == nil, "first page")
+    precondition(NotionClient.queryBody(cursor: "c")["start_cursor"]?.string == "c", "cursor")
+    precondition(NotionClient.error(status: 401, json: ["code": "unauthorized"]) == .badToken, "401")
+    precondition(NotionClient.error(status: 404, json: ["code": "object_not_found"]) == .notFound, "404")
+    precondition(NotionClient.error(status: 429, json: ["code": "rate_limited"]) == .rateLimited, "429")
+
+    // Response with checkbox, status, date and select schemas.
+    let data = Data("""
+        {"has_more": true, "next_cursor": "next",
+         "results": [
+          {"id": "p1", "properties": {
+            "Name": {"type": "title", "title": [{"plain_text": "Write spec"}]},
+            "Done": {"type": "checkbox", "checkbox": true},
+            "Due": {"type": "date", "date": {"start": "2026-10-15"}},
+            "Project": {"type": "select", "select": {"name": "Do-Du"}}}},
+          {"id": "p2", "properties": {
+            "Title": {"type": "title", "title": [{"plain_text": "Ship "}, {"plain_text": "it"}]},
+            "State": {"type": "status", "status": {"name": "In progress"}},
+            "When": {"type": "date", "date": {"start": "2026-10-15T09:00:00.000Z"}}}},
+          {"id": "p3", "properties": {
+            "Name": {"type": "title", "title": []},
+            "Done": {"type": "checkbox", "checkbox": true}}}]}
+        """.utf8)
+    let result = try NotionClient.parse(data, calendar: cal)
+    precondition(result.nextCursor == "next", "pagination cursor")
+    precondition(result.pages.count == 2, "empty title skipped")
+    let first = result.pages[0]
+    precondition(first.title == "Write spec" && first.isDone && first.projectName == "Do-Du", "checkbox row")
+    precondition(first.dueDate == cal.date(from: DateComponents(year: 2026, month: 10, day: 15)), "date-only due")
+    let second = result.pages[1]
+    precondition(second.title == "Ship it" && !second.isDone && second.projectName == nil, "status row")
+
+    // Apply: insert new, refresh linked, skip unknown project.
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "Do-Du")
+    let old = TaskItem(title: "Stale", project: p)
+    old.externalSource = "notion"; old.externalID = "p1"
+    ctx.insert(p); ctx.insert(old)
+    let drafts = [
+        ExternalDraft(source: "notion", externalID: "p1", title: "Write spec", isDone: true,
+                      dueDate: cal.date(from: DateComponents(year: 2026, month: 10, day: 15)), projectName: "Do-Du"),
+        ExternalDraft(source: "notion", externalID: "p2", title: "Ship it", isDone: false,
+                      dueDate: nil, projectName: "do-du"),
+        ExternalDraft(source: "notion", externalID: "p9", title: "Orphan", isDone: false,
+                      dueDate: nil, projectName: "Unknown"),
+    ]
+    let r = NotionClient.apply(drafts, projects: [p], in: ctx)
+    precondition(r == (1, 1, 1), "inserted, updated, skipped")
+    precondition(old.title == "Write spec" && old.isDone && old.completedAt != nil, "linked refreshed")
+    let fresh = (try ctx.fetch(FetchDescriptor<TaskItem>())).first { $0.externalID == "p2" }
+    precondition(fresh?.project === p && fresh?.isDone == false, "case-insensitive project match")
+    print("✓ notion import")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -333,4 +400,5 @@ try checkChatTools()
 try checkCSV()
 try checkIdleStop()
 try checkSharedStore()
+try checkNotion()
 print("All checks passed")

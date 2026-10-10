@@ -52,6 +52,7 @@ struct SettingsView: View {
             .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
             CategoriesSection()
             ClaudeKeySection()
+            NotionSettingsSection()
             Section("Sync") {
                 ICloudStatus()
             }

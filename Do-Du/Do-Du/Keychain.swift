@@ -51,3 +51,11 @@ enum ClaudeKey {
     static func save(_ key: String) -> Bool { !key.isEmpty && Keychain.save(key, for: account) }
     static func remove() { Keychain.delete(account) }
 }
+
+enum NotionKey {
+    private static let account = "notion-token"
+    static var current: String? { Keychain.read(account) }
+    static var masked: String? { current.map { "…" + $0.suffix(4) } }
+    static func save(_ key: String) -> Bool { !key.isEmpty && Keychain.save(key, for: account) }
+    static func remove() { Keychain.delete(account) }
+}
