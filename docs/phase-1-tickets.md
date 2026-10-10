@@ -69,9 +69,9 @@ One place that owns start/stop. Views never write `TimeEntry` directly.
 ## DD-07 · Manual time entries — M
 **Req:** R3 · **Blocked by:** DD-05
 
-- [ ] Per-task entry list: add, edit, delete.
-- [ ] Validation: `end > start`; reject overlap with other entries, show which entry conflicts.
-- [ ] Cannot set `end` on running entry into the future.
+- [x] Per-task entry list: add, edit, delete.
+- [x] Validation: `end > start`; reject overlap with other entries, show which entry conflicts.
+- [x] Running entry: only start is editable (stop via timer). No entry may end in the future.
 
 ## DD-08 · Long-run warning — S
 **Req:** R3 · **Blocked by:** DD-05

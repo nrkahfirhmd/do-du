@@ -17,6 +17,7 @@ struct TasksView: View {
     @State private var dueTodayOnly = false
     @State private var creating = false
     @State private var editing: TaskItem?
+    @State private var entriesFor: TaskItem?
 
     var body: some View {
         List {
@@ -30,11 +31,13 @@ struct TasksView: View {
                                 .onTapGesture(count: 2) { editing = task }
                                 .contextMenu {
                                     Button("Edit") { editing = task }
+                                    Button("Time Entries…") { entriesFor = task }
                                     Button("Delete", role: .destructive) { context.delete(task) }
                                 }
                                 .swipeActions {
                                     Button("Delete", role: .destructive) { context.delete(task) }
                                     Button("Edit") { editing = task }
+                                    Button("Time") { entriesFor = task }.tint(.orange)
                                 }
                         }
                     } header: {
@@ -66,6 +69,7 @@ struct TasksView: View {
         }
         .sheet(isPresented: $creating) { TaskEditor(task: nil) }
         .sheet(item: $editing) { TaskEditor(task: $0) }
+        .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
     }
 
     private var hasFilter: Bool { status != .open || categoryFilter != nil || dueTodayOnly }
