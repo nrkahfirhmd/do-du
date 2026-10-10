@@ -12,6 +12,8 @@
 - **Self-checks:** `checks/run.sh` compiles core files (models, `DayMath`, `Stats`, `TimerService`) with `checks/main.swift` and runs assertions. Run it whenever core logic changes. No XCTest target yet.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
+- **Claude calls** go through `ClaudeClient` (raw HTTPS; no Swift SDK). Keep each feature's system prompt stable (it's cached) and put changing data in the user message. Echo assistant `content` back unchanged in tool loops. Send Claude an `AISnapshot` or tool results, never raw store dumps.
+- **Day boundaries:** always use `DayMath.day` / `logicalDate` / `period` (they honour the "day starts at" setting); never `Calendar.startOfDay` for stats.
 - **Sync:** SwiftData + CloudKit (private database). No custom backend.
 - **Single user.** No auth, no accounts, no multi-tenant logic.
 - **Build in phase order** (see [Timeline](#timeline--phasing)). Do not start integrations before core loop works.
