@@ -120,15 +120,11 @@ struct MenuBarLabel: View {
     @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
     private var running: [TimeEntry]
 
+    // Keep the status-item label a single static symbol. A ticking HStack (icon +
+    // TimelineView text) here froze the app at launch while AppKit sized the status item.
+    // The live elapsed time lives in the menu bar panel instead.
     var body: some View {
-        if let entry = running.first {
-            HStack(spacing: 4) {
-                Image(systemName: "timer")
-                ElapsedText(start: entry.start)
-            }
-        } else {
-            Image(systemName: "checklist")
-        }
+        Image(systemName: running.isEmpty ? "checklist" : "timer")
     }
 }
 
