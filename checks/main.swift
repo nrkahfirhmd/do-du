@@ -448,6 +448,37 @@ func checkRemindersImport() throws {
     print("✓ reminders import")
 }
 
+func checkDesignFoundation() throws {
+    // Palette: old names land on redesign swatches; new names pass through.
+    precondition(Palette.canonical("blue") == "forest" && Palette.canonical("green") == "sage", "old names")
+    precondition(Palette.canonical("orange") == "pine" && Palette.canonical("purple") == "slate", "old names 2")
+    precondition(Palette.names.allSatisfy { Palette.canonical($0) == $0 }, "new names stable")
+    precondition(Palette.canonical("nonsense") == "forest", "unknown → forest")
+
+    // Session strip: 4h window ending at the next full hour.
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    func d(_ s: String) -> Date { iso.date(from: s)! }
+    let now = d("2026-10-12T09:30:00Z")
+    let w = SessionTimeline.window(now: now, calendar: cal)
+    precondition(w.start == d("2026-10-12T06:00:00Z") && w.end == d("2026-10-12T10:00:00Z"), "window")
+    precondition(SessionTimeline.labels(for: w, calendar: cal) == ["6:00", "7:00", "8:00", "9:00", "10:00"], "labels")
+    precondition(SessionTimeline.nowFraction(now, window: w) == 0.875, "now line")
+    let blocks = SessionTimeline.blocks([
+        (d("2026-10-12T05:00:00Z"), d("2026-10-12T07:00:00Z"), "A"),   // clipped at window start
+        (d("2026-10-12T08:00:00Z"), d("2026-10-12T08:30:00Z"), nil),   // No project
+        (d("2026-10-12T09:00:00Z"), nil, "B"),                         // live, ends at now
+        (d("2026-10-12T03:00:00Z"), d("2026-10-12T04:00:00Z"), "A"),   // outside → dropped
+    ], window: w, now: now, projectOrder: ["A", "B"])
+    precondition(blocks == [
+        SessionBlock(start: 0, end: 0.25, projectRank: 0, isLive: false),
+        SessionBlock(start: 0.5, end: 0.625, projectRank: nil, isLive: false),
+        SessionBlock(start: 0.75, end: 0.875, projectRank: 1, isLive: true),
+    ], "blocks")
+    print("✓ design palette + session strip")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -465,4 +496,5 @@ try checkNotion()
 try checkMeetings()
 try checkIntents()
 try checkRemindersImport()
+try checkDesignFoundation()
 print("All checks passed")

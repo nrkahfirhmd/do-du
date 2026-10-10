@@ -18,11 +18,11 @@ struct ColorChoice: View {
                         Circle()
                             .fill(Palette.color(name))
                             .frame(width: 18, height: 18)
-                            .overlay { if selection == name { Circle().stroke(.primary, lineWidth: 2).padding(-3) } }
+                            .overlay { if Palette.canonical(selection) == name { Circle().stroke(.primary, lineWidth: 2).padding(-3) } }
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(name)
-                    .accessibilityAddTraits(selection == name ? .isSelected : [])
+                    .accessibilityAddTraits(Palette.canonical(selection) == name ? .isSelected : [])
                 }
             }
         }

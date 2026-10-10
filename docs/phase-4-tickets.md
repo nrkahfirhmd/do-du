@@ -9,10 +9,10 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 ---
 
 ## DD-40 · Design foundation + dark mode — M
-- [ ] `DesignSystem.swift`: colour roles (light from handoff, dark adapted), rounded type scale, radii, motion, Reduce Motion handling.
-- [ ] Project palette: map existing `colorName` values onto forest, sage, `#5E9C8C`, `#9CC4B6`, `#2F6B5D`, `#8B93A7` (no data change).
-- [ ] Shared pieces: Chip, ProgressRing, StatTile, SessionStrip, RecordButton, highlight tag, sheet chrome.
-- [ ] Self-check: palette mapping, session-strip layout math.
+- [x] `DesignSystem.swift`: colour roles (light from handoff, dark adapted), rounded type scale, radii, motion, Reduce Motion handling.
+- [x] Project palette: map existing `colorName` values onto forest, sage, `#5E9C8C`, `#9CC4B6`, `#2F6B5D`, `#8B93A7` (no data change).
+- [x] Shared pieces: StatusChip, ProjectChip, ProgressRing, StatTile, SessionStripView, RecordButton (breathing ring), DDIconButton, highlight tag. (Sheet chrome moves to DD-43.)
+- [x] Self-check: palette mapping, session-strip layout math.
 
 ## DD-41 · iPhone Today record screen — L
 - [ ] Timer hero (idle / recording): chips, title, 84pt clock, three stats, session strip, record button flanked by Switch + Plan.

@@ -26,6 +26,9 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | **Redesign** (handoff in `docs/design_handoff_dodu_app/`, git-ignored): timer-first Today, forest/sage/mint palette, SF Rounded numbers. Tokens live in `DesignSystem.swift` (`DD`); shared views in `DesignComponents.swift` | High-fidelity handoff; one source for tokens |
+| 2026-10-11 | **Dark mode** adapted from the light tokens: brand hues kept, neutrals inverted, text on mint always forest (`DD.onMint`); forest splits into `DD.forest` (ink) and `DD.forestFill` (surfaces) | Handoff defines light only |
+| 2026-10-11 | Project colours are six named swatches (`forest`, `sage`, `moss`, `seafoam`, `pine`, `slate`); old names map via `Palette.canonical` | New palette without a data migration |
 | 2026-10-10 | Reminders import maps each **list name → project** (case-insensitive, never auto-created); links by `calendarItemExternalIdentifier` | Lists are how people already group reminders; external ID keeps one link across devices |
 | 2026-10-10 | All imports share one `TaskSource` path: finished items aren't offered as new; linked tasks refresh title/done/due on every import | Same rules everywhere; fixed linked rows never refreshing |
 | 2026-10-10 | Usage strings set as `INFOPLIST_KEY_*` build settings, using **full-access** keys (`NSCalendarsFullAccessUsageDescription`, `NSRemindersFullAccessUsageDescription`) | `requestFullAccessTo…` needs them; one place for both platforms |
@@ -59,6 +62,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 - **Data store:** always use `SharedStore.shared` (App Group store, CloudKit). Never create another `ModelContainer` in the app process; the widget opens the store read-only in its own process.
 - **Self-checks:** `checks/run.sh` compiles the pure/core files listed in it with `checks/main.swift` and runs assertions. Add a check for new logic and add new core files to the list. No XCTest target.
 - **Integrations** plug in as a `TaskSource` (`TaskSource.swift`) and import through `ExternalImportSheet<Source>`; don't touch core models for a new source.
+- **Visuals:** use `DD` tokens and `DesignComponents` views; never hard-code colours. Text on mint uses `DD.onMint`. Check light and dark.
 - **Privacy strings:** add `INFOPLIST_KEY_*` build settings on the `Do-Du` target (both configs), not per-platform plist files.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
@@ -69,7 +73,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 - Models: `Project`, `Category`, `TaskItem`, `TimeEntry` in `Models.swift`. Model is `TaskItem`, not `Task`, to avoid clashing with Swift concurrency `Task`. Keep them CloudKit-compatible (defaults on every property, optional relationships, no `.unique`).
 - Secrets (API keys, OAuth tokens) go in Keychain, never in SwiftData or source.
 - **AI (hybrid):** Apple Foundation Models (on-device) for natural-language task input (R7). Claude API (`claude-opus-5-5`, Anthropic's default model; one constant in `ClaudeClient`) for plan, recap, chat (R8–R10). User's Claude API key stored in Keychain.
-- **Tickets:** [phase-1](phase-1-tickets.md), [phase-2](phase-2-tickets.md), [phase-3](phase-3-tickets.md). Tick checkboxes as work lands; ticket files are the source of truth for status (the requirement checkboxes in this spec are scope, not status).
+- **Tickets:** [phase-1](phase-1-tickets.md), [phase-2](phase-2-tickets.md), [phase-3](phase-3-tickets.md), [phase-4 redesign](phase-4-tickets.md). Tick checkboxes as work lands; ticket files are the source of truth for status (the requirement checkboxes in this spec are scope, not status).
 
 ### Commit Guide
 

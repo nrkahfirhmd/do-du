@@ -29,7 +29,7 @@ struct TodayWidgetEntry: TimelineEntry {
 struct TodayWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> TodayWidgetEntry {
         TodayWidgetEntry(date: .now, title: "Not yet", subtitle: "1h 30m left across your projects.",
-                         rows: [TodayWidgetEntry.Row(name: "Do-Du", tracked: 3600, target: 10800, colorName: "blue")],
+                         rows: [TodayWidgetEntry.Row(name: "Do-Du", tracked: 3600, target: 10800, colorName: "forest")],
                          needsSetup: false)
     }
 

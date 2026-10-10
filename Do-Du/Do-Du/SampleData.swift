@@ -14,10 +14,10 @@ enum SampleData {
         guard UserDefaults.standard.bool(forKey: "seedSampleData"),
               (try? context.fetchCount(FetchDescriptor<Project>())) == 0 else { return }
 
-        let deep = Category(name: "Deep Work", colorName: "purple")
-        let admin = Category(name: "Admin", colorName: "gray")
-        let dodu = Project(name: "Do-Du", colorName: "blue", dailyTargetMinutes: 180, activeWeekdaysMask: Weekdays.all)
-        let client = Project(name: "Client X", colorName: "orange", dailyTargetMinutes: 120, activeWeekdaysMask: Weekdays.all)
+        let deep = Category(name: "Deep Work", colorName: "sage")
+        let admin = Category(name: "Admin", colorName: "slate")
+        let dodu = Project(name: "Do-Du", colorName: "forest", dailyTargetMinutes: 180, activeWeekdaysMask: Weekdays.all)
+        let client = Project(name: "Client X", colorName: "moss", dailyTargetMinutes: 120, activeWeekdaysMask: Weekdays.all)
         [deep, admin].forEach(context.insert)
         [dodu, client].forEach(context.insert)
 
