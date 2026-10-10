@@ -15,9 +15,10 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] Self-check: palette mapping, session-strip layout math.
 
 ## DD-41 · iPhone Today record screen — L
-- [ ] Timer hero (idle / recording): chips, title, 84pt clock, three stats, session strip, record button flanked by Switch + Plan.
-- [ ] **New behaviour:** Switch menu (switch task or project while running).
-- [ ] Verdict strip with ring + highlighted sentence; two-column project tiles (mint when met); No project row; Due today.
+- [x] Timer hero (idle / recording): chips, title, 84pt clock, three stats, session strip, record button flanked by Switch + Plan.
+- [x] **New behaviour:** Switch menu (switch task or project while running).
+- [x] Verdict strip with ring + highlighted sentence; two-column project tiles (mint when met); No project row; Due today.
+- [x] Verified in iOS simulator: recording + idle, light + dark, Switch menu (idle picks the quick-session project; running switches). Existing Plan, Schedule and iCloud notice kept below the tiles.
 
 ## DD-42 · iPhone shell — M
 - [ ] Tab bar styling (forest selection); Settings gear on Today.

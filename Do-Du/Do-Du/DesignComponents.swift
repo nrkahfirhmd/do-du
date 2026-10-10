@@ -140,7 +140,7 @@ struct SessionStripView: View {
                             .padding(.vertical, 4)
                             .offset(x: b.start * w)
                     }
-                    Rectangle().fill(onDark ? DD.mint : DD.forestFill)
+                    Rectangle().fill(onDark ? DD.mint : DD.forest)
                         .frame(width: 2)
                         .offset(x: min(w - 2, now * w))
                 }
@@ -163,7 +163,7 @@ struct SessionStripView: View {
 
     private func color(_ b: SessionBlock) -> Color {
         if b.isLive { return DD.mint }
-        let base: Color = onDark ? .white : DD.forestFill
+        let base: Color = onDark ? .white : DD.forest
         switch b.projectRank {
         case nil: return base.opacity(0.22)
         case 0: return base
