@@ -1,5 +1,5 @@
 //
-//  DoDuWidgetBundle.swift
+//  Do-DuWidgetBundle.swift
 //  Do-Du
 //
 

@@ -14,7 +14,7 @@
 		77CC1DC43F894F3C191E5B8D /* Stats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C0F4767AD6B165B3D3AC91 /* Stats.swift */; };
 		99A6A7CBC0AF8EB024F6DDA4 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76542EFE317F12117EB94944 /* SharedStore.swift */; };
 		9DF88CABEDD1F35830335E05 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96257A3703B584B4467BF345 /* Models.swift */; };
-		C1AF51EA689F132CA8D05D3E /* DoDuWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650F4F8ECDA56F7E9C30313 /* DoDuWidgetBundle.swift */; };
+		C1AF51EA689F132CA8D05D3E /* Do-DuWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,7 +50,7 @@
 		CC95D978307A3F3B00E2933C /* Do-Du.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Do-Du.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D06CE9163C07A4ACF0CFB2D3 /* DayMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DayMath.swift; path = "Do-Du/DayMath.swift"; sourceTree = "<group>"; };
 		EF31CB8C4E5A86AA1199EC25 /* TimerActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimerActivity.swift; path = "Do-Du/TimerActivity.swift"; sourceTree = "<group>"; };
-		F650F4F8ECDA56F7E9C30313 /* DoDuWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DoDuWidgetBundle.swift; sourceTree = "<group>"; };
+		F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Do-DuWidgetBundle.swift"; path = "Do-DuWidgetBundle.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -92,7 +92,7 @@
 				CC95D97A307A3F3B00E2933C /* Do-Du */,
 				CC95D979307A3F3B00E2933C /* Products */,
 				91F3644E345973BD61D48312 /* Frameworks */,
-				E3968A7E5BA6000300644124 /* DoDuWidget */,
+				E3968A7E5BA6000300644124 /* Do-DuWidget */,
 				96257A3703B584B4467BF345 /* Models.swift */,
 				D06CE9163C07A4ACF0CFB2D3 /* DayMath.swift */,
 				99C0F4767AD6B165B3D3AC91 /* Stats.swift */,
@@ -110,14 +110,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E3968A7E5BA6000300644124 /* DoDuWidget */ = {
+		E3968A7E5BA6000300644124 /* Do-DuWidget */ = {
 			isa = PBXGroup;
 			children = (
-				F650F4F8ECDA56F7E9C30313 /* DoDuWidgetBundle.swift */,
+				F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */,
 				BAE7BB302BDBBFF9D6C01410 /* TodayWidget.swift */,
 			);
-			name = DoDuWidget;
-			path = DoDuWidget;
+			name = "Do-DuWidget";
+			path = "Do-DuWidget";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -220,7 +220,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C1AF51EA689F132CA8D05D3E /* DoDuWidgetBundle.swift in Sources */,
+				C1AF51EA689F132CA8D05D3E /* Do-DuWidgetBundle.swift in Sources */,
 				61110CDD4F1CAC95ECBD9F29 /* TodayWidget.swift in Sources */,
 				9DF88CABEDD1F35830335E05 /* Models.swift in Sources */,
 				37C8FB885FA9802376585F13 /* DayMath.swift in Sources */,
@@ -252,7 +252,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = DoDuWidget/DoDuWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Do-DuWidget/Do-DuWidget.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 84L3QCBHMU;
@@ -280,7 +280,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = DoDuWidget/DoDuWidget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Do-DuWidget/Do-DuWidget.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 84L3QCBHMU;
