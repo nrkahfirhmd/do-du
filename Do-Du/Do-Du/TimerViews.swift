@@ -111,6 +111,41 @@ struct RunningTimerBar: View {
     }
 }
 
+/// Mini timer above the tab bar: pulsing dot, title, clock, Stop. Tap opens Today.
+struct TimerAccessory: View {
+    let entry: TimeEntry
+    let open: () -> Void
+    @Environment(\.modelContext) private var context
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dim = false
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Circle().fill(DD.mint).frame(width: 8, height: 8).opacity(dim ? 0.35 : 1)
+            Text(entry.title).font(.subheadline.weight(.semibold)).foregroundStyle(DD.ink).lineLimit(1)
+            Spacer(minLength: 4)
+            ElapsedText(start: entry.start).font(.rounded(17, .semibold)).foregroundStyle(DD.forest)
+            Button { TimerService.stop(in: context) } label: {
+                RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(.white)
+                    .frame(width: 11, height: 11)
+                    .frame(width: 40, height: 40)
+                    .background(DD.forestFill, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Stop timer")
+        }
+        .padding(.leading, 18).padding(.trailing, 6)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: open)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Opens Today")
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { dim = true }
+        }
+    }
+}
+
 extension TaskItem {
     var isRunning: Bool { entries?.contains(where: \.isRunning) ?? false }
 }

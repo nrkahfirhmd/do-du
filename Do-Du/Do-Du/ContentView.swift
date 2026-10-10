@@ -9,29 +9,44 @@ import SwiftUI
 import SwiftData
 import CoreData
 
+enum AppTab: Hashable { case today, tasks, assistant, stats, projects }
+
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
+    @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
+    private var running: [TimeEntry]
+    @State private var tab = AppTab.today
 
     var body: some View {
-        TabView {
-            Tab("Today", systemImage: "sun.max") {
-                NavigationStack { TodayView() }
+        TabView(selection: $tab) {
+            Tab("Today", systemImage: "sun.max", value: AppTab.today) {
+                NavigationStack { TodayView() }.tint(DD.sage)
             }
-            Tab("Tasks", systemImage: "checklist") {
-                NavigationStack { TasksView() }
+            Tab("Tasks", systemImage: "checklist", value: AppTab.tasks) {
+                NavigationStack { TasksView() }.tint(DD.sage)
             }
-            Tab("Assistant", systemImage: "sparkles") {
-                NavigationStack { AssistantView() }
+            Tab("Assistant", systemImage: "sparkles", value: AppTab.assistant) {
+                NavigationStack { AssistantView() }.tint(DD.sage)
             }
-            Tab("Stats", systemImage: "chart.bar") {
-                NavigationStack { StatsView() }
+            Tab("Stats", systemImage: "chart.bar", value: AppTab.stats) {
+                NavigationStack { StatsView() }.tint(DD.sage)
             }
-            Tab("Projects", systemImage: "folder") {
-                NavigationStack { ProjectsView() }
+            Tab("Projects", systemImage: "folder", value: AppTab.projects) {
+                NavigationStack { ProjectsView() }.tint(DD.sage)
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+        // Selected tab in forest; content keeps sage links.
+        .tint(DD.forest)
+        #if os(iOS)
+        // Running timer stays visible and stoppable on every tab except Today.
+        .tabViewBottomAccessory(isEnabled: running.first != nil && tab != .today) {
+            if let entry = running.first {
+                TimerAccessory(entry: entry) { tab = .today }
+            }
+        }
+        #endif
         .onChange(of: scenePhase, initial: true) {
             guard scenePhase == .active else { return }
             TimerService.resolveConflicts(in: context)

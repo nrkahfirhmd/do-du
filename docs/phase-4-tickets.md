@@ -21,8 +21,8 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] Verified in iOS simulator: recording + idle, light + dark, Switch menu (idle picks the quick-session project; running switches). Existing Plan, Schedule and iCloud notice kept below the tiles.
 
 ## DD-42 · iPhone shell — M
-- [ ] Tab bar styling (forest selection); Settings gear on Today.
-- [ ] **New behaviour:** timer accessory above the tab bar on every tab except Today (tap → Today, Stop).
+- [x] Tab bar styling: native Liquid Glass tab bar tinted forest (system pill, not a solid forest capsule — system bar can't be restyled; handoff says keep native controls). Settings gear on Today.
+- [x] **New behaviour:** timer accessory via native `tabViewBottomAccessory` on every tab except Today (tap → Today, Stop). Verified in simulator.
 
 ## DD-43 · iPhone tabs, sheets, menus — L
 - [ ] Tasks: coloured project capsule headers, restyled TaskRow + play button.
