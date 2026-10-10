@@ -33,10 +33,10 @@ Pure functions (no UI) that every view reuses.
 ## DD-03 · Projects & categories CRUD (macOS) — M
 **Req:** R1 · **Blocked by:** DD-01
 
-- [ ] Sidebar lists active projects; create/edit sheet: name, color, daily target (h:mm), active weekdays.
-- [ ] Archive / unarchive; archived section collapsed.
-- [ ] Categories managed in Settings: name, color.
-- [ ] Validation: name required, target ≥ 0.
+- [x] Projects screen lists active projects (sidebar tab on Mac); create/edit sheet: name, color, daily target (h:mm), active weekdays.
+- [x] Archive / unarchive; archived section collapsed.
+- [x] Categories managed in Settings: name, color.
+- [x] Validation: name required, target ≥ 0.
 
 ## DD-04 · Tasks CRUD & list (macOS) — M
 **Req:** R2 · **Blocked by:** DD-03

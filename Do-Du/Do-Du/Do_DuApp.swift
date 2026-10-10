@@ -26,5 +26,12 @@ struct Do_DuApp: App {
             ContentView()
         }
         .modelContainer(sharedModelContainer)
+
+        #if os(macOS)
+        Settings {
+            SettingsView()
+        }
+        .modelContainer(sharedModelContainer)
+        #endif
     }
 }

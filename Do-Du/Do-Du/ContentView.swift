@@ -2,15 +2,25 @@
 //  ContentView.swift
 //  Do-Du
 //
+//  Root navigation. `.sidebarAdaptable` renders a sidebar on macOS and a tab bar on iPhone.
+//
 
 import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Query(sort: \Project.createdAt) private var projects: [Project]
-
     var body: some View {
-        List(projects) { Text($0.name) }
+        TabView {
+            Tab("Projects", systemImage: "folder") {
+                NavigationStack { ProjectsView() }
+            }
+            #if !os(macOS)
+            Tab("Settings", systemImage: "gear") {
+                NavigationStack { SettingsView() }
+            }
+            #endif
+        }
+        .tabViewStyle(.sidebarAdaptable)
     }
 }
 
