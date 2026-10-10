@@ -5,12 +5,15 @@
 
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @AppStorage(LongRunAlert.thresholdKey) private var longRunHours = LongRunAlert.defaultHours
     @AppStorage(DayMath.startHourKey) private var dayStartHour = 0
     @AppStorage(RecapReminder.enabledKey) private var recapOn = false
     @AppStorage(RecapReminder.minutesKey) private var recapMinutes = 18 * 60
+    @Query private var entries: [TimeEntry]
+    @State private var export: CSVDocument?
 
     var body: some View {
         Form {
@@ -37,9 +40,18 @@ struct SettingsView: View {
             Section("Sync") {
                 ICloudStatus()
             }
+            Section("Data") {
+                Button("Export Time Entries (CSV)…", systemImage: "square.and.arrow.up") {
+                    export = CSVDocument(text: TimeEntryCSV.make(entries))
+                }
+                .disabled(entries.isEmpty)
+            }
         }
         .formStyle(.grouped)
         .navigationTitle("Settings")
+        .fileExporter(isPresented: .init(get: { export != nil }, set: { if !$0 { export = nil } }),
+                      document: export, contentType: .commaSeparatedText,
+                      defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))") { _ in }
         #if os(macOS)
         .frame(width: 460, height: 420)
         #endif

@@ -275,6 +275,20 @@ func checkChatTools() throws {
     print("✓ chat tools")
 }
 
+func checkCSV() throws {
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "Client, Inc"), t = TaskItem(title: "Say \"hi\"", project: p)
+    ctx.insert(p); ctx.insert(t)
+    let e = TimeEntry(task: t, start: iso.date(from: "2026-10-12T09:00:00Z")!, end: iso.date(from: "2026-10-12T09:45:00Z")!)
+    ctx.insert(e)
+    let csv = TimeEntryCSV.make([e], calendar: cal)
+    precondition(csv == "date,start,end,minutes,project,task,category\n2026-10-12,2026-10-12T09:00:00Z,2026-10-12T09:45:00Z,45,\"Client, Inc\",\"Say \"\"hi\"\"\",\n", "csv quoting")
+    print("✓ CSV export")
+}
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -285,4 +299,5 @@ try checkQuickAddMapping()
 try checkDayStartHour()
 try checkPlanMapping()
 try checkChatTools()
+try checkCSV()
 print("All checks passed")

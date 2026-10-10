@@ -85,8 +85,8 @@ Pure function: models + date range → compact text Claude can read.
 ## DD-28 · CSV export — S
 **Req:** P1 · **Blocked by:** —
 
-- [ ] Settings → Export time entries (CSV): date, start, end, minutes, project, task, category.
-- [ ] Share sheet / save panel; proper CSV quoting.
+- [x] Settings → Export time entries (CSV): date, start, end, minutes, project, task, category.
+- [x] Save panel (fileExporter, Mac + iPhone); RFC 4180 quoting checked in `checks/run.sh`.
 
 ## DD-29 · Pomodoro reminder — S
 **Req:** P1 · **Blocked by:** —
