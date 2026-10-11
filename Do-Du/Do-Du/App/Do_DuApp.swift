@@ -76,7 +76,8 @@ struct Do_DuApp: App {
         }
 
         #if os(macOS)
-        MenuBarExtra(isInserted: Binding(get: { container != nil && showMenuBar }, set: { showMenuBar = $0 })) {
+        // Only a user removal (⌘-drag out) may turn the setting off; the item is also removed while onboarding runs.
+        MenuBarExtra(isInserted: Binding(get: { container != nil && showMenuBar }, set: { if container != nil { showMenuBar = $0 } })) {
             if let container { MenuBarPanel().modelContainer(container) }
         } label: {
             if let container { MenuBarLabel().modelContainer(container) }
