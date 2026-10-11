@@ -193,7 +193,7 @@ struct MacTodayView: View {
                 ScrollView {
                     HStack(alignment: .top, spacing: 16) {
                         TimerHero(
-                            running: running.first, quickProject: $quickProject, projects: active,
+                            running: running.first, quickProject: $quickProject, projects: projects,
                             recent: recent, now: now, clockFont: .ddClockMac
                         ) { planning = true }
                         .frame(width: usable * 1.15 / 2.15)

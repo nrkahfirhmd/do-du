@@ -33,7 +33,7 @@ struct TodayView: View {
                     navRow
                     #endif
                     TimerHero(
-                        running: running.first, quickProject: $quickProject, projects: active,
+                        running: running.first, quickProject: $quickProject, projects: projects,
                         recent: recent, now: now
                     ) { planning = true }
                     .padding(.horizontal, 12)
