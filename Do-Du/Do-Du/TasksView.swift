@@ -74,7 +74,13 @@ struct TasksView: View {
                 .disabled(projects.isEmpty)
             }
             ToolbarItem {
-                Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
+                Button("Quick Add", systemImage: "sparkles") {
+                    #if os(macOS)
+                    QuickAddPanel.show()
+                    #else
+                    quickAdd = true
+                    #endif
+                }
                     .keyboardShortcut("k")
                     .disabled(projects.isEmpty)
             }
@@ -213,12 +219,14 @@ struct TaskEditor: View {
     @State private var category: Category?
     @State private var hasDue = false
     @State private var due = Date.now
-    @State private var hasEstimate = false
-    @State private var estimate = 30
+    /// Minutes; 0 = no estimate.
+    @State private var estimate = 0
 
     var body: some View {
-        EditorSheet(title: task == nil ? "New Task" : "Edit Task", canSave: !title.isBlank && project != nil, save: save) {
-            TextField("Title", text: $title)
+        EditorSheet(title: task == nil ? "New Task" : "Edit Task", canSave: !title.isBlank && project != nil, save: save,
+                    destructive: task.map { t in ("Delete Task", { context.delete(t) }) }) {
+            Section { TextField("Title", text: $title).font(.system(size: 17, weight: .semibold)).labelsHidden() }
+            Section {
             Picker("Project", selection: $project) {
                 if project == nil { Text("Choose…").tag(Project?.none) }
                 ForEach(projects) { Text($0.name).tag(Optional($0)) }
@@ -229,11 +237,15 @@ struct TaskEditor: View {
             }
             Toggle("Due date", isOn: $hasDue)
             if hasDue { DatePicker("Due", selection: $due, displayedComponents: .date) }
-            Toggle("Estimate", isOn: $hasEstimate)
-            if hasEstimate {
-                Stepper("Estimate: \(TimeInterval(estimate * 60).hoursMinutes)", value: $estimate, in: 5...(12 * 60), step: 5)
+            LabeledContent("Estimate") {
+                HStack(spacing: 8) {
+                    Text(estimate == 0 ? "None" : compactHours(estimate)).font(.rounded(13, .bold)).monospacedDigit()
+                        .foregroundStyle(estimate == 0 ? DD.ink3 : DD.ink)
+                    Stepper("Estimate", value: $estimate, in: 0...(8 * 60), step: 15).labelsHidden()
+                }
             }
-            TextField("Notes", text: $notes, axis: .vertical).lineLimit(3...8)
+            }
+            Section { TextField("Notes", text: $notes, axis: .vertical).lineLimit(3...8) }
         }
         .onAppear(perform: load)
     }
@@ -250,8 +262,7 @@ struct TaskEditor: View {
             category = prefill.category
             hasDue = prefill.dueDate != nil
             due = prefill.dueDate ?? .now
-            hasEstimate = prefill.estimateMinutes != nil
-            estimate = prefill.estimateMinutes ?? 30
+            estimate = prefill.estimateMinutes ?? 0
             return
         }
         title = task.title
@@ -260,8 +271,7 @@ struct TaskEditor: View {
         category = task.category
         hasDue = task.dueDate != nil
         due = task.dueDate ?? .now
-        hasEstimate = task.estimateMinutes != nil
-        estimate = task.estimateMinutes ?? 30
+        estimate = task.estimateMinutes ?? 0
     }
 
     private func save() {
@@ -271,7 +281,7 @@ struct TaskEditor: View {
         t.project = project
         t.category = category
         t.dueDate = hasDue ? Calendar.current.startOfDay(for: due) : nil
-        t.estimateMinutes = hasEstimate ? estimate : nil
+        t.estimateMinutes = estimate > 0 ? estimate : nil
         if task == nil { context.insert(t) }
     }
 }

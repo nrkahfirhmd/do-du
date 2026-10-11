@@ -14,8 +14,11 @@ struct MacRootView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.openSettings) private var openSettings
     @State private var section = AppTab.today
-    @State private var quickAdd = false
     @State private var planning = false
+    #if DEBUG
+    @State private var debugTask: TaskItem?
+    @State private var debugProject = false
+    #endif
 
     var body: some View {
         NavigationSplitView {
@@ -40,7 +43,7 @@ struct MacRootView: View {
                         ToolbarItem(placement: .navigation) { SetUpChip() }
                     }
                     ToolbarItemGroup(placement: .primaryAction) {
-                        Button("Quick Add ⌘K", systemImage: "sparkles") { quickAdd = true }
+                        Button("Quick Add ⌘K", systemImage: "sparkles") { QuickAddPanel.show() }
                             .labelStyle(.titleAndIcon)
                             .keyboardShortcut("k")
                         Button("Plan My Day", systemImage: "sparkles") { planning = true }
@@ -54,13 +57,27 @@ struct MacRootView: View {
         .frame(minWidth: 1000, minHeight: 640)
         .onOpenURL { url in
             if url.host() == "timer" && url.path() == "/toggle" { TimerService.toggleQuick(in: context) }
-            section = .today
+            section = url.host() == "tasks" ? .tasks : .today
         }
-        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
         .sheet(isPresented: $planning) { PlanSheet() }
         #if DEBUG
-        // `-openSettings YES` (with `-macSettingsTab timer`) opens Settings at launch for review.
-        .task { if UserDefaults.standard.bool(forKey: "openSettings") { openSettings() } }
+        // Review hooks: `-openSettings YES` (with `-macSettingsTab timer`), or
+        // `-macSheet quick|plan|task|project` (with `-quickAddText "…"`).
+        .task {
+            let d = UserDefaults.standard
+            if d.bool(forKey: "openSettings") { openSettings() }
+            switch d.string(forKey: "macSheet") {
+            case "quick": QuickAddPanel.show(text: d.string(forKey: "quickAddText") ?? "")
+            case "plan": planning = true
+            case "task": debugTask = (try? context.fetch(FetchDescriptor<TaskItem>()))?.first
+            case "project": debugProject = true
+            default: break
+            }
+        }
+        .sheet(item: $debugTask) { TaskEditor(task: $0) }
+        .sheet(isPresented: $debugProject) {
+            ProjectEditor(project: (try? context.fetch(FetchDescriptor<Project>()))?.first)
+        }
         #endif
     }
 

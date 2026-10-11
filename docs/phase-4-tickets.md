@@ -80,9 +80,10 @@ Added 2026-10-11 from the updated handoff (onboarding, Mac Settings window, Mac 
 - [x] Notes: Categories sit in General and the Notion/Reminders imports in Data (the handoff has no place for them). The iCloud status says On / Off / Not signed in rather than "Synced 2 minutes ago" (SwiftData doesn't expose the last sync time). iPhone keeps its single Settings form (gains the Break stepper). DEBUG: `-openSettings YES -macSettingsTab timer`. Verified each tab in a Mac test build.
 
 ## DD-51 · Mac sheets — L
-- [ ] Quick Add floating panel (640pt, live five-cell preview), ⌘K in app, **new behaviour:** global ⌥⌘K.
-- [ ] Plan My Day 620pt with Planned / To enough / Meetings strip, reasons, no-key state.
-- [ ] Edit Task (Delete Task) and New/Edit Project (day circles, Archived, summary line).
+- [x] Quick Add floating panel (640pt glass `NSPanel`, live five-cell preview), ⌘K in the app, **new behaviour:** global ⌥⌘K. Return adds the task and shows Tasks.
+- [x] Plan My Day 620pt with Planned / To enough / Meetings strip, numbered rows with reasons (Danger when due), ±15m steppers (15m–4h), no-key state with Open Settings → Assistant. The stats strip and no-key state are on iPhone too.
+- [x] Edit Task (title in its own group, Estimate stepper with "None" at 0, Delete Task) and New/Edit Project (seven day circles, Archived switch, summary line, target 15m–12h). Shared Mac sheet chrome (`MacSheet`): 22pt title, Cancel + forest primary with key hints (⌘S, ⌘↩, Esc).
+- [x] Notes: the preview reads typed syntax instantly (`QuickAddSyntax`: today/tomorrow/weekday, `~30m`, `#tag`, project names; self-checked) and Foundation Models fill the gaps after a 0.45s pause; an unknown project is picked in the Project cell. Due stays a switch + date picker rather than a pop-up. No seventh mint swatch: mint means live/met in this design. DEBUG: `-macSheet quick|plan|task|project`, `-quickAddText "…"`. Verified each in a Mac test build.
 
 ## DD-52 · Mac screens — M
 - [ ] Today hero hint row and Switch task capsule; Tasks table with Open / Done / All; Stats third tile (category share); Assistant Recap beside Chat; Projects 200pt tiles, archived at 50%.

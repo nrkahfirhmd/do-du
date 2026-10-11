@@ -502,6 +502,26 @@ func checkOnboarding() throws {
     print("✓ onboarding rules")
 }
 
+func checkQuickAddSyntax() throws {
+    let projects = ["Do-Du", "Client X", "Client"], cats = ["Admin", "Deep Work"]
+    // Sunday = weekday 1.
+    let a = QuickAddSyntax.read("Invoice Client X tomorrow ~30m #admin", projects: projects, categories: cats, weekday: 1)
+    precondition(a == QuickAddSyntax(title: "Invoice Client X", projectName: "Client X", categoryName: "Admin",
+                                     dueInDays: 1, estimateMinutes: 30), "full sentence: \(a)")
+    let b = QuickAddSyntax.read("Review designs on Friday ~1h30 #deep", projects: projects, categories: cats, weekday: 1)
+    precondition(b.dueInDays == 5 && b.estimateMinutes == 90 && b.categoryName == "Deep Work" && b.title == "Review designs", "weekday: \(b)")
+    let c = QuickAddSyntax.read("Ship do-du build today ~2h", projects: projects, categories: cats, weekday: 4)
+    precondition(c.projectName == "Do-Du" && c.dueInDays == 0 && c.estimateMinutes == 120, "case-insensitive project: \(c)")
+    let d = QuickAddSyntax.read("Call mom", projects: projects, categories: cats, weekday: 4)
+    precondition(d == QuickAddSyntax(title: "Call mom", projectName: nil, categoryName: nil, dueInDays: nil, estimateMinutes: nil), "plain")
+    let e = QuickAddSyntax.read("Monday standup #unknown", projects: projects, categories: cats, weekday: 2)
+    precondition(e.dueInDays == 0 && e.categoryName == nil && e.title == "standup", "same weekday = today; unknown tag dropped")
+    let f = QuickAddSyntax.read("Clientele call", projects: projects, categories: cats, weekday: 2)
+    precondition(f.projectName == nil, "no partial-word project match")
+    print("✓ quick add syntax")
+}
+
+
 
 try checkModelRoundTrip()
 try checkDayMath()
@@ -522,4 +542,5 @@ try checkIntents()
 try checkRemindersImport()
 try checkDesignFoundation()
 try checkOnboarding()
+try checkQuickAddSyntax()
 print("All checks passed")

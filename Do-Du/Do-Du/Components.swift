@@ -11,14 +11,16 @@ struct ColorChoice: View {
     @Binding var selection: String
 
     var body: some View {
-        LabeledContent("Color") {
-            HStack(spacing: 6) {
+        LabeledContent("Colour") {
+            HStack(spacing: 8) {
                 ForEach(Palette.names, id: \.self) { name in
                     Button { selection = name } label: {
+                        // Selected swatch: a 2pt ring in its own colour, 2pt out.
                         Circle()
                             .fill(Palette.color(name))
-                            .frame(width: 18, height: 18)
-                            .overlay { if Palette.canonical(selection) == name { Circle().stroke(.primary, lineWidth: 2).padding(-3) } }
+                            .frame(width: 22, height: 22)
+                            .padding(3)
+                            .overlay(Circle().strokeBorder(Palette.canonical(selection) == name ? Palette.color(name) : .clear, lineWidth: 2))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(name)
@@ -37,15 +39,15 @@ struct WeekdayPicker: View {
         let symbols = cal.veryShortWeekdaySymbols
         // Display order follows the user's first weekday; bits stay in Calendar order.
         let order = (0..<7).map { ($0 + cal.firstWeekday - 1) % 7 }
-        LabeledContent("Active days") {
-            HStack(spacing: 4) {
+        LabeledContent("Scheduled on") {
+            HStack(spacing: 6) {
                 ForEach(order, id: \.self) { i in
                     let on = mask & (1 << i) != 0
                     Button { mask ^= 1 << i } label: {
-                        Text(symbols[i])
-                            .frame(width: 26, height: 26)
-                            .background(on ? Color.accentColor : Color.secondary.opacity(0.15), in: Circle())
-                            .foregroundStyle(on ? .white : .primary)
+                        Text(symbols[i]).font(.rounded(13, .bold))
+                            .frame(width: 30, height: 30)
+                            .background(on ? DD.forestFill : DD.fill, in: Circle())
+                            .foregroundStyle(on ? .white : DD.ink3)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(cal.weekdaySymbols[i])
@@ -66,10 +68,23 @@ struct EditorSheet<Content: View>: View {
     let title: String
     let canSave: Bool
     let save: () -> Void
+    /// Mac footer, left: e.g. "Delete Task" (closes the sheet after running).
+    var destructive: (title: String, action: () -> Void)?
     @ViewBuilder let content: Content
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
+        #if os(macOS)
+        MacSheet(title: title, primary: "Save", primaryHint: "⌘S", primaryKey: KeyboardShortcut("s"),
+                 canSubmit: canSave, submit: { save(); dismiss() }) {
+            Form { content.ddRows() }.ddForm()
+        } footer: {
+            if let destructive {
+                Button(destructive.title) { destructive.action(); dismiss() }
+                    .buttonStyle(.plain).font(.system(size: 13, weight: .semibold)).foregroundStyle(DD.danger)
+            }
+        }
+        #else
         NavigationStack {
             Form { content.ddRows() }
                 .ddForm()
@@ -84,11 +99,65 @@ struct EditorSheet<Content: View>: View {
                     }
                 }
         }
-        #if os(macOS)
-        .frame(minWidth: 420, minHeight: 320)
         #endif
     }
 }
+
+#if os(macOS)
+/// Mac sheet chrome: 22pt rounded title (and subtitle) top-left, content, then a
+/// right-aligned footer: Cancel capsule and the forest primary with its key hint.
+struct MacSheet<Content: View, Footer: View>: View {
+    let title: String
+    var subtitle: String?
+    var cancel = "Cancel"
+    let primary: String
+    let primaryHint: String
+    let primaryKey: KeyboardShortcut
+    let canSubmit: Bool
+    let submit: () -> Void
+    var width: CGFloat = 560
+    @ViewBuilder let content: Content
+    @ViewBuilder var footer: Footer
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.rounded(22)).foregroundStyle(DD.forest)
+                if let subtitle { Text(subtitle).font(.system(size: 13)).foregroundStyle(DD.ink3) }
+            }
+            .padding(EdgeInsets(top: 22, leading: 24, bottom: 4, trailing: 24))
+            content
+                .scrollDisabled(true)
+                .fixedSize(horizontal: false, vertical: true)
+            HStack(spacing: 8) {
+                footer
+                Spacer(minLength: 8)
+                Button(cancel) { dismiss() }
+                    .buttonStyle(CapsuleButton(fill: DD.sheetButton, ink: DD.ink))
+                    .keyboardShortcut(.cancelAction)
+                Button("\(primary)  \(primaryHint)", action: submit)
+                    .buttonStyle(CapsuleButton(fill: canSubmit ? DD.forestFill : DD.disabled, ink: .white))
+                    .keyboardShortcut(primaryKey)
+                .disabled(!canSubmit)
+            }
+            .padding(EdgeInsets(top: 8, leading: 20, bottom: 18, trailing: 20))
+        }
+        .frame(width: width)
+        .background(DD.page)
+    }
+}
+
+extension MacSheet where Footer == EmptyView {
+    init(title: String, subtitle: String? = nil, cancel: String = "Cancel", primary: String, primaryHint: String,
+         primaryKey: KeyboardShortcut, canSubmit: Bool, submit: @escaping () -> Void, width: CGFloat = 560,
+         @ViewBuilder content: () -> Content) {
+        self.init(title: title, subtitle: subtitle, cancel: cancel, primary: primary, primaryHint: primaryHint,
+                  primaryKey: primaryKey, canSubmit: canSubmit, submit: submit, width: width,
+                  content: content, footer: { EmptyView() })
+    }
+}
+#endif
 
 extension String {
     var isBlank: Bool { trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }

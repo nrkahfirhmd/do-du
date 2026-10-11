@@ -164,21 +164,35 @@ struct ProjectEditor: View {
     @State private var colorName = Palette.names[0]
     @State private var targetMinutes = 120
     @State private var mask = Weekdays.monToFri
+    @State private var archived = false
 
     var body: some View {
         EditorSheet(title: project == nil ? "New Project" : "Edit Project", canSave: !name.isBlank, save: save) {
-            TextField("Name", text: $name)
-            ColorChoice(selection: $colorName)
-            Stepper("Daily target: \(TimeInterval(targetMinutes * 60).hoursMinutes)",
-                    value: $targetMinutes, in: 0...(24 * 60), step: 15)
-            WeekdayPicker(mask: $mask)
+            Section { TextField("Name", text: $name).font(.system(size: 17, weight: .semibold)).labelsHidden() }
+            Section {
+                ColorChoice(selection: $colorName)
+                LabeledContent("Daily target") {
+                    HStack(spacing: 8) {
+                        Text(compactHours(targetMinutes)).font(.rounded(13, .bold)).monospacedDigit()
+                        Stepper("Daily target", value: $targetMinutes, in: 15...(12 * 60), step: 15).labelsHidden()
+                    }
+                }
+                WeekdayPicker(mask: $mask)
+                Toggle(isOn: $archived) {
+                    Text("Archived")
+                    Text("Hidden from Today. Past time stays in Stats.")
+                }
+            } footer: {
+                Text("\(scheduleLabel(mask)) · \(compactHours(targetMinutes)) a day counts as enough.")
+            }
         }
         .onAppear {
             guard let project else { return }
             name = project.name
             colorName = project.colorName
-            targetMinutes = project.dailyTargetMinutes
+            targetMinutes = max(15, project.dailyTargetMinutes)
             mask = project.activeWeekdaysMask
+            archived = project.isArchived
         }
     }
 
@@ -188,6 +202,7 @@ struct ProjectEditor: View {
         p.colorName = colorName
         p.dailyTargetMinutes = targetMinutes
         p.activeWeekdaysMask = mask
+        p.isArchived = archived
         if project == nil { context.insert(p) }
     }
 }
