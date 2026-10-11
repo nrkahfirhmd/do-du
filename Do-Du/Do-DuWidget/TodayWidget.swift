@@ -1,12 +1,3 @@
-//
-//  TodayWidget.swift
-//  Do-Du
-//
-//  Home Screen / desktop / Lock Screen widgets from the redesign. Reads the shared
-//  App Group store read-only. Start/stop buttons open the app via dodu://timer/toggle
-//  (Decision 2026-10-11: no writes from the widget process).
-//
-
 import SwiftData
 import SwiftUI
 import WidgetKit
@@ -62,8 +53,7 @@ struct DoDuProvider: TimelineProvider {
     }
 
     private func load(now: Date = .now) -> DoDuEntry {
-        // Never create the store here: the app opens it first (with its iCloud choice), and
-        // onboarding treats an existing store file as an existing user.
+        // Never create the store: the app opens it first, and onboarding treats a store file as an existing user.
         guard let url = SharedStore.storeURL(groupURL: SharedStore.groupURL),
               FileManager.default.fileExists(atPath: url.path),
               let container = try? ModelContainer(
@@ -121,7 +111,6 @@ private extension Verdict {
     }
 }
 
-/// Start/stop disc that opens the app to toggle the timer.
 private struct ToggleLink: View {
     let running: Bool
     var size: CGFloat = 40
@@ -252,7 +241,6 @@ struct TodayWidgetView: View {
         .containerBackground(DD.page, for: .widget)
     }
 
-    /// Segmented day bar: each project's share of today's total target.
     private var dayBar: some View {
         GeometryReader { geo in
             let total = max(1, entry.rows.reduce(0) { $0 + $1.target })
@@ -290,7 +278,6 @@ struct TodayWidgetView: View {
         .background(entry.running != nil ? DD.forestFill : DD.surface, in: .dd(DD.Radius.card))
     }
 
-    // Lock Screen (monochrome; the system tints them)
     private var circular: some View {
         Gauge(value: enough ? 1 : entry.progress) {
             Image(systemName: "stopwatch")
@@ -336,7 +323,6 @@ struct TodayWidgetView: View {
     }
 }
 
-/// Medium widget's left card: forest while recording.
 private struct TimerCard: View {
     let running: DoDuEntry.Running?
 

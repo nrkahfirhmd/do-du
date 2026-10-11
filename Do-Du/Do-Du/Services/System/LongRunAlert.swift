@@ -1,11 +1,3 @@
-//
-//  LongRunAlert.swift
-//  Do-Du
-//
-//  Local notification when a timer runs past the threshold, so a forgotten
-//  timer doesn't silently inflate stats.
-//
-
 import Foundation
 import SwiftData
 import UserNotifications
@@ -40,8 +32,6 @@ enum LongRunAlert {
         }
     }
 
-    /// Replaces any pending alert. `nil` cancels. Tapping the notification opens the app,
-    /// where the entry can be edited ("stop at…").
     static func schedule(from start: Date?) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [requestID])
@@ -84,7 +74,6 @@ enum LongRunAlert {
     }
 }
 
-/// Optional "take a break" nudge at a fixed work length after each timer start.
 enum Pomodoro {
     static let enabledKey = "pomodoroOn"
     static let minutesKey = "pomodoroMinutes"

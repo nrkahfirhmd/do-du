@@ -1,12 +1,6 @@
-//
-//  CalendarViews.swift
-//  Do-Du
-//
-
 import EventKit
 import SwiftUI
 
-/// One read-only calendar: permission status + picker.
 struct CalendarSettingsSection: View {
     @AppStorage(CalendarAccess.calendarKey) private var calendarID = ""
     @State private var status = EKEventStore.authorizationStatus(for: .event)

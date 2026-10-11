@@ -1,8 +1,3 @@
-//
-//  StatsView.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 import Charts
@@ -66,7 +61,6 @@ struct StatsView: View {
                     StatTile(label: "Total tracked", value: byProject.reduce(0) { $0 + $1.seconds }.hoursMinutes, tone: .forest)
                     StatTile(label: "Enough days", value: workDays == 0 ? "—" : "\(enoughDays) of \(workDays)", tone: .mint)
                     #if os(macOS)
-                    // Mac's third tile: the biggest category's share ("Deep Work share 71%").
                     let total = byCategory.reduce(0) { $0 + $1.seconds }
                     if total > 0, let top = byCategory.filter({ $0.name != "Uncategorized" }).max(by: { $0.seconds < $1.seconds }) {
                         StatTile(label: "\(top.name) share", value: "\(Int((top.seconds / total * 100).rounded()))%", tone: .surface)
@@ -173,7 +167,6 @@ struct StatsView: View {
     }
 }
 
-/// Horizontal bars with the value labeled at the end (doubles as the table view).
 struct TotalsChart: View {
     struct Row: Identifiable {
         let name: String

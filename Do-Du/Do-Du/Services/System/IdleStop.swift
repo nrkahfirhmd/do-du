@@ -1,11 +1,3 @@
-//
-//  IdleStop.swift
-//  Do-Du
-//
-//  Stops the running timer when the Mac sleeps / locks or sits idle,
-//  so a forgotten timer doesn't inflate stats. macOS only.
-//
-
 import Foundation
 import SwiftData
 
@@ -23,7 +15,6 @@ enum IdleStop {
         TimeInterval(UserDefaults.standard.object(forKey: minutesKey) as? Int ?? defaultMinutes) * 60
     }
 
-    /// Moment of last activity when idle long enough to stop, otherwise nil.
     static func stopDate(now: Date, idleSeconds: TimeInterval, thresholdSeconds: TimeInterval) -> Date? {
         guard thresholdSeconds > 0, idleSeconds >= thresholdSeconds else { return nil }
         return now.addingTimeInterval(-idleSeconds)

@@ -1,8 +1,3 @@
-//
-//  PlanSheet.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 
@@ -85,7 +80,6 @@ struct PlanSheet: View {
 
     // MARK: Pieces
 
-    /// Planned · To enough · Meetings. Planned gets the mint tag once it covers what's left.
     private var stats: some View {
         let now = Date.now
         let planned = items.reduce(0) { $0 + $1.minutes }
@@ -195,7 +189,6 @@ struct PlanSheet: View {
     }
 }
 
-/// Numbered suggestion: title, project swatch and reason (Danger when due), ±15m stepper.
 private struct PlanRow: View {
     let number: Int
     @Binding var item: PlanItem
@@ -228,7 +221,6 @@ private struct PlanRow: View {
     }
 }
 
-/// Today's accepted plan, in order.
 struct PlanSection: View {
     @Query(sort: \TaskItem.planOrder) private var tasks: [TaskItem]
     let now: Date

@@ -1,11 +1,3 @@
-//
-//  TimerWidget.swift
-//  Do-Du
-//
-//  Keeps the widget and Live Activity in step with the timer.
-//  Registered after LongRunAlert so its onChange handler still runs.
-//
-
 import Foundation
 import SwiftData
 import WidgetKit
@@ -35,7 +27,6 @@ enum TimerWidget {
 #if os(iOS)
 import ActivityKit
 
-/// Starts / updates / ends the running-timer Live Activity to match the store.
 enum LiveTimer {
     @MainActor static func sync(container: ModelContainer) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }

@@ -1,18 +1,8 @@
-//
-//  SampleData.swift
-//  Do-Du
-//
-//  Preview container, plus DEBUG-only sample data (launch with
-//  `-seedSampleData YES` to fill an empty store).
-//
-
 import Foundation
 import SwiftData
 
 extension SharedStore {
-    /// In-memory store for `#Preview`, with sample data in DEBUG. CloudKit is off: a
-    /// mirrored in-memory store has no usable SQLite connection and crashes previews
-    /// ("No eligible connection available").
+    /// In-memory store for `#Preview`, with sample data in DEBUG.
     @MainActor static var preview: ModelContainer {
         let config = ModelConfiguration(schema: Schema(allModels), isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         let container = try! ModelContainer(for: Schema(allModels), configurations: [config])
@@ -51,7 +41,6 @@ enum SampleData {
         tasks[0].estimateMinutes = 90
         tasks.forEach(context.insert)
 
-        // A week of history, plus a running timer now.
         let cal = Calendar.current
         for back in 1...6 {
             let day = cal.startOfDay(for: cal.date(byAdding: .day, value: -back, to: .now)!)

@@ -1,11 +1,3 @@
-//
-//  DayPlan.swift
-//  Do-Du
-//
-//  Plan my day: Claude picks open tasks (by snapshot index) and minutes.
-//  Nothing is written until the user accepts.
-//
-
 import Foundation
 
 struct PlanItem: Identifiable, Equatable {
@@ -49,7 +41,6 @@ enum DayPlanner {
         Each reason is at most 12 words. The note is at most two sentences.
         """
 
-    /// Remaining minutes per active project today, for the prompt.
     static func remainingLine(projects: [Project], now: Date) -> String {
         let day = DayMath.day(now)
         let parts = projects.filter { $0.isActive(on: now) }.map {
@@ -58,7 +49,6 @@ enum DayPlanner {
         return parts.isEmpty ? "Remaining today: rest day (no active projects)." : "Remaining today: " + parts.joined(separator: ", ")
     }
 
-    /// Meeting context for the prompt. Nil when the day is free.
     static func meetingsLine(_ events: [(title: String, start: Date, end: Date)]) -> String? {
         guard !events.isEmpty else { return nil }
         let total = events.reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }
@@ -81,7 +71,6 @@ enum DayPlanner {
         return (items, json["note"]?.string ?? "")
     }
 
-    /// Replaces today's plan with `items` in order.
     static func accept(_ items: [PlanItem], allTasks: [TaskItem], now: Date = .now) {
         let today = DayMath.logicalDate(now)
         for t in allTasks where t.plannedFor == today { t.plannedFor = nil; t.plannedMinutes = nil }

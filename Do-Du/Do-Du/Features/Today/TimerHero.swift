@@ -1,11 +1,3 @@
-//
-//  TimerHero.swift
-//  Do-Du
-//
-//  The record screen's hero: status, task, giant clock, three stats, session
-//  strip and controls. Forest while recording, surface when idle.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -63,8 +55,6 @@ struct TimerHero: View {
                 .padding(.top, 22)
 
             #if os(macOS)
-            // Mac: record button, its label with the keyboard hints, Switch task on the right.
-            // Narrow windows drop the hints rather than squeeze the hero.
             ViewThatFits(in: .horizontal) {
                 macControls(hints: true)
                 macControls(hints: false)
@@ -188,7 +178,6 @@ struct TimerHero: View {
     }
 }
 
-/// "Switch timer to" / "Start timer for": quick session (No project or a project) or any open task.
 struct SwitchMenu<MenuLabel: View>: View {
     let running: TimeEntry?
     @Binding var quickProject: Project?

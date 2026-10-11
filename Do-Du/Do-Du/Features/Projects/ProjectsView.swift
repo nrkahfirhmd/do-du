@@ -1,8 +1,3 @@
-//
-//  ProjectsView.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 
@@ -32,7 +27,6 @@ struct ProjectsView: View {
 
     #if os(macOS)
     private var content: some View {
-        // Mac: four columns of 200pt tiles; archived ones sit in the grid at 50%.
         ScrollView {
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 4), spacing: 14) {
                 ForEach(projects.sorted { !$0.isArchived && $1.isArchived }) { p in
@@ -129,7 +123,6 @@ struct ProjectsView: View {
     }
 }
 
-/// Project tile in its own colour: name, schedule, daily target; a faint circle bleeds off the corner.
 struct ProjectColorTile: View {
     let project: Project
     var height: CGFloat = 170
@@ -169,7 +162,6 @@ struct ProjectColorTile: View {
     }
 }
 
-/// "Every day", "Weekdays", "Weekends" or short day names.
 func scheduleLabel(_ mask: Int) -> String {
     switch mask {
     case Weekdays.all: return "Every day"
@@ -185,7 +177,6 @@ func scheduleLabel(_ mask: Int) -> String {
     }
 }
 
-/// "3h", "2h 30m", "45m".
 func compactHours(_ minutes: Int) -> String {
     switch (minutes / 60, minutes % 60) {
     case (0, let m): return "\(m)m"

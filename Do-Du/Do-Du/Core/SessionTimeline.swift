@@ -1,15 +1,6 @@
-//
-//  SessionTimeline.swift
-//  Do-Du
-//
-//  Layout math for the session strip: today's sessions on a ~4-hour window
-//  ending at the next full hour. Pure, so checks/run.sh covers it.
-//
-
 import Foundation
 
 struct SessionBlock: Equatable {
-    /// Fractions of the window, 0…1.
     var start: Double
     var end: Double
     /// Order of the session's project among today's projects (0 = first); nil = No project.
@@ -25,7 +16,6 @@ enum SessionTimeline {
         return DateInterval(start: calendar.date(byAdding: .hour, value: -hours, to: end)!, end: end)
     }
 
-    /// Hour labels from window start to end, e.g. ["6:00", "7:00", …].
     static func labels(for window: DateInterval, calendar: Calendar = .current) -> [String] {
         var out: [String] = []
         var t = window.start
@@ -52,7 +42,6 @@ enum SessionTimeline {
         }
     }
 
-    /// Fraction of the window where the "now" line sits.
     static func nowFraction(_ now: Date, window: DateInterval) -> Double {
         min(1, max(0, now.timeIntervalSince(window.start) / window.duration))
     }

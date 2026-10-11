@@ -1,12 +1,3 @@
-//
-//  OnboardingView.swift
-//  Do-Du
-//
-//  First launch ("Live preview" direction): a preview of Today fills in as you
-//  answer. Runs before the store opens, so the iCloud choice decides how it
-//  opens. Answers live in view state until Go to Today.
-//
-
 import CloudKit
 import SwiftUI
 
@@ -65,7 +56,6 @@ struct OnboardingView: View {
             .toggleStyle(MintSwitch())
             .animation(.easeInOut(duration: 0.3), value: step)
             .task {
-                // Another device already set up Do-Du: go straight to Today.
                 if await OnboardingGate.iCloudHasData(), step == .welcome { onFinish(nil) }
             }
     }
@@ -105,8 +95,7 @@ struct OnboardingView: View {
             }
         }
         .safeAreaInset(edge: .bottom) { footer.padding(.horizontal, 20).padding(.bottom, 8).background(DD.page) }
-        // The footer stays pinned to the bottom (under the keyboard while typing); the
-        // keyboard's Done and the Return key cover that moment.
+        // Footer stays pinned under the keyboard; the keyboard Done and Return cover typing.
         .ignoresSafeArea(.keyboard, edges: .bottom)
         #endif
     }
@@ -347,7 +336,6 @@ struct OnboardingView: View {
     }
 }
 
-/// Today as it will look, filled from the answers; the section being edited gets a mint ring.
 struct OnboardingPreview: View {
     let answers: OnboardingAnswers
     let step: OnboardingStep
@@ -482,7 +470,6 @@ struct OnboardingPreview: View {
     }
 }
 
-/// Suggestion chips that wrap onto new lines.
 private struct FlowChips: View {
     let items: [String]
     let selected: (String) -> Bool
@@ -539,7 +526,6 @@ private struct FlowLayout: Layout {
     }
 }
 
-/// "✓ Set up" on Today for the first session after onboarding.
 struct SetUpChip: View {
     var body: some View {
         Text("✓ Set up").font(.footnote.weight(.semibold)).foregroundStyle(DD.onMint)

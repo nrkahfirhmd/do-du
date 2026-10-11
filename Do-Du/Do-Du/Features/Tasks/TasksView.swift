@@ -1,8 +1,3 @@
-//
-//  TasksView.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 
@@ -75,7 +70,6 @@ struct TasksView: View {
     }
 
     #if os(macOS)
-    /// Mac: Open / Done / All capsules, then one table per project.
     private var content: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
@@ -154,7 +148,6 @@ struct TasksView: View {
     }
 }
 
-/// Done circle, title + meta line, play/stop. Running rows tint mint.
 struct TaskRow: View {
     let task: TaskItem
 
@@ -209,7 +202,6 @@ struct TaskRow: View {
     }
 }
 
-/// Project section header: white name on a capsule in the project colour, plus the count.
 struct ProjectHeader: View {
     let project: Project
     let count: Int

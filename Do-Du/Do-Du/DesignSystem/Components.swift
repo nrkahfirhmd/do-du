@@ -1,10 +1,3 @@
-//
-//  Components.swift
-//  Do-Du
-//
-//  Small reusable controls.
-//
-
 import SwiftUI
 
 struct ColorChoice: View {
@@ -15,7 +8,6 @@ struct ColorChoice: View {
             HStack(spacing: 8) {
                 ForEach(Palette.names, id: \.self) { name in
                     Button { selection = name } label: {
-                        // Selected swatch: a 2pt ring in its own colour, 2pt out.
                         Circle()
                             .fill(Palette.color(name))
                             .frame(width: 22, height: 22)
@@ -63,12 +55,11 @@ struct ColorDot: View {
     var body: some View { Circle().fill(color).frame(width: 10, height: 10) }
 }
 
-/// Sheet chrome shared by all editors: Cancel / Save toolbar, Save disabled until valid.
 struct EditorSheet<Content: View>: View {
     let title: String
     let canSave: Bool
     let save: () -> Void
-    /// Mac footer, left: e.g. "Delete Task" (closes the sheet after running).
+    /// Mac footer, left (e.g. "Delete Task"); the sheet closes after it runs.
     var destructive: (title: String, action: () -> Void)?
     @ViewBuilder let content: Content
     @Environment(\.dismiss) private var dismiss
@@ -104,8 +95,6 @@ struct EditorSheet<Content: View>: View {
 }
 
 #if os(macOS)
-/// Mac sheet chrome: 22pt rounded title (and subtitle) top-left, content, then a
-/// right-aligned footer: Cancel capsule and the forest primary with its key hint.
 struct MacSheet<Content: View, Footer: View>: View {
     let title: String
     var subtitle: String?

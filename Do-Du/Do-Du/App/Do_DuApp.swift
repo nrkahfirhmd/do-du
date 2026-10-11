@@ -1,17 +1,9 @@
-//
-//  Do_DuApp.swift
-//  Do-Du
-//
-//  Created by Nurkahfi Rahmada on 10/10/26.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
 struct Do_DuApp: App {
-    /// Same instance Siri/Shortcuts intents use (App Group store, CloudKit unless turned off).
-    /// Nil until onboarding finishes on a fresh install, so its iCloud choice decides how the store opens.
+    /// Nil until onboarding finishes, so its iCloud choice decides how the store opens.
     @State private var container: ModelContainer? = OnboardingGate.isNeeded ? nil : Do_DuApp.openStore()
     #if os(macOS)
     @AppStorage(MenuBarVisibility.key) private var showMenuBar = true
@@ -23,7 +15,6 @@ struct Do_DuApp: App {
         #endif
     }
 
-    /// Opens the shared store and starts the services that watch the timer.
     private static func openStore() -> ModelContainer {
         let container = SharedStore.shared
         LongRunAlert.register(container: container)
@@ -38,7 +29,6 @@ struct Do_DuApp: App {
         return container
     }
 
-    /// Saves the answers (nil = iCloud already had data), then opens the store.
     private func finishOnboarding(_ answers: OnboardingAnswers?) {
         let defaults = UserDefaults.standard
         if let answers {

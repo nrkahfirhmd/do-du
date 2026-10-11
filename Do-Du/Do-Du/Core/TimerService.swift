@@ -1,11 +1,3 @@
-//
-//  TimerService.swift
-//  Do-Du
-//
-//  The only place that starts or stops timers. Views must not set `TimeEntry.end`
-//  on a running entry directly, so the "one running timer" rule holds.
-//
-
 import Foundation
 import SwiftData
 
@@ -19,7 +11,6 @@ enum TimerService {
     }
 
     /// Stops whatever is running at the same instant, then starts `task`.
-    /// `task == nil` is a quick timer, optionally logged straight to `project`.
     static func start(_ task: TaskItem?, project: Project? = nil, in context: ModelContext, at now: Date = .now) {
         for entry in running(in: context) { entry.end = now }
         context.insert(TimeEntry(task: task, project: project, start: now))
@@ -33,7 +24,6 @@ enum TimerService {
         onChange?(nil)
     }
 
-    /// Stop whatever runs, or start a quick session (hotkey, widget link, Mac controls).
     static func toggleQuick(project: Project? = nil, in context: ModelContext) {
         if current(in: context) != nil { stop(in: context) } else { start(nil, project: project, in: context) }
     }
@@ -42,8 +32,7 @@ enum TimerService {
         if current(in: context)?.task == task { stop(in: context) } else { start(task, in: context) }
     }
 
-    /// Two devices can each start a timer offline. After sync keep the latest start
-    /// and close the others at that instant (spec R6).
+    /// Offline starts on two devices: keep the latest, stop the others at its start.
     static func resolveConflicts(in context: ModelContext) {
         let entries = running(in: context)
         guard entries.count > 1, let keep = DayMath.runningToKeep(entries.map(\.start)) else { return }

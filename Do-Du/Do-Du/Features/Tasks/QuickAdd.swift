@@ -1,11 +1,3 @@
-//
-//  QuickAdd.swift
-//  Do-Du
-//
-//  "Add 2h design review to Do-Du tomorrow" → pre-filled task editor.
-//  Parsed on-device with Apple Foundation Models; always confirmed by the user.
-//
-
 import SwiftUI
 import SwiftData
 

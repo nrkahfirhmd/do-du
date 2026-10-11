@@ -1,13 +1,3 @@
-//
-//  QuickAddPanel.swift
-//  Do-Du
-//
-//  Mac Quick Add: a floating glass panel 150pt from the top of the screen (⌘K in
-//  the app, ⌥⌘K from anywhere). The preview strip shows exactly what Return adds:
-//  the typed syntax first, then on-device Foundation Models fill the gaps after a
-//  short pause. Return adds the task and shows Tasks.
-//
-
 #if os(macOS)
 import AppKit
 import SwiftData
@@ -20,7 +10,6 @@ enum QuickAddPanel {
     static func show(text: String = "") {
         let panel = panel ?? FloatingPanel()
         self.panel = panel
-        // Fresh state each time it opens.
         let host = NSHostingController(rootView: QuickAddPanelView(text: text) { close() }.modelContainer(SharedStore.shared))
         host.sizingOptions = [.preferredContentSize]
         panel.contentViewController = host
@@ -106,7 +95,6 @@ struct QuickAddPanelView: View {
         .clipShape(.rect(cornerRadius: 22))
         .onAppear { focused = true }
         .onExitCommand(perform: close)
-        // Foundation Models fill what the syntax didn't, once typing pauses.
         .task(id: text) {
             refined = nil
             guard QuickAddParser.isAvailable, !text.isBlank else { return }
@@ -155,7 +143,6 @@ struct QuickAddPanelView: View {
             return days == 0 ? "Today" : days == 1 ? "Tomorrow" : date.formatted(.dateTime.weekday(.abbreviated).day())
         }
         return HStack(spacing: 0) {
-            // 1.7fr / 1fr ×4 of the 612pt strip.
             cell("Task", d.title.isBlank ? nil : d.title).frame(width: 182)
             Divider()
             projectCell(d.project)
@@ -197,7 +184,6 @@ struct QuickAddPanelView: View {
     }
 }
 
-/// 30pt capsule button for Mac sheet and panel footers.
 struct CapsuleButton: ButtonStyle {
     let fill: Color
     let ink: Color

@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Do-Du
-//
-//  Root navigation. `.sidebarAdaptable` renders a sidebar on macOS and a tab bar on iPhone.
-//
-
 import SwiftUI
 import SwiftData
 import CoreData
@@ -41,11 +34,8 @@ struct ContentView: View {
             }
         }
         .tabViewStyle(.sidebarAdaptable)
-        // Selected tab in forest; content keeps sage links.
         .tint(DD.forest)
         #if os(iOS)
-        // Running timer stays visible and stoppable on every tab except Today.
-        // Hidden in Chat too, where the message field needs the space.
         .tabViewBottomAccessory(isEnabled: running.first != nil && tab != .today
                                 && !(tab == .assistant && assistantMode == .chat)) {
             if let entry = running.first {
@@ -63,8 +53,7 @@ struct ContentView: View {
     }
 }
 
-/// Resolves duplicate running timers and reschedules the long-run alert on activation
-/// and when CloudKit imports land.
+/// Resolves duplicate running timers and reschedules the long-run alert on activation and when CloudKit imports land.
 struct TimerSync: ViewModifier {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
@@ -83,10 +72,8 @@ struct TimerSync: ViewModifier {
         .onChange(of: scenePhase, initial: true) {
             guard scenePhase == .active else { return }
             TimerService.resolveConflicts(in: context)
-            // Timer may have been started on another device.
             LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
         }
-        // CloudKit import landed: another device may have started a timer.
         .onReceive(NotificationCenter.default.publisher(for: .NSPersistentStoreRemoteChange)) { _ in
             TimerService.resolveConflicts(in: context)
             LongRunAlert.schedule(from: TimerService.current(in: context)?.start)

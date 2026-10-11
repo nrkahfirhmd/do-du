@@ -1,12 +1,3 @@
-//
-//  NotionClient.swift
-//  Do-Du
-//
-//  Phase 3: one-way import from a single Notion database (table).
-//  Notion is the source of truth; Do-Du links rows via externalID.
-//  Raw HTTPS like ClaudeClient; pure build/parse so checks cover it.
-//
-
 import Foundation
 import SwiftData
 
@@ -27,7 +18,6 @@ enum NotionError: LocalizedError, Equatable {
     }
 }
 
-/// One database row, mapped from whatever property schema the table has.
 struct NotionPage: Equatable {
     var id: String
     var title: String
@@ -40,8 +30,7 @@ enum NotionClient: TaskSource {
     static let id = "notion"
     static let displayName = "Notion"
     static let databaseKey = "notionDatabaseID"
-    // Must be a released Notion-Version. 2022-06-28 keeps POST /v1/databases/{id}/query;
-    // 2025-09-03 and later move querying to data sources and need a different endpoint.
+    // Must be a released Notion-Version.
     private static let apiVersion = "2022-06-28"
     private static let endpoint = URL(string: "https://api.notion.com/v1")!
     private static let pageSize = 100
@@ -56,7 +45,6 @@ enum NotionClient: TaskSource {
     }
 
     /// Accepts a bare ID (plain or hyphenated) or a notion.so URL.
-    /// Returns 32 lowercase hex chars, or "" when unrecognized.
     static func normalizeDatabaseID(_ s: String) -> String {
         let base = s.split(separator: "?").first.map(String.init) ?? s
         if let m = base.range(of: "[0-9a-fA-F]{32}", options: .regularExpression) {
@@ -72,7 +60,6 @@ enum NotionClient: TaskSource {
         return .object(o)
     }
 
-    /// Maps one API error object onto a typed error.
     static func error(status: Int, json: JSON?) -> NotionError {
         let code = json?["code"]?.string ?? ""
         let message = json?["message"]?.string ?? "Request failed"
@@ -102,8 +89,6 @@ enum NotionClient: TaskSource {
         return QueryResult(pages: pages, nextCursor: cursor)
     }
 
-    /// Reads title / done / due / project from whatever properties exist.
-    /// Nil when the row has no title (nothing importable).
     static func page(id: String, properties: JSON, calendar: Calendar = .current) -> NotionPage? {
         guard let props = properties.object else { return nil }
         let byType = { (t: String) in props.values.filter { $0["type"]?.string == t } }
@@ -193,7 +178,6 @@ enum NotionClient: TaskSource {
 }
 
 private extension JSON {
-    /// Follows `a` → `b` through nested objects (e.g. status → name).
     func dig(_ keys: String...) -> String? {
         var node: JSON? = self
         for k in keys { node = node?[k] }

@@ -1,10 +1,3 @@
-//
-//  TodayView.swift
-//  Do-Du
-//
-//  Record screen: the timer is the hero, the verdict supports it below.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -165,7 +158,6 @@ struct TodayView: View {
 
     // MARK: Data
 
-    /// Share of today's targets covered (0…1).
     private func overallProgress(_ active: [Project], day: DateInterval, now: Date) -> Double {
         let total = active.reduce(0) { $0 + $1.dailyTarget }
         guard total > 0 else { return 0 }
@@ -173,7 +165,6 @@ struct TodayView: View {
         return covered / total
     }
 
-    /// Moves today's finished No-project sessions onto `project`.
     private func assignLoose(to project: Project, day: DateInterval) {
         for e in recent where e.effectiveProject == nil && e.start < day.end && (e.end ?? .now) > day.start {
             e.project = project
@@ -182,7 +173,6 @@ struct TodayView: View {
     }
 }
 
-/// Ring + one sentence with the key value on a mint tag.
 struct VerdictStrip: View {
     let verdict: Verdict
     let progress: Double
@@ -209,7 +199,6 @@ struct VerdictStrip: View {
     }
 }
 
-/// Today's progress for one project. Turns mint when the target is met.
 struct ProjectTile: View {
     let project: Project
     let tracked: TimeInterval
@@ -244,13 +233,12 @@ struct ProjectTile: View {
         .sensoryFeedback(.success, trigger: met) { was, now in !was && now }
     }
 
-    /// Very light swatches read poorly as a ring; the handoff swaps them for pine.
+    /// Very light swatches read poorly as a ring, so they use pine.
     private var ringColor: Color {
         Palette.canonical(project.colorName) == "seafoam" ? Palette.color("pine") : project.color
     }
 }
 
-/// Inset grouped container (surface, radius 20) with hairline separators.
 struct DDGroup<Content: View>: View {
     var radius: CGFloat = DD.Radius.group
     var inset: CGFloat = 16
@@ -272,7 +260,6 @@ struct DDGroup<Content: View>: View {
     }
 }
 
-/// Section header: 13 semibold, sentence case, Ink 3, inset 32.
 struct SectionHeader: View {
     let title: String
     init(_ title: String) { self.title = title }

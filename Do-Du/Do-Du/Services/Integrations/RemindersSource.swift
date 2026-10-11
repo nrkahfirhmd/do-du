@@ -1,11 +1,3 @@
-//
-//  RemindersSource.swift
-//  Do-Du
-//
-//  One-way import from Apple Reminders. Each reminder list name maps to a
-//  Do-Du project (case-insensitive); nothing is ever written back.
-//
-
 import EventKit
 import Foundation
 
@@ -47,8 +39,6 @@ enum RemindersSource: TaskSource {
         }
     }
 
-    /// Pure mapping. Nil for untitled reminders (nothing importable).
-    /// The external identifier is preferred so the same reminder links once across devices.
     nonisolated static func draft(id: String, title: String, isDone: Bool, due: DateComponents?,
                                   list: String?, calendar: Calendar) -> ExternalDraft? {
         let t = title.trimmingCharacters(in: .whitespacesAndNewlines)

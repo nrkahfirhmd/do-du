@@ -1,4 +1,3 @@
-// Standalone self-checks for Do-Du core logic. Run: checks/run.sh
 import Foundation
 import SwiftData
 

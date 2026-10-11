@@ -1,10 +1,3 @@
-//
-//  Stats.swift
-//  Do-Du
-//
-//  Model-facing wrappers around DayMath.
-//
-
 import Foundation
 
 extension Collection where Element == TimeEntry {
@@ -20,7 +13,6 @@ extension Project {
         allEntries.tracked(in: range, now: now)
     }
 
-    /// Counts toward the daily verdict on `date`.
     func isActive(on date: Date, calendar: Calendar = .current) -> Bool {
         !isArchived && DayMath.isActive(mask: activeWeekdaysMask, on: date, calendar: calendar)
     }

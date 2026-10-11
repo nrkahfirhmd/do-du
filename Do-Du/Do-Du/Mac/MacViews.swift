@@ -1,11 +1,3 @@
-//
-//  MacViews.swift
-//  Do-Du
-//
-//  Mac main window from the redesign: sidebar (sections, projects with today's %,
-//  mini timer card) and a two-column Today. Other sections reuse the shared views.
-//
-
 #if os(macOS)
 import SwiftUI
 import SwiftData
@@ -61,8 +53,7 @@ struct MacRootView: View {
         }
         .sheet(isPresented: $planning) { PlanSheet() }
         #if DEBUG
-        // Review hooks: `-macSection tasks`, `-openSettings YES` (with `-macSettingsTab timer`), or
-        // `-macSheet quick|plan|task|project` (with `-quickAddText "…"`).
+        // DEBUG review hooks: -macSection, -openSettings, -macSettingsTab, -macSheet, -quickAddText.
         .task {
             let d = UserDefaults.standard
             if d.bool(forKey: "openSettings") { openSettings() }
@@ -132,7 +123,6 @@ struct MacSidebar: View {
     }
 }
 
-/// Sidebar footer: running timer (forest, mint Stop) or idle start.
 struct MacMiniTimer: View {
     @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
@@ -173,7 +163,6 @@ struct MacMiniTimer: View {
     }
 }
 
-/// Today on Mac: hero on the left; verdict, tiles, sessions and No project on the right.
 struct MacTodayView: View {
     @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
@@ -195,7 +184,6 @@ struct MacTodayView: View {
             let day = DayMath.day(now)
             let active = projects.filter { $0.isActive(on: now) }
             GeometryReader { geo in
-            // Two columns at 1.15fr / 1fr with a 16pt gap inside 28pt side padding.
             let usable = max(0, geo.size.width - 56 - 16)
             ScrollView {
                 HStack(alignment: .top, spacing: 16) {
@@ -232,7 +220,6 @@ struct MacTodayView: View {
         .sheet(isPresented: $planning) { PlanSheet() }
     }
 
-    /// "No project · 25m not counted" with an Assign… menu.
     @ViewBuilder
     private func loose(active: [Project], day: DateInterval, now: Date) -> some View {
         let entries = recent.filter { $0.effectiveProject == nil && $0.start < day.end && ($0.end ?? now) > day.start }
@@ -306,7 +293,6 @@ struct MacTodayView: View {
 #endif
 
 #if os(macOS)
-/// One project's tasks as a table: done · Task · Category · Due · Estimate · play. 44pt rows.
 struct MacTaskTable: View {
     let tasks: [TaskItem]
     let edit: (TaskItem) -> Void
@@ -386,7 +372,6 @@ struct MacTaskTable: View {
         }
     }
 
-    /// Fixed columns: 36 · flexible · 120 · 100 · 90 · 48, inside 14pt padding.
     private func row<A: View, B: View, C: View, D: View, E: View, F: View>(
         @ViewBuilder done: () -> A, @ViewBuilder title: () -> B, @ViewBuilder category: () -> C,
         @ViewBuilder due: () -> D, @ViewBuilder estimate: () -> E, @ViewBuilder play: () -> F) -> some View {

@@ -1,11 +1,3 @@
-//
-//  AISnapshot.swift
-//  Do-Du
-//
-//  Compact, deterministic text view of the user's data for Claude. All numbers
-//  are computed here; the model only reads them.
-//
-
 import Foundation
 
 struct AISnapshot {

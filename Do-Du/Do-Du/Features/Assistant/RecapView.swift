@@ -1,10 +1,3 @@
-//
-//  RecapView.swift
-//  Do-Du
-//
-//  Computed numbers first, then Claude's short write-up of those numbers.
-//
-
 import SwiftUI
 import SwiftData
 import UserNotifications
@@ -136,8 +129,6 @@ struct RecapView: View {
         """
 }
 
-/// Optional daily nudge to open the recap. Text is generic because a repeating
-/// notification can't compute totals at fire time, and no network call happens in the background.
 enum RecapReminder {
     static let enabledKey = "recapReminderOn"
     static let minutesKey = "recapReminderMinutes"   // minutes after midnight
@@ -159,7 +150,6 @@ enum RecapReminder {
     }
 }
 
-/// Values in SF Rounded medium, Ink 3, tabular.
 struct DDValueStyle: LabeledContentStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack {

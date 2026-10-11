@@ -1,12 +1,6 @@
-//
-//  TimerViews.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 
-/// Play/stop toggle for one task.
 struct TimerButton: View {
     let task: TaskItem
     @Environment(\.modelContext) private var context
@@ -34,7 +28,6 @@ struct TimerButton: View {
     }
 }
 
-/// Lets a task-less entry pick (or change) its project.
 struct ProjectAssignMenu: View {
     let entry: TimeEntry
     @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
@@ -56,7 +49,6 @@ struct ProjectAssignMenu: View {
     }
 }
 
-/// Live "1:02:03" for a start date.
 struct ElapsedText: View {
     let start: Date
     var body: some View {
@@ -66,7 +58,6 @@ struct ElapsedText: View {
     }
 }
 
-/// Mini timer above the tab bar: pulsing dot, title, clock, Stop. Tap opens Today.
 struct TimerAccessory: View {
     let entry: TimeEntry
     let open: () -> Void
@@ -110,15 +101,12 @@ struct MenuBarLabel: View {
     @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
     private var running: [TimeEntry]
 
-    // Keep the status-item label a single static symbol. A ticking HStack (icon +
-    // TimelineView text) here froze the app at launch while AppKit sized the status item.
-    // The live elapsed time lives in the menu bar panel instead.
+    // Keep the status-item label a single static symbol.
     var body: some View {
         Image(systemName: running.isEmpty ? "checklist" : "timer")
     }
 }
 
-/// Menu-bar panel: hero card (forest while recording), verdict line, Recent tasks, footer.
 struct MenuBarPanel: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \TimeEntry.start, order: .reverse) private var entries: [TimeEntry]
@@ -198,7 +186,6 @@ struct MenuBarPanel: View {
         .background(running != nil ? DD.forestFill : DD.fill, in: .dd(DD.Radius.menu))
     }
 
-    /// Last five distinct open tasks that had time tracked.
     private var recentTasks: [TaskItem] {
         var seen = Set<PersistentIdentifier>()
         return entries.lazy.compactMap(\.task)

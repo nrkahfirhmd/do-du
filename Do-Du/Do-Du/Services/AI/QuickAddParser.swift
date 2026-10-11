@@ -1,10 +1,3 @@
-//
-//  QuickAddParser.swift
-//  Do-Du
-//
-//  On-device sentence → task fields (Apple Foundation Models).
-//
-
 import Foundation
 import FoundationModels
 
@@ -22,7 +15,6 @@ struct TaskDraft {
     var estimateMinutes: Int
 }
 
-/// What the task editor starts with.
 struct TaskPrefill {
     var title: String
     var project: Project?
@@ -64,9 +56,7 @@ enum QuickAddParser {
     }
 }
 
-/// Instant, offline reading of Quick Add text: "today"/"tomorrow"/a weekday for the due
-/// date, "~30m" / "~1h30" for an estimate, "#admin" for a category, and any project name
-/// in the sentence. Drives the live preview; Foundation Models can then fill the gaps.
+/// Instant offline read of Quick Add text: dates, `~estimate`, `#category` and project names.
 struct QuickAddSyntax: Equatable {
     var title: String
     var projectName: String?

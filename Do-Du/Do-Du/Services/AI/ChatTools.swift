@@ -1,10 +1,3 @@
-//
-//  ChatTools.swift
-//  Do-Du
-//
-//  Read-only tools Claude can call from Chat. Results are computed locally.
-//
-
 import Foundation
 
 struct ChatTools {

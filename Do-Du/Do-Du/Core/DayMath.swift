@@ -1,11 +1,3 @@
-//
-//  DayMath.swift
-//  Do-Du
-//
-//  Pure date/time math shared by Today, Stats and the timer. No SwiftData here,
-//  so `checks/run.sh` can exercise it directly.
-//
-
 import Foundation
 
 enum Verdict: Equatable {
@@ -24,18 +16,15 @@ enum DayMath {
         calendar.startOfDay(for: calendar.date(byAdding: .hour, value: -startHour, to: date)!)
     }
 
-    /// The day that begins on calendar date `logical` (at `startHour`).
     static func dayStarting(_ logical: Date, calendar: Calendar = .current, startHour: Int = startHour) -> DateInterval {
         let start = calendar.date(byAdding: .hour, value: startHour, to: calendar.startOfDay(for: logical))!
         return DateInterval(start: start, end: calendar.date(byAdding: .day, value: 1, to: start)!)
     }
 
-    /// The day containing instant `date`.
     static func day(_ date: Date, calendar: Calendar = .current, startHour: Int = startHour) -> DateInterval {
         dayStarting(logicalDate(date, calendar: calendar, startHour: startHour), calendar: calendar, startHour: startHour)
     }
 
-    /// Week / month containing `date`, shifted by `startHour`.
     static func period(_ component: Calendar.Component, for date: Date, calendar: Calendar = .current,
                        startHour: Int = startHour) -> DateInterval {
         let base = calendar.dateInterval(of: component, for: logicalDate(date, calendar: calendar, startHour: startHour))!
@@ -43,7 +32,6 @@ enum DayMath {
                             end: calendar.date(byAdding: .hour, value: startHour, to: base.end)!)
     }
 
-    /// Calendar dates (midnights) of every day starting inside `range`.
     static func logicalDates(in range: DateInterval, calendar: Calendar = .current, startHour: Int = startHour) -> [Date] {
         var out: [Date] = []
         var d = logicalDate(range.start, calendar: calendar, startHour: startHour)
@@ -59,12 +47,10 @@ enum DayMath {
         max(0, min(end, range.end).timeIntervalSince(max(start, range.start)))
     }
 
-    /// `mask` bit `n` = Calendar weekday `n + 1` (1 = Sunday).
     static func isActive(mask: Int, on date: Date, calendar: Calendar = .current) -> Bool {
         mask & (1 << (calendar.component(.weekday, from: logicalDate(date, calendar: calendar)) - 1)) != 0
     }
 
-    /// One `(tracked, target)` pair per project active that day.
     static func verdict(_ progress: [(tracked: TimeInterval, target: TimeInterval)]) -> Verdict {
         if progress.isEmpty { return .restDay }
         let remaining = progress.reduce(0) { $0 + max(0, $1.target - $1.tracked) }
@@ -83,13 +69,11 @@ enum DayMath {
 }
 
 extension TimeInterval {
-    /// "2h 05m", "45m", "0m".
     var hoursMinutes: String {
         let m = Int(self / 60)
         return m >= 60 ? String(format: "%dh %02dm", m / 60, m % 60) : "\(m)m"
     }
 
-    /// "1:02:03" for a running timer.
     var clock: String {
         let s = max(0, Int(self))
         return String(format: "%d:%02d:%02d", s / 3600, s / 60 % 60, s % 60)

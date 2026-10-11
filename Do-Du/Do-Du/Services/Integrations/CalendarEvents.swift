@@ -1,11 +1,3 @@
-//
-//  CalendarEvents.swift
-//  Do-Du
-//
-//  Phase 3 DD-32: read-only view of one Apple Calendar. Today's events
-//  show in Today; meeting time feeds the day-plan prompt. Never writes.
-//
-
 import EventKit
 import Foundation
 

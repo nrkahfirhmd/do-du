@@ -1,14 +1,5 @@
-//
-//  DesignComponents.swift
-//  Do-Du
-//
-//  Shared pieces of the redesign: chips, rings, tiles, session strip,
-//  record button, icon buttons, highlighted sentences.
-//
-
 import SwiftUI
 
-/// RECORDING (mint, pulsing dot) or READY (fill).
 struct StatusChip: View {
     let recording: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -39,7 +30,6 @@ struct StatusChip: View {
     }
 }
 
-/// Swatch + project name capsule. `onDark` = on the forest hero.
 struct ProjectChip: View {
     let name: String
     let color: Color
@@ -59,7 +49,6 @@ struct ProjectChip: View {
     }
 }
 
-/// Ring with a label in the middle. `value` 0…1.
 struct ProgressRing<Label: View>: View {
     let value: Double
     var size: CGFloat = 104
@@ -89,7 +78,6 @@ extension ProgressRing where Label == EmptyView {
     }
 }
 
-/// Big-number tile. forest = hero, mint = met/good, surface = neutral.
 struct StatTile: View {
     enum Tone { case forest, mint, surface }
     let label: String
@@ -118,7 +106,6 @@ struct StatTile: View {
     }
 }
 
-/// Today's sessions on a time window; live session in mint, a "now" line.
 struct SessionStripView: View {
     let blocks: [SessionBlock]
     let now: Double
@@ -173,7 +160,6 @@ struct SessionStripView: View {
     }
 }
 
-/// The 100pt start/stop control. Running: mint disc, forest stop, breathing ring. Idle: forest disc, mint play.
 struct RecordButton: View {
     let running: Bool
     var size: CGFloat = 100
@@ -223,7 +209,6 @@ struct RecordButton: View {
     }
 }
 
-/// Round icon button. glass = floating toolbar, solid = forest, tint = fill, onDark = on the hero.
 struct DDIconButton: View {
     enum Variant { case glass, solid, tint, onDark }
     let systemImage: String
@@ -258,7 +243,6 @@ struct DDIconButton: View {
     }
 }
 
-/// A sentence with one key value on a mint highlight tag (forest text).
 func highlighted(_ before: String, _ key: String, _ after: String = "") -> Text {
     var tag = AttributedString(key)
     tag.backgroundColor = DD.mint
@@ -266,7 +250,6 @@ func highlighted(_ before: String, _ key: String, _ after: String = "") -> Text 
     return Text("\(before)\(Text(tag))\(after)")
 }
 
-/// Native switch, mint when on (handoff: "Toggle on" is mint), whatever the surrounding tint.
 struct MintSwitch: ToggleStyle {
     func makeBody(configuration: Configuration) -> some View {
         Toggle(configuration).toggleStyle(.switch).tint(DD.mint)
@@ -274,7 +257,6 @@ struct MintSwitch: ToggleStyle {
 }
 
 extension View {
-    /// Sheet and settings forms: white page, surface groups, sage actions.
     func ddForm() -> some View {
         self.formStyle(.grouped)
             .scrollContentBackground(.hidden)
@@ -283,10 +265,8 @@ extension View {
             .toggleStyle(MintSwitch())
     }
 
-    /// Rows inside a form or list group sit on the surface colour.
     func ddRows() -> some View { listRowBackground(DD.surface) }
 
-    /// Primary sheet action (Save, Accept, Import): forest capsule, white text.
     func ddPrimary() -> some View {
         buttonStyle(.borderedProminent).tint(DD.forestFill)
     }

@@ -1,11 +1,3 @@
-//
-//  Onboarding.swift
-//  Do-Du
-//
-//  First-launch answers and the rules the onboarding screens show. Pure
-//  Foundation so `checks/run.sh` can test it; the views live in OnboardingView.
-//
-
 import Foundation
 
 enum OnboardingStep: Int, CaseIterable {
@@ -54,12 +46,11 @@ struct OnboardingAnswers: Equatable {
         }
     }
 
-    /// Monday-first index of `date`'s logical day.
+    /// Monday-first index of a Calendar weekday (1 = Sunday).
     static func mondayIndex(_ weekday: Int) -> Int { (weekday + 5) % 7 }
 
     func isRestDay(weekday: Int) -> Bool { !days[Self.mondayIndex(weekday)] }
 
-    /// Name of the next scheduled day after `weekday` (Calendar weekday, 1 = Sunday).
     func nextScheduledDay(after weekday: Int) -> String? {
         let start = Self.mondayIndex(weekday)
         return (1...7).map { (start + $0) % 7 }.first { days[$0] }.map { Self.dayNames[$0] }
@@ -74,7 +65,6 @@ struct OnboardingAnswers: Equatable {
             .joined(separator: ", ")
     }
 
-    /// "5 days · 15h a week".
     var weekNote: String {
         guard dayCount > 0 else { return "Pick at least one day." }
         let count = dayCount == 7 ? "Every day" : "\(dayCount) day\(dayCount == 1 ? "" : "s")"
@@ -89,7 +79,6 @@ struct OnboardingAnswers: Equatable {
             : "Work before \(dayStart):00 counts toward the day before, so a session at \(dayStart - 1):30 on Monday night still counts for Monday."
     }
 
-    /// The verdict sentence as (before, key, after), for the mint highlight.
     func verdict(weekday: Int) -> (String, String, String) {
         if isRestDay(weekday: weekday) {
             let next = nextScheduledDay(after: weekday).map { " Your first target starts \($0)." } ?? ""
@@ -98,7 +87,6 @@ struct OnboardingAnswers: Equatable {
         return ("You need ", Self.hm(targetMinutes), " to call it a day.")
     }
 
-    /// "3h", "2h 15m", "45m".
     static func hm(_ minutes: Int) -> String {
         let h = minutes / 60, m = minutes % 60
         return h == 0 ? "\(m)m" : m == 0 ? "\(h)h" : "\(h)h \(m)m"

@@ -1,10 +1,3 @@
-//
-//  Keychain.swift
-//  Do-Du
-//
-//  One generic-password item per key. Used for the Claude API key.
-//
-
 import Foundation
 import Security
 

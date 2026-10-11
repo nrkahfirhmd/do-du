@@ -1,11 +1,3 @@
-//
-//  ClaudeClient.swift
-//  Do-Du
-//
-//  Minimal Messages API client over URLSession (no official Swift SDK).
-//  Pure `body(_:)` / `parse(_:)` so `checks/run.sh` can test them offline.
-//
-
 import Foundation
 
 /// Just enough JSON to build requests and echo assistant content back unchanged.
@@ -76,9 +68,7 @@ struct ClaudeRequest {
     var system: String
     var messages: [JSON]
     var tools: [JSON] = []
-    /// `low` for chatty/simple work, `medium` for planning.
     var effort = "low"
-    /// JSON schema for structured output (`output_config.format`).
     var schema: JSON?
     var maxTokens = 16000
 }
@@ -171,8 +161,6 @@ enum ClaudeClient {
         throw ClaudeError.busy
     }
 
-    /// Runs the tool-use loop. `messages` is append-only: assistant content goes back unchanged.
-    /// Returns the final text.
     static func runTools(_ r: ClaudeRequest, messages: inout [JSON], maxSteps: Int = 8,
                          handle: (ToolUse) async -> (result: String, isError: Bool)) async throws -> String {
         for _ in 0..<maxSteps {

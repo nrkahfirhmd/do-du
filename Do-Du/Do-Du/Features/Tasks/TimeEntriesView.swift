@@ -1,8 +1,3 @@
-//
-//  TimeEntriesView.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 
@@ -66,7 +61,6 @@ struct TimeEntriesView: View {
 }
 
 struct EntryEditor: View {
-    /// Nil when editing a quick-timer entry.
     let task: TaskItem?
     let entry: TimeEntry?
     @Environment(\.modelContext) private var context
@@ -98,7 +92,6 @@ struct EntryEditor: View {
         }
     }
 
-    /// Why the current values can't be saved, or nil if they can.
     private var problem: String? {
         let now = Date.now
         let effectiveEnd = isRunning ? now : end
@@ -122,7 +115,6 @@ struct EntryEditor: View {
     }
 }
 
-/// Quick-timer entries with no project yet. Assigning a project moves them out of this list.
 struct UnassignedEntriesView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss

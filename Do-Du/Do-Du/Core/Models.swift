@@ -1,11 +1,3 @@
-//
-//  Models.swift
-//  Do-Du
-//
-//  CloudKit-compatible: every property has a default or is optional,
-//  every relationship is optional with an inverse, no unique constraints.
-//
-
 import Foundation
 import SwiftData
 import SwiftUI
@@ -23,7 +15,6 @@ final class Project {
     @Relationship(deleteRule: .cascade, inverse: \TaskItem.project)
     var tasks: [TaskItem]? = []
 
-    /// Quick-timer entries logged straight to the project, without a task.
     @Relationship(deleteRule: .cascade, inverse: \TimeEntry.project)
     var looseEntries: [TimeEntry]? = []
 
@@ -65,10 +56,8 @@ final class TaskItem {
     var isDone: Bool = false
     var completedAt: Date?
     var createdAt: Date = Date.now
-    /// Phase 3 integrations (Notion, Reminders, …). Nil for tasks created in Do-Du.
     var externalSource: String?
     var externalID: String?
-    /// Logical date this task is planned for (Plan my day), with its order and minutes.
     var plannedFor: Date?
     var planOrder: Int = 0
     var plannedMinutes: Int?
@@ -96,7 +85,6 @@ final class TimeEntry {
     var start: Date = Date.now
     /// `nil` while the timer is running.
     var end: Date?
-    /// Nil for a quick timer started without a task.
     var task: TaskItem?
     /// Only set for task-less entries; task entries get their project from the task.
     var project: Project?
@@ -114,12 +102,10 @@ final class TimeEntry {
     func duration(now: Date = .now) -> TimeInterval { (end ?? now).timeIntervalSince(start) }
 }
 
-/// Project colours from the redesign. Older names (blue, green, …) still resolve,
-/// so existing projects keep a colour without a data migration.
+/// Older colour names still resolve, so no data migration is needed.
 enum Palette {
     static let names = ["forest", "sage", "moss", "seafoam", "pine", "slate"]
 
-    /// Old free-colour names mapped onto the redesign swatches.
     static func canonical(_ name: String) -> String {
         if names.contains(name) { return name }
         switch name {
@@ -134,7 +120,6 @@ enum Palette {
 
     static func color(_ name: String) -> Color {
         switch canonical(name) {
-        // Forest swatch lightens in dark mode so it stays visible on dark surfaces.
         case "sage": Color.dynamic(light: Color(hex: 0x428475), dark: Color(hex: 0x6FB3A0))
         case "moss": Color(hex: 0x5E9C8C)
         case "seafoam": Color(hex: 0x9CC4B6)

@@ -1,12 +1,3 @@
-//
-//  MacSettingsView.swift
-//  Do-Du
-//
-//  Mac Settings window (⌘,): General, Timer, Assistant, Data tabs. iPhone keeps
-//  the single SettingsView form; the pieces both need (categories, imports,
-//  calendar, iCloud status) are shared sections.
-//
-
 #if os(macOS)
 import ServiceManagement
 import SwiftData
@@ -28,7 +19,6 @@ struct MacSettingsView: View {
     }
 }
 
-/// Settings page: grouped form on the page colour, surface groups, mint switches.
 private struct SettingsPage<Content: View>: View {
     @ViewBuilder var content: Content
 
@@ -40,13 +30,11 @@ private struct SettingsPage<Content: View>: View {
     }
 }
 
-/// "3h", "1h 30m", "45m".
 private func hm(_ minutes: Int) -> String {
     let h = minutes / 60, m = minutes % 60
     return h == 0 ? "\(m)m" : m == 0 ? "\(h)h" : "\(h)h \(m)m"
 }
 
-/// Label, value in rounded bold, native stepper.
 private struct ValueStepper: View {
     let title: String
     let value: String
@@ -240,7 +228,6 @@ struct MacDataSettings: View {
     }
 }
 
-/// The menu-bar extra's visibility (General → Show in menu bar).
 enum MenuBarVisibility {
     static let key = "showMenuBar"
 }

@@ -1,12 +1,3 @@
-//
-//  ImportViews.swift
-//  Do-Du
-//
-//  One import sheet for every TaskSource (Notion, Reminders). New rows are
-//  previewed with a project picker; nothing is written before Import is tapped.
-//  Rows already linked to a task are refreshed on import.
-//
-
 import EventKit
 import SwiftData
 import SwiftUI
@@ -130,7 +121,6 @@ struct ExternalImportSheet<Source: TaskSource>: View {
     }
 }
 
-/// Reminders permission. Lists map to projects by name at import time.
 struct RemindersSettingsSection: View {
     @State private var status = EKEventStore.authorizationStatus(for: .reminder)
 

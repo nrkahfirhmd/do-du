@@ -1,14 +1,6 @@
-//
-//  NotionViews.swift
-//  Do-Du
-//
-//  Notion settings. Importing goes through the shared ExternalImportSheet.
-//
-
 import SwiftData
 import SwiftUI
 
-/// Token (Keychain) + database ID + connection test.
 struct NotionSettingsSection: View {
     @State private var hasToken = NotionKey.current != nil
     @State private var draft = ""

@@ -1,13 +1,3 @@
-//
-//  DoDuIntents.swift
-//  Do-Du
-//
-//  Phase 3 DD-33: Siri + Shortcuts. Start/stop the timer, add a task.
-//  Entities identify tasks by their (Codable) store identifier and
-//  resolve gracefully — a deleted task just means "no task".
-//  Add creates the task; Siri/Shortcuts confirmation is the checkpoint.
-//
-
 import AppIntents
 import Foundation
 import SwiftData

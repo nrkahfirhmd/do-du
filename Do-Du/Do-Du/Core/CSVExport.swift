@@ -1,8 +1,3 @@
-//
-//  CSVExport.swift
-//  Do-Du
-//
-
 import SwiftUI
 import UniformTypeIdentifiers
 

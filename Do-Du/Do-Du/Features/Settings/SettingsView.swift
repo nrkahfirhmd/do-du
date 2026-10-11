@@ -1,8 +1,3 @@
-//
-//  SettingsView.swift
-//  Do-Du
-//
-
 import SwiftUI
 import SwiftData
 import UniformTypeIdentifiers
@@ -76,7 +71,6 @@ struct SettingsView: View {
 }
 
 extension View {
-    /// Save-panel for the time-entries CSV; `document` non-nil opens it.
     func csvExport(_ document: Binding<CSVDocument?>) -> some View {
         fileExporter(isPresented: .init(get: { document.wrappedValue != nil }, set: { if !$0 { document.wrappedValue = nil } }),
                      document: document.wrappedValue, contentType: .commaSeparatedText,
@@ -136,7 +130,6 @@ struct CategoryEditor: View {
     }
 }
 
-/// iCloud account state. Data always saves locally; it syncs once signed in.
 struct ICloudStatus: View {
     var body: some View {
         if !SharedStore.iCloudOnAtLaunch {
@@ -153,7 +146,7 @@ struct ICloudStatus: View {
     }
 }
 
-/// Claude API key for Plan, Recap and Chat. Stored only in Keychain.
+/// Stored only in Keychain.
 struct ClaudeKeySection: View {
     @State private var hasKey = ClaudeKey.current != nil
     @State private var draft = ""

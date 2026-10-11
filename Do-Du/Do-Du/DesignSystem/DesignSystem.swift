@@ -1,12 +1,3 @@
-//
-//  DesignSystem.swift
-//  Do-Du
-//
-//  Tokens from the design handoff (docs/design_handoff_dodu_app/README.md).
-//  Light values are the handoff's; dark values are adapted (Decision Log 2026-10-11):
-//  brand hues stay, neutrals invert, text on mint is always forest.
-//
-
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
@@ -23,7 +14,6 @@ extension Color {
                   opacity: alpha)
     }
 
-    /// Resolves per appearance (light / dark) on both platforms.
     static func dynamic(light: Color, dark: Color) -> Color {
         #if canImport(UIKit)
         Color(UIColor { $0.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light) })
@@ -37,7 +27,6 @@ extension Color {
 
 enum DD {
     // MARK: Brand
-    /// Mint: live or met. Same in both appearances.
     static let mint = Color(hex: 0x89D7B7)
     /// Forest that never adapts: text and glyphs on mint.
     static let onMint = Color(hex: 0x1A312C)
@@ -45,7 +34,6 @@ enum DD {
     static let forest = Color.dynamic(light: Color(hex: 0x1A312C), dark: Color(hex: 0xE3F1EB))
     /// Forest as a fill: recording hero, primary buttons, selected tab. Text on it is white.
     static let forestFill = Color.dynamic(light: Color(hex: 0x1A312C), dark: Color(hex: 0x22453C))
-    /// Sage: links and text actions.
     static let sage = Color.dynamic(light: Color(hex: 0x428475), dark: Color(hex: 0x7CC2AE))
 
     // MARK: Neutrals
@@ -77,7 +65,6 @@ enum DD {
 }
 
 extension Font {
-    /// SF Pro Rounded, used for titles, the clock and every number.
     static func rounded(_ size: CGFloat, _ weight: Font.Weight = .heavy) -> Font {
         .system(size: size, weight: weight, design: .rounded)
     }

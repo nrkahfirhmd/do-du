@@ -1,12 +1,3 @@
-//
-//  GlobalHotKey.swift
-//  Do-Du
-//
-//  ⌘⇧T from any app starts or stops the timer (macOS). Carbon RegisterEventHotKey
-//  works inside the sandbox and needs no Accessibility permission. The Shortcuts
-//  actions stay available for people who prefer their own key.
-//
-
 #if os(macOS)
 import Carbon.HIToolbox
 import Foundation
@@ -42,7 +33,6 @@ enum GlobalHotKey {
         apply()
     }
 
-    /// Registers or unregisters ⌘⇧T to match the setting.
     static func apply() {
         if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }
         guard isEnabled else { return }

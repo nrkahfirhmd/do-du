@@ -1,34 +1,22 @@
-//
-//  TimerActivity.swift
-//  Do-Du
-//
-//  Shared Live Activity definition: compiled into the app (to start/end
-//  activities) and into the widget extension (to render them).
-//
-
 #if os(iOS)
 import ActivityKit
 import SwiftUI
 import WidgetKit
 
-/// Plain data: opted out of the module's MainActor default so ActivityKit
-/// can use it from concurrent contexts.
+/// Plain data: opted out of the module's MainActor default so ActivityKit can use it from concurrent contexts.
 nonisolated struct TimerAttributes: ActivityAttributes, Equatable {
     struct ContentState: Codable, Hashable {
-        /// Timer start; views render a live `Text(_:style:.timer)` from it.
         var startedAt: Date
     }
 
     var taskTitle: String
     var projectName: String
-    /// Today's target for the project (0 = none) and what was tracked before
-    /// this session, so progress and "to enough" can run live from `startedAt`.
+    /// Project target and time tracked before this session, so progress runs live from `startedAt`.
     var target: TimeInterval = 0
     var trackedBefore: TimeInterval = 0
 }
 
-/// Banner, compact, minimal and expanded per the redesign. Stop opens the app
-/// via `dodu://timer/toggle`, like the widgets (option A).
+/// Stop opens the app via `dodu://timer/toggle`, like the widgets.
 struct TimerLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TimerAttributes.self) { context in
@@ -80,7 +68,6 @@ struct TimerLiveActivity: Widget {
 }
 
 extension TimerAttributes {
-    /// Time range over which the project's bar fills from 0 to target, or nil without a target.
     func progressRange(startedAt: Date) -> ClosedRange<Date>? {
         guard target > 0 else { return nil }
         let zero = startedAt.addingTimeInterval(-trackedBefore)
@@ -88,7 +75,6 @@ extension TimerAttributes {
     }
 }
 
-/// Lock Screen banner: forest card, RECORDING chip, 48pt clock, mint Stop, progress.
 private struct LiveBanner: View {
     let attributes: TimerAttributes
     let startedAt: Date
@@ -128,7 +114,6 @@ private struct LiveBanner: View {
     }
 }
 
-/// "2:16:00 to enough" counting down live, "Enough ✓" once met, nothing without a target.
 private struct LeftText: View {
     let attributes: TimerAttributes
     let startedAt: Date
@@ -149,7 +134,6 @@ private struct LeftText: View {
     }
 }
 
-/// Mint disc with a forest rounded-square stop.
 private struct StopGlyph: View {
     let size: CGFloat
     let glyph: CGFloat
@@ -176,8 +160,7 @@ private struct StopLink: View {
 import SwiftUI
 import WidgetKit
 
-/// macOS has no ActivityKit (`Widget` itself lives in SwiftUI here):
-/// contributes no Live Activity to the bundle.
+/// macOS has no ActivityKit (`Widget` itself lives in SwiftUI here): contributes no Live Activity to the bundle.
 struct TimerLiveActivity: Widget {
     var body: some WidgetConfiguration {
         EmptyWidgetConfiguration()

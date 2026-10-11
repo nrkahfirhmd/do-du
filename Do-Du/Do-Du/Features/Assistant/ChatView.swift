@@ -1,10 +1,3 @@
-//
-//  ChatView.swift
-//  Do-Du
-//
-//  Ask questions about your own data. Conversation lives in memory only.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -17,7 +10,6 @@ struct AssistantView: View {
 
     var body: some View {
         #if os(macOS)
-        // Mac: Recap beside Chat.
         HStack(spacing: 14) {
             RecapView().frame(maxWidth: .infinity)
             ChatView().frame(maxWidth: .infinity)
@@ -147,7 +139,6 @@ struct ChatView: View {
     }
 }
 
-/// User messages: forest with white text, right. Replies: surface, left.
 struct ChatBubble: View {
     let text: String
     let fromUser: Bool
