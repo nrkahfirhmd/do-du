@@ -12,6 +12,7 @@ import SwiftData
 
 struct MacRootView: View {
     @Environment(\.modelContext) private var context
+    @Environment(\.openSettings) private var openSettings
     @State private var section = AppTab.today
     @State private var quickAdd = false
     @State private var planning = false
@@ -57,6 +58,10 @@ struct MacRootView: View {
         }
         .sheet(isPresented: $quickAdd) { QuickAddSheet() }
         .sheet(isPresented: $planning) { PlanSheet() }
+        #if DEBUG
+        // `-openSettings YES` (with `-macSettingsTab timer`) opens Settings at launch for review.
+        .task { if UserDefaults.standard.bool(forKey: "openSettings") { openSettings() } }
+        #endif
     }
 
     private var title: String {

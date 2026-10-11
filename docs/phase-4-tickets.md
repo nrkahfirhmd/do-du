@@ -75,8 +75,9 @@ Added 2026-10-11 from the updated handoff (onboarding, Mac Settings window, Mac 
 - [x] Notes: the store now opens after onboarding (`Do_DuApp.container` is nil until then), so the iCloud choice decides how it opens. The widget no longer creates the store file. On iPhone only the current step's preview section shows (all of them on Done); the footer stays pinned under the keyboard, with a keyboard Done button. DEBUG: `-forceOnboarding YES -onboardingStep N`. Verified on the iPhone simulator (full flow, rest day, relaunch) and Mac test build (light/dark steps).
 
 ## DD-50 · Mac Settings window — M
-- [ ] `Settings` scene with General / Timer / Assistant / Data tabs per handoff.
-- [ ] **New behaviour:** Open at login, Show in menu bar, idle stop 5–60m (default 10m) separate from Stop on sleep or lock, Pomodoro focus + break.
+- [x] `Settings` scene with General / Timer / Assistant / Data tabs per handoff (`MacSettingsView`); reopens on the last tab.
+- [x] **New behaviour:** Open at login (`SMAppService`), Show in menu bar (`MenuBarExtra(isInserted:)`), idle stop 5–60m (default 10m) separate from Stop on sleep or lock, Pomodoro focus + break (a "Break's over" nudge).
+- [x] Notes: Categories sit in General and the Notion/Reminders imports in Data (the handoff has no place for them). The iCloud status says On / Off / Not signed in rather than "Synced 2 minutes ago" (SwiftData doesn't expose the last sync time). iPhone keeps its single Settings form (gains the Break stepper). DEBUG: `-openSettings YES -macSettingsTab timer`. Verified each tab in a Mac test build.
 
 ## DD-51 · Mac sheets — L
 - [ ] Quick Add floating panel (640pt, live five-cell preview), ⌘K in app, **new behaviour:** global ⌥⌘K.

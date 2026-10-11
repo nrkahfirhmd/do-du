@@ -88,25 +88,37 @@ enum LongRunAlert {
 enum Pomodoro {
     static let enabledKey = "pomodoroOn"
     static let minutesKey = "pomodoroMinutes"
+    static let breakKey = "pomodoroBreakMinutes"
     private static let requestID = "pomodoro"
+    private static let breakEndID = "pomodoro-break-end"
 
     static func schedule(from start: Date?) {
         let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [requestID])
+        center.removePendingNotificationRequests(withIdentifiers: [requestID, breakEndID])
         let defaults = UserDefaults.standard
         guard let start, defaults.bool(forKey: enabledKey) else { return }
-        let minutes = defaults.object(forKey: minutesKey) as? Int ?? 25
-        let fireIn = start.addingTimeInterval(Double(minutes) * 60).timeIntervalSinceNow
-        guard fireIn > 0 else { return }
-        let content = UNMutableNotificationContent()
-        content.title = "Time for a break"
-        content.body = "\(minutes) minutes of focus done. Stretch, then keep going."
-        content.sound = .default
-        let request = UNNotificationRequest(identifier: requestID, content: content,
-                                            trigger: UNTimeIntervalNotificationTrigger(timeInterval: fireIn, repeats: false))
+        let focus = defaults.object(forKey: minutesKey) as? Int ?? 25
+        let rest = defaults.object(forKey: breakKey) as? Int ?? 5
+        let breakAt = start.addingTimeInterval(Double(focus) * 60).timeIntervalSinceNow
+        guard breakAt > 0 else { return }
+        let requests = [
+            request(requestID, in: breakAt, title: "Time for a break",
+                    body: "\(focus) minutes of focus done. Take \(rest) minutes, then keep going."),
+            request(breakEndID, in: breakAt + Double(rest) * 60, title: "Break’s over",
+                    body: "Back to it. The timer is still running."),
+        ]
         Task {
             guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
-            try? await center.add(request)
+            for r in requests { try? await center.add(r) }
         }
+    }
+
+    private static func request(_ id: String, in seconds: TimeInterval, title: String, body: String) -> UNNotificationRequest {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        return UNNotificationRequest(identifier: id, content: content,
+                                     trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false))
     }
 }

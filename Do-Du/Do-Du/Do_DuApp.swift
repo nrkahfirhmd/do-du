@@ -13,6 +13,9 @@ struct Do_DuApp: App {
     /// Same instance Siri/Shortcuts intents use (App Group store, CloudKit unless turned off).
     /// Nil until onboarding finishes on a fresh install, so its iCloud choice decides how the store opens.
     @State private var container: ModelContainer? = OnboardingGate.isNeeded ? nil : Do_DuApp.openStore()
+    #if os(macOS)
+    @AppStorage(MenuBarVisibility.key) private var showMenuBar = true
+    #endif
 
     init() {
         #if canImport(UIKit)
@@ -80,7 +83,7 @@ struct Do_DuApp: App {
         }
 
         #if os(macOS)
-        MenuBarExtra(isInserted: .constant(container != nil)) {
+        MenuBarExtra(isInserted: Binding(get: { container != nil && showMenuBar }, set: { showMenuBar = $0 })) {
             if let container { MenuBarPanel().modelContainer(container) }
         } label: {
             if let container { MenuBarLabel().modelContainer(container) }
@@ -89,7 +92,7 @@ struct Do_DuApp: App {
 
         Settings {
             if let container {
-                SettingsView().modelContainer(container)
+                MacSettingsView().modelContainer(container)
             } else {
                 Text("Finish setting up Do-Du first.").padding(40)
             }

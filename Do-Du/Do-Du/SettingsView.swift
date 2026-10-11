@@ -14,11 +14,7 @@ struct SettingsView: View {
     @AppStorage(RecapReminder.minutesKey) private var recapMinutes = 18 * 60
     @AppStorage(Pomodoro.enabledKey) private var pomodoroOn = false
     @AppStorage(Pomodoro.minutesKey) private var pomodoroMinutes = 25
-    @AppStorage(IdleStop.enabledKey) private var idleStopOn = true
-    #if os(macOS)
-    @AppStorage(GlobalHotKey.enabledKey) private var hotKeyOn = true
-    #endif
-    @AppStorage(IdleStop.minutesKey) private var idleStopMinutes = IdleStop.defaultMinutes
+    @AppStorage(Pomodoro.breakKey) private var breakMinutes = 5
     @AppStorage(SharedStore.iCloudKey) private var iCloudOn = true
     @Query private var entries: [TimeEntry]
     @State private var export: CSVDocument?
@@ -32,19 +28,11 @@ struct SettingsView: View {
                     }
                     Toggle("Pomodoro break reminder", isOn: $pomodoroOn)
                     if pomodoroOn {
-                        Stepper("Break after \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
+                        Stepper("Focus \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
+                        Stepper("Break \(breakMinutes) min", value: $breakMinutes, in: 1...30)
                     }
                     Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
                             value: $longRunHours, in: 0.5...12, step: 0.5)
-                    #if os(macOS)
-                    Toggle("⌘⇧T starts or stops the timer from any app", isOn: $hotKeyOn)
-                        .onChange(of: hotKeyOn) { GlobalHotKey.apply() }
-                    Toggle("Stop timer when Mac sleeps or is idle", isOn: $idleStopOn)
-                    if idleStopOn {
-                        Stepper("Stop after \(idleStopMinutes) min idle",
-                                value: $idleStopMinutes, in: 2...120, step: 5)
-                    }
-                    #endif
                 }
                 Section("Recap") {
                     Toggle("Daily recap reminder", isOn: $recapOn)
@@ -83,12 +71,16 @@ struct SettingsView: View {
         }
         .ddForm()
         .navigationTitle("Settings")
-        .fileExporter(isPresented: .init(get: { export != nil }, set: { if !$0 { export = nil } }),
-                      document: export, contentType: .commaSeparatedText,
-                      defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))") { _ in }
-        #if os(macOS)
-        .frame(width: 460, height: 420)
-        #endif
+        .csvExport($export)
+    }
+}
+
+extension View {
+    /// Save-panel for the time-entries CSV; `document` non-nil opens it.
+    func csvExport(_ document: Binding<CSVDocument?>) -> some View {
+        fileExporter(isPresented: .init(get: { document.wrappedValue != nil }, set: { if !$0 { document.wrappedValue = nil } }),
+                     document: document.wrappedValue, contentType: .commaSeparatedText,
+                     defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))") { _ in }
     }
 }
 
