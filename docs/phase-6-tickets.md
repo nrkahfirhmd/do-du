@@ -19,8 +19,8 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [x] A running session must be stopped first.
 
 ## DD-73 · Manual refresh — M
-- [ ] iPhone: pull down on Today and Tasks. Mac: toolbar Refresh (⌘R).
-- [ ] Imports Notion + Reminders, reloads the calendar, saves; shows the result and sync status.
+- [x] iPhone: pull down on Today and Tasks. Mac: toolbar Refresh (⌘R).
+- [x] Imports Notion + Reminders, reloads the calendar, saves; a banner shows the result (imports, errors, last iCloud sync).
 
 ## DD-74 · Mac motion + haptics — M
 - [ ] Haptics at the iPhone moments using macOS kinds (Force Touch trackpad only).

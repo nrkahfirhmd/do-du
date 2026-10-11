@@ -22,11 +22,15 @@ struct TasksView: View {
     #endif
     @State private var notionImport = false
     @State private var remindersImport = false
+    @State private var refreshNote: String?
 
     var body: some View {
         content
             .background(DD.page)
             .overlay { emptyState }
+            #if os(iOS)
+        .pullToRefresh($refreshNote, in: context)
+            #endif
             .navigationTitle("Tasks")
             .toolbar {
                 ToolbarItem {
@@ -73,9 +77,9 @@ struct TasksView: View {
             .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
             #if os(iOS)
         .sheet(isPresented: $quickAdd) { QuickAddSheet() }
-            #endif
-            .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
-            .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
+        #endif
+        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
+        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
     }
 
     #if os(macOS)

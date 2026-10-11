@@ -7,6 +7,8 @@ struct MacRootView: View {
     @Environment(\.openSettings) private var openSettings
     @State private var section = AppTab.today
     @State private var planning = false
+    @State private var refreshNote: String?
+    @State private var refreshing = false
     #if DEBUG
     @State private var debugTask: TaskItem?
     @State private var debugProject = false
@@ -35,6 +37,17 @@ struct MacRootView: View {
                         ToolbarItem(placement: .navigation) { SetUpChip() }
                     }
                     ToolbarItemGroup(placement: .primaryAction) {
+                        Button("Refresh", systemImage: "arrow.clockwise") {
+                            refreshing = true
+                            Task {
+                                refreshNote = await ManualRefresh.run(in: context)
+                                refreshing = false
+                            }
+                        }
+                        .keyboardShortcut("r")
+                        .disabled(refreshing)
+                        .symbolEffect(.rotate, isActive: refreshing)
+                        .help("Import from Notion and Reminders, reload the calendar and sync (⌘R)")
                         Button("Quick Add ⌘K", systemImage: "sparkles") { QuickAddPanel.show() }
                             .labelStyle(.titleAndIcon)
                             .keyboardShortcut("k")
@@ -46,6 +59,7 @@ struct MacRootView: View {
             }
         }
         .tint(DD.forestFill)
+        .modifier(RefreshBanner(note: $refreshNote))
         .frame(minWidth: 1000, minHeight: 640)
         .onOpenURL { url in
             let link = DeepLink(url)

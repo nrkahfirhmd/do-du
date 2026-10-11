@@ -28,6 +28,8 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | Manual refresh (iPhone pull down, Mac ⌘R) runs the import, reloads the calendar and saves; it can't force a CloudKit download, so it shows the last sync result instead | SwiftData has no sync-now API; downloads arrive by push |
+| 2026-10-11 | Deleting a session is permanent with a short inline Undo; no "exclude from stats" flag | Owner's choice; stats stay computed from entries with no new field |
 | 2026-10-11 | Notion/Reminders import runs automatically while the app is active (activation + every 15 min, `AutoImport`): linked tasks refresh, new items with a matching project are added, unmatched wait for the sheet; Settings switch; duplicates from two devices merged by external ID | Owner approved adding without per-item review; still never creates projects |
 | 2026-10-11 | No Firebase: stay on CloudKit; Settings shows the last sync result (`SyncMonitor`) | Mac and iPhone diverged because sync failed silently (likely undeployed Production schema / mixed TestFlight and Xcode builds), not because of CloudKit itself |
 | 2026-10-11 | Design handoff removed after Phase 4; `DesignSystem.swift` (`DD`) and the shipped UI are now the design source | Fully implemented; keeps the repo lean |
