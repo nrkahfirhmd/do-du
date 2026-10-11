@@ -62,7 +62,10 @@ struct DoDuProvider: TimelineProvider {
     }
 
     private func load(now: Date = .now) -> DoDuEntry {
+        // Never create the store here: the app opens it first (with its iCloud choice), and
+        // onboarding treats an existing store file as an existing user.
         guard let url = SharedStore.storeURL(groupURL: SharedStore.groupURL),
+              FileManager.default.fileExists(atPath: url.path),
               let container = try? ModelContainer(
                 for: Schema(allModels),
                 configurations: [ModelConfiguration(schema: Schema(allModels), url: url, cloudKitDatabase: .none)]) else {

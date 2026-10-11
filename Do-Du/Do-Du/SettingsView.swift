@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage(GlobalHotKey.enabledKey) private var hotKeyOn = true
     #endif
     @AppStorage(IdleStop.minutesKey) private var idleStopMinutes = IdleStop.defaultMinutes
+    @AppStorage(SharedStore.iCloudKey) private var iCloudOn = true
     @Query private var entries: [TimeEntry]
     @State private var export: CSVDocument?
 
@@ -61,8 +62,15 @@ struct SettingsView: View {
                 NotionSettingsSection()
                 RemindersSettingsSection()
                 CalendarSettingsSection()
-                Section("Sync") {
-                    ICloudStatus()
+                Section {
+                    Toggle("Sync with iCloud", isOn: $iCloudOn)
+                    if iCloudOn == SharedStore.iCloudOnAtLaunch { ICloudStatus() }
+                } header: {
+                    Text("Sync")
+                } footer: {
+                    if iCloudOn != SharedStore.iCloudOnAtLaunch {
+                        Text(iCloudOn ? "Sync starts next time you open Do-Du." : "Sync stops next time you open Do-Du. Data already in iCloud stays there.")
+                    }
                 }
                 Section("Data") {
                     Button("Export Time Entries (CSV)…", systemImage: "square.and.arrow.up") {
@@ -139,7 +147,9 @@ struct CategoryEditor: View {
 /// iCloud account state. Data always saves locally; it syncs once signed in.
 struct ICloudStatus: View {
     var body: some View {
-        if FileManager.default.ubiquityIdentityToken != nil {
+        if !SharedStore.iCloudOnAtLaunch {
+            Label("iCloud sync off. Data stays on this device.", systemImage: "icloud.slash")
+        } else if FileManager.default.ubiquityIdentityToken != nil {
             Label("iCloud sync on", systemImage: "checkmark.icloud")
         } else {
             Label {

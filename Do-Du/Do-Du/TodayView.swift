@@ -57,7 +57,7 @@ struct TodayView: View {
 
                     PlanSection(now: now)
                     if !meetings.isEmpty { scheduleGroup }
-                    if FileManager.default.ubiquityIdentityToken == nil {
+                    if SharedStore.iCloudOnAtLaunch, FileManager.default.ubiquityIdentityToken == nil {
                         ICloudStatus().font(.footnote).foregroundStyle(DD.ink3)
                             .padding(.horizontal, 32).padding(.top, 16)
                     }
@@ -96,6 +96,7 @@ struct TodayView: View {
         HStack {
             Text("Today").font(.ddTitle2).foregroundStyle(DD.forest)
             Spacer()
+            if OnboardingGate.justFinished { SetUpChip() }
             DDIconButton(systemImage: "sparkles", label: "Plan My Day") { planning = true }
             DDIconButton(systemImage: "gearshape", label: "Settings") { showSettings = true }
         }

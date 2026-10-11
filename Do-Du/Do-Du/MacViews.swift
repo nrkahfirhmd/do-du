@@ -35,6 +35,9 @@ struct MacRootView: View {
                 .navigationTitle(title)
                 .navigationSubtitle(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
                 .toolbar {
+                    if OnboardingGate.justFinished && section == .today {
+                        ToolbarItem(placement: .navigation) { SetUpChip() }
+                    }
                     ToolbarItemGroup(placement: .primaryAction) {
                         Button("Quick Add ⌘K", systemImage: "sparkles") { quickAdd = true }
                             .labelStyle(.titleAndIcon)

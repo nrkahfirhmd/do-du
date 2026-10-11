@@ -68,10 +68,11 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 Added 2026-10-11 from the updated handoff (onboarding, Mac Settings window, Mac sheets). Decided: no Settings button in the menu-bar panel (app menu ⌘, only); the onboarding iCloud switch is a real opt-out (applies after relaunch when changed later); Quick Add is ⌘K in the app plus a global ⌥⌘K. The Timer widget keeps opening the app (DD-46 option A).
 
 ## DD-49 · Onboarding (iPhone + Mac) — L
-- [ ] Seven steps (Welcome, Project, Days, Day start, Sync and assistant, Done, Today) with the live preview card; iPhone page flow, Mac 880×600 window.
-- [ ] **New behaviour:** shown once per device (`hasOnboarded`), skipped when the store already has a project; nothing written before each Continue; "✓ Set up" chip on Today for the first session.
-- [ ] **New behaviour:** iCloud opt-out (store opens without CloudKit when off).
-- [ ] Self-check: step rules (Continue enabled, day presets, week summary).
+- [x] Seven steps (Welcome, Project, Days, Day start, Sync and assistant, Done, Today) with the live preview card; iPhone page flow, Mac 880×600 window.
+- [x] **New behaviour:** shown once per device (`hasOnboarded`), skipped when a store already exists or iCloud already has the Do-Du zone; nothing written before Go to Today; "✓ Set up" chip on Today for the first session.
+- [x] **New behaviour:** iCloud opt-out (store opens without CloudKit when off); Settings → Sync switch applies next launch.
+- [x] Self-check: step rules (Continue enabled, day presets, weekday mask, rest-day verdict, week summary).
+- [x] Notes: the store now opens after onboarding (`Do_DuApp.container` is nil until then), so the iCloud choice decides how it opens. The widget no longer creates the store file. On iPhone only the current step's preview section shows (all of them on Done); the footer stays pinned under the keyboard, with a keyboard Done button. DEBUG: `-forceOnboarding YES -onboardingStep N`. Verified on the iPhone simulator (full flow, rest day, relaunch) and Mac test build (light/dark steps).
 
 ## DD-50 · Mac Settings window — M
 - [ ] `Settings` scene with General / Timer / Assistant / Data tabs per handoff.
