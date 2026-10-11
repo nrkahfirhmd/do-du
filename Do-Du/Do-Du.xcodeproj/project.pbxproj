@@ -11,13 +11,13 @@
 		10DFC3D89D59E4342B56FDC3 /* DoDuWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 70E9CBE28A790C18FC061A3E /* DoDuWidget.appex */; };
 		37C8FB885FA9802376585F13 /* DayMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06CE9163C07A4ACF0CFB2D3 /* DayMath.swift */; };
 		61110CDD4F1CAC95ECBD9F29 /* TodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE7BB302BDBBFF9D6C01410 /* TodayWidget.swift */; };
+		680BED90B321E91109B64E1D /* SessionTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C74E433F113465445883242 /* SessionTimeline.swift */; };
 		77CC1DC43F894F3C191E5B8D /* Stats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C0F4767AD6B165B3D3AC91 /* Stats.swift */; };
 		99A6A7CBC0AF8EB024F6DDA4 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76542EFE317F12117EB94944 /* SharedStore.swift */; };
 		9DF88CABEDD1F35830335E05 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96257A3703B584B4467BF345 /* Models.swift */; };
-		680BED90B321E91109B64E1D /* SessionTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C74E433F113465445883242 /* SessionTimeline.swift */; };
-		D603AC02389813AEB4BE8231 /* DesignComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7920667E0ADA3B7446E97FB /* DesignComponents.swift */; };
 		B2C5BD3D02EF609C912C8507 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAA8ED2622D1397D02A2D02 /* DesignSystem.swift */; };
 		C1AF51EA689F132CA8D05D3E /* Do-DuWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */; };
+		D603AC02389813AEB4BE8231 /* DesignComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7920667E0ADA3B7446E97FB /* DesignComponents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,16 +46,16 @@
 
 /* Begin PBXFileReference section */
 		70E9CBE28A790C18FC061A3E /* DoDuWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DoDuWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		76542EFE317F12117EB94944 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "Do-Du/SharedStore.swift"; sourceTree = "<group>"; };
-		96257A3703B584B4467BF345 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = "Do-Du/Models.swift"; sourceTree = "<group>"; };
-		9C74E433F113465445883242 /* SessionTimeline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SessionTimeline.swift; path = "Do-Du/SessionTimeline.swift"; sourceTree = "<group>"; };
-		A7920667E0ADA3B7446E97FB /* DesignComponents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DesignComponents.swift; path = "Do-Du/DesignComponents.swift"; sourceTree = "<group>"; };
-		DEAA8ED2622D1397D02A2D02 /* DesignSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DesignSystem.swift; path = "Do-Du/DesignSystem.swift"; sourceTree = "<group>"; };
-		99C0F4767AD6B165B3D3AC91 /* Stats.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Stats.swift; path = "Do-Du/Stats.swift"; sourceTree = "<group>"; };
+		76542EFE317F12117EB94944 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "Do-Du/Core/SharedStore.swift"; sourceTree = "<group>"; };
+		96257A3703B584B4467BF345 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = "Do-Du/Core/Models.swift"; sourceTree = "<group>"; };
+		99C0F4767AD6B165B3D3AC91 /* Stats.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Stats.swift; path = "Do-Du/Core/Stats.swift"; sourceTree = "<group>"; };
+		9C74E433F113465445883242 /* SessionTimeline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SessionTimeline.swift; path = "Do-Du/Core/SessionTimeline.swift"; sourceTree = "<group>"; };
+		A7920667E0ADA3B7446E97FB /* DesignComponents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DesignComponents.swift; path = "Do-Du/DesignSystem/DesignComponents.swift"; sourceTree = "<group>"; };
 		BAE7BB302BDBBFF9D6C01410 /* TodayWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TodayWidget.swift; sourceTree = "<group>"; };
 		CC95D978307A3F3B00E2933C /* Do-Du.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Do-Du.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D06CE9163C07A4ACF0CFB2D3 /* DayMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DayMath.swift; path = "Do-Du/DayMath.swift"; sourceTree = "<group>"; };
-		EF31CB8C4E5A86AA1199EC25 /* TimerActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimerActivity.swift; path = "Do-Du/TimerActivity.swift"; sourceTree = "<group>"; };
+		D06CE9163C07A4ACF0CFB2D3 /* DayMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DayMath.swift; path = "Do-Du/Core/DayMath.swift"; sourceTree = "<group>"; };
+		DEAA8ED2622D1397D02A2D02 /* DesignSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DesignSystem.swift; path = "Do-Du/DesignSystem/DesignSystem.swift"; sourceTree = "<group>"; };
+		EF31CB8C4E5A86AA1199EC25 /* TimerActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TimerActivity.swift; path = "Do-Du/Services/System/TimerActivity.swift"; sourceTree = "<group>"; };
 		F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "Do-DuWidgetBundle.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -446,8 +446,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "Do-Du-iOS.entitlements";
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Do-Du-macOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "Config/Do-Du-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Do-Du-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -458,14 +458,14 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				"INFOPLIST_FILE[sdk=iphone*]" = "Info-iOS.plist";
-				"INFOPLIST_FILE[sdk=macosx*]" = "Info-macOS.plist";
+				"INFOPLIST_FILE[sdk=iphone*]" = "Config/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=macosx*]" = "Config/Info-macOS.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Do-Du";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Do-Du shows today's meetings in Today and fits the day plan around them.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Do-Du shows your meetings in Today and plans around them.";
-				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Do-Du imports your reminders as tasks. It never changes them.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Do-Du imports your reminders as tasks. It never changes them.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphone*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]" = YES;
@@ -501,8 +501,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "Do-Du-iOS.entitlements";
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Do-Du-macOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphone*]" = "Config/Do-Du-iOS.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Config/Do-Du-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -513,14 +513,14 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				"INFOPLIST_FILE[sdk=iphone*]" = "Info-iOS.plist";
-				"INFOPLIST_FILE[sdk=macosx*]" = "Info-macOS.plist";
+				"INFOPLIST_FILE[sdk=iphone*]" = "Config/Info-iOS.plist";
+				"INFOPLIST_FILE[sdk=macosx*]" = "Config/Info-macOS.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Do-Du";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Do-Du shows today's meetings in Today and fits the day plan around them.";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Do-Du shows your meetings in Today and plans around them.";
-				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Do-Du imports your reminders as tasks. It never changes them.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "Do-Du imports your reminders as tasks. It never changes them.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphone*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphone*]" = YES;
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphone*]" = YES;

@@ -5,6 +5,6 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SRC="$ROOT/Do-Du/Do-Du"
 OUT="${TMPDIR:-/tmp}/dodu-checks"
 xcrun swiftc -default-isolation MainActor -o "$OUT" \
-  "$SRC/Models.swift" "$SRC/DesignSystem.swift" "$SRC/SessionTimeline.swift" "$SRC/DayMath.swift" "$SRC/Stats.swift" "$SRC/TimerService.swift" "$SRC/Keychain.swift" "$SRC/ClaudeClient.swift" "$SRC/AISnapshot.swift" "$SRC/QuickAddParser.swift" "$SRC/DayPlan.swift" "$SRC/ChatTools.swift" "$SRC/CSVExport.swift" "$SRC/IdleStop.swift" "$SRC/SharedStore.swift" "$SRC/TaskSource.swift" "$SRC/NotionClient.swift" "$SRC/RemindersSource.swift" "$SRC/DoDuIntents.swift" "$SRC/Onboarding.swift" \
+  "$SRC/Core/Models.swift" "$SRC/DesignSystem/DesignSystem.swift" "$SRC/Core/SessionTimeline.swift" "$SRC/Core/DayMath.swift" "$SRC/Core/Stats.swift" "$SRC/Core/TimerService.swift" "$SRC/Core/Keychain.swift" "$SRC/Services/AI/ClaudeClient.swift" "$SRC/Services/AI/AISnapshot.swift" "$SRC/Services/AI/QuickAddParser.swift" "$SRC/Services/AI/DayPlan.swift" "$SRC/Services/AI/ChatTools.swift" "$SRC/Core/CSVExport.swift" "$SRC/Services/System/IdleStop.swift" "$SRC/Core/SharedStore.swift" "$SRC/Services/Integrations/TaskSource.swift" "$SRC/Services/Integrations/NotionClient.swift" "$SRC/Services/Integrations/RemindersSource.swift" "$SRC/Services/Integrations/DoDuIntents.swift" "$SRC/Features/Onboarding/Onboarding.swift" \
   "$ROOT/checks/main.swift"
 "$OUT"
