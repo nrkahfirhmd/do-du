@@ -76,6 +76,7 @@ struct ChatView: View {
             }
             HStack(alignment: .bottom, spacing: 8) {
                 TextField("Ask Do-Du…", text: $draft, axis: .vertical)
+                    .textFieldStyle(.plain)
                     .lineLimit(1...4)
                     .padding(.horizontal, 16).padding(.vertical, 11)
                     .background(DD.surface, in: .dd(22))
