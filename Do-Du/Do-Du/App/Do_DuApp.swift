@@ -16,6 +16,7 @@ struct Do_DuApp: App {
     }
 
     private static func openStore() -> ModelContainer {
+        SyncMonitor.shared.start()
         let container = SharedStore.shared
         LongRunAlert.register(container: container)
         TimerWidget.register(container: container)

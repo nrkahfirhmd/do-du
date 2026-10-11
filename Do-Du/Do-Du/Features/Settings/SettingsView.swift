@@ -143,16 +143,12 @@ struct CategoryEditor: View {
 
 struct ICloudStatus: View {
     var body: some View {
-        if !SharedStore.iCloudOnAtLaunch {
-            Label("iCloud sync off. Data stays on this device.", systemImage: "icloud.slash")
-        } else if FileManager.default.ubiquityIdentityToken != nil {
-            Label("iCloud sync on", systemImage: "checkmark.icloud")
-        } else {
-            Label {
-                Text("Not signed in to iCloud. Data is saved on this device only; sign in to sync between devices.")
-            } icon: {
-                Image(systemName: "icloud.slash").foregroundStyle(.orange)
-            }
+        let status = SyncMonitor.shared.summary
+        Label {
+            Text(status.text)
+        } icon: {
+            Image(systemName: status.ok ? "checkmark.icloud" : "exclamationmark.icloud")
+                .foregroundStyle(status.ok ? DD.mint : .orange)
         }
     }
 }

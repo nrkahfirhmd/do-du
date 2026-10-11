@@ -196,9 +196,10 @@ struct MacDataSettings: View {
             Section {
                 Toggle("Sync with iCloud", isOn: $iCloudOn)
                 LabeledContent("Status") {
+                    let status = SyncMonitor.shared.summary
                     HStack(spacing: 7) {
-                        Circle().fill(statusOn ? DD.mint : DD.disabled).frame(width: 8, height: 8)
-                        Text(status)
+                        Circle().fill(status.ok ? DD.mint : .orange).frame(width: 8, height: 8)
+                        Text(status.text).multilineTextAlignment(.trailing)
                     }
                 }
             } header: {
@@ -224,13 +225,6 @@ struct MacDataSettings: View {
             RemindersSettingsSection()
         }
         .csvExport($export)
-    }
-
-    private var statusOn: Bool { SharedStore.iCloudOnAtLaunch && FileManager.default.ubiquityIdentityToken != nil }
-
-    private var status: String {
-        if !SharedStore.iCloudOnAtLaunch { return "Off" }
-        return FileManager.default.ubiquityIdentityToken == nil ? "Not signed in to iCloud" : "On"
     }
 }
 

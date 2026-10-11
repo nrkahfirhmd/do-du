@@ -1,3 +1,4 @@
+import CloudKit
 import Foundation
 import SwiftData
 
@@ -591,6 +592,18 @@ func checkQuickAddSyntax() throws {
     print("✓ quick add syntax")
 }
 
+func checkSyncMonitor() throws {
+    let m = SyncMonitor()
+    assert(!m.failing)
+    m.record(end: Date(timeIntervalSince1970: 100), error: "boom")
+    assert(m.failing)
+    m.record(end: Date(timeIntervalSince1970: 200), error: nil)
+    assert(!m.failing, "a later success clears the failure")
+    let inner = CKError(.unknownItem)
+    let partial = CKError(.partialFailure, userInfo: [CKPartialErrorsByItemIDKey: ["r": inner]])
+    assert(SyncMonitor.describe(partial).contains("schema"), "partial failure reports its first item error")
+    assert(SyncMonitor.describe(CKError(.quotaExceeded)) == "iCloud storage is full.")
+}
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -611,4 +624,5 @@ try checkRemindersImport()
 try checkDesignFoundation()
 try checkOnboarding()
 try checkQuickAddSyntax()
+try checkSyncMonitor()
 print("All checks passed")

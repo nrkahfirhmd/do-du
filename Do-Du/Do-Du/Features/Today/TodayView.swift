@@ -54,7 +54,7 @@ struct TodayView: View {
 
                     PlanSection(now: now)
                     if !meetings.isEmpty { scheduleGroup }
-                    if SharedStore.iCloudOnAtLaunch, FileManager.default.ubiquityIdentityToken == nil {
+                    if SharedStore.iCloudOnAtLaunch, !SyncMonitor.shared.summary.ok {
                         ICloudStatus().font(.footnote).foregroundStyle(DD.ink3)
                             .padding(.horizontal, 32).padding(.top, 16)
                     }

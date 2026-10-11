@@ -2,7 +2,7 @@
 
 > Personal to-do list + work timer. Purpose: answer one question at end of every day — **"Did I do enough today?"** — with data, not guilt.
 
-**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–3 code complete, device checks pending · **Last updated:** 2026-10-10
+**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–4 done, Phase 5 (2nd iteration) in progress · **Last updated:** 2026-10-11
 
 ---
 
@@ -15,7 +15,8 @@
 | **Phase 1 — Core loop** (DD-01…14) | Done | Projects, categories, tasks, timer + quick timer, manual entries, long-run warning, Today verdict, Stats, Mac menu bar, iPhone, CloudKit sync | `checks/run.sh`; iPhone simulator | iCloud container in Xcode; cross-device sync test ([sync-test-plan.md](sync-test-plan.md)) |
 | **Phase 2 — AI assistant** (DD-20…30) | Done | Quick Add (on-device), Recap, Plan my day, Chat, day-start hour, CSV export, Pomodoro, widgets + Live Activity, Mac idle/sleep stop | Quick Add live in simulator; Claude paths offline + no-key UI | Claude features with your API key; widget + Live Activity on device |
 | **Phase 3 — Integrations** (DD-31…34) | Done | Notion import, Apple Calendar (read-only), Siri/Shortcuts, Reminders import | Parsing/mapping in `checks/run.sh`; Reminders permission + sheet in simulator | Live Notion import; Calendar access; Siri phrases; real reminders |
-| **Phase 4 — Redesign** (DD-40…52, [tickets](phase-4-tickets.md)) | Done on `feat/redesign` (DD-40…52) | Design tokens + light/dark, timer-first Today, tab bar + timer accessory, restyled tabs and sheets, Mac window + menu-bar panel, ⌘⇧T hotkey, widgets (Today S/M/L, Timer, Lock Screen), Live Activity + Dynamic Island, app icon, motion + haptics, onboarding, Mac Settings window, Mac sheets + Quick Add panel (⌥⌘K), Mac Tasks table | iPhone simulator light/dark; medium widget toggle; Dynamic Island compact/expanded; Lock Screen banner; Mac window (test build) | ⌘⇧T press; menu-bar panel look; small/large/Lock Screen widgets; Live Activity Stop on device; haptics feel on device; onboarding skip with real iCloud data |
+| **Phase 4 — Redesign** (DD-40…52, [tickets](phase-4-tickets.md)) | Done (DD-40…52) | Design tokens + light/dark, timer-first Today, tab bar + timer accessory, restyled tabs and sheets, Mac window + menu-bar panel, ⌘⇧T hotkey, widgets (Today S/M/L, Timer, Lock Screen), Live Activity + Dynamic Island, app icon, motion + haptics, onboarding, Mac Settings window, Mac sheets + Quick Add panel (⌥⌘K), Mac Tasks table | iPhone simulator light/dark; medium widget toggle; Dynamic Island compact/expanded; Lock Screen banner; Mac window (test build) | ⌘⇧T press; menu-bar panel look; small/large/Lock Screen widgets; Live Activity Stop on device; haptics feel on device; onboarding skip with real iCloud data |
+| **Phase 5 — 2nd iteration** (DD-60…66, [tickets](phase-5-tickets.md)) | In progress | iCloud sync status in Settings and Today | `checks/run.sh`; Mac + iOS builds | Deploy CloudKit schema to Production; same build source on both devices |
 
 **Known limits:** Notion is one-way (Notion wins); Calendar shows one calendar, read-only; Chat is read-only; widgets need the App Group (signed builds).
 
@@ -27,6 +28,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | No Firebase: stay on CloudKit; Settings shows the last sync result (`SyncMonitor`) | Mac and iPhone diverged because sync failed silently (likely undeployed Production schema / mixed TestFlight and Xcode builds), not because of CloudKit itself |
 | 2026-10-11 | Design handoff removed after Phase 4; `DesignSystem.swift` (`DD`) and the shipped UI are now the design source | Fully implemented; keeps the repo lean |
 | 2026-10-11 | Mac Quick Add saves on Return: the live "Do-Du will add" preview is the confirmation (typed syntax first, Foundation Models fill gaps; never a guessed project) | Handoff flow; the user sees every field before adding, so the "AI never writes silently" rule holds |
 | 2026-10-11 | Mac idle stop is always on (5–60 min, default 10); stopping on sleep or lock has its own switch | Handoff Settings design; forgotten timers stay the main data risk, so only the sleep stop can be turned off |
