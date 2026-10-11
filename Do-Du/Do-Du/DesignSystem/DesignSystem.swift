@@ -58,7 +58,7 @@ enum DD {
 
     // MARK: Radii (continuous corners)
     enum Radius {
-        static let stepper: CGFloat = 9, bar: CGFloat = 10, menu: CGFloat = 16, group: CGFloat = 20
+        static let bar: CGFloat = 10, menu: CGFloat = 16, group: CGFloat = 20
         static let card: CGFloat = 24, tile: CGFloat = 30, sheet: CGFloat = 38, hero: CGFloat = 42
     }
 
@@ -73,8 +73,6 @@ extension Font {
     }
     static let ddClock = rounded(84)
     static let ddClockMac = rounded(128)
-    static let ddDisplay = rounded(44)
-    static let ddLargeTitle = rounded(42)
     static let ddTitle2 = rounded(28)
     static let ddTitle3 = rounded(20)
     static let ddStat = rounded(24)

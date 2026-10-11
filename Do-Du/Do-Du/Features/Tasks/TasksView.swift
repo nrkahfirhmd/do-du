@@ -17,7 +17,9 @@ struct TasksView: View {
     @State private var creating = false
     @State private var editing: TaskItem?
     @State private var entriesFor: TaskItem?
+    #if os(iOS)
     @State private var quickAdd = false
+    #endif
     @State private var notionImport = false
     @State private var remindersImport = false
 
@@ -49,7 +51,7 @@ struct TasksView: View {
                     }
                     .disabled(projects.isEmpty)
                 }
-                #if !os(macOS)
+                #if os(iOS)
                 // Mac has Quick Add (⌘K) in the window toolbar.
                 ToolbarItem {
                     Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
@@ -69,7 +71,9 @@ struct TasksView: View {
             .sheet(isPresented: $creating) { TaskEditor(task: nil) }
             .sheet(item: $editing) { TaskEditor(task: $0) }
             .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
-            .sheet(isPresented: $quickAdd) { QuickAddSheet() }
+            #if os(iOS)
+        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
+            #endif
             .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
             .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
     }

@@ -15,6 +15,7 @@
 		77CC1DC43F894F3C191E5B8D /* Stats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C0F4767AD6B165B3D3AC91 /* Stats.swift */; };
 		99A6A7CBC0AF8EB024F6DDA4 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76542EFE317F12117EB94944 /* SharedStore.swift */; };
 		9DF88CABEDD1F35830335E05 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96257A3703B584B4467BF345 /* Models.swift */; };
+		348108A512A35DB94106F4B8 /* DeepLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B321A3058D81F45F14C16E1 /* DeepLink.swift */; };
 		B2C5BD3D02EF609C912C8507 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAA8ED2622D1397D02A2D02 /* DesignSystem.swift */; };
 		C1AF51EA689F132CA8D05D3E /* Do-DuWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F650F4F8ECDA56F7E9C30313 /* Do-DuWidgetBundle.swift */; };
 		D603AC02389813AEB4BE8231 /* DesignComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7920667E0ADA3B7446E97FB /* DesignComponents.swift */; };
@@ -48,6 +49,7 @@
 		70E9CBE28A790C18FC061A3E /* DoDuWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DoDuWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		76542EFE317F12117EB94944 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = "Do-Du/Core/SharedStore.swift"; sourceTree = "<group>"; };
 		96257A3703B584B4467BF345 /* Models.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Models.swift; path = "Do-Du/Core/Models.swift"; sourceTree = "<group>"; };
+		3B321A3058D81F45F14C16E1 /* DeepLink.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DeepLink.swift; path = "Do-Du/Core/DeepLink.swift"; sourceTree = "<group>"; };
 		99C0F4767AD6B165B3D3AC91 /* Stats.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Stats.swift; path = "Do-Du/Core/Stats.swift"; sourceTree = "<group>"; };
 		9C74E433F113465445883242 /* SessionTimeline.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SessionTimeline.swift; path = "Do-Du/Core/SessionTimeline.swift"; sourceTree = "<group>"; };
 		A7920667E0ADA3B7446E97FB /* DesignComponents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = DesignComponents.swift; path = "Do-Du/DesignSystem/DesignComponents.swift"; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 				91F3644E345973BD61D48312 /* Frameworks */,
 				E3968A7E5BA6000300644124 /* Do-DuWidget */,
 				96257A3703B584B4467BF345 /* Models.swift */,
+				3B321A3058D81F45F14C16E1 /* DeepLink.swift */,
 				9C74E433F113465445883242 /* SessionTimeline.swift */,
 				A7920667E0ADA3B7446E97FB /* DesignComponents.swift */,
 				DEAA8ED2622D1397D02A2D02 /* DesignSystem.swift */,
@@ -237,6 +240,7 @@
 				C1AF51EA689F132CA8D05D3E /* Do-DuWidgetBundle.swift in Sources */,
 				61110CDD4F1CAC95ECBD9F29 /* TodayWidget.swift in Sources */,
 				9DF88CABEDD1F35830335E05 /* Models.swift in Sources */,
+				348108A512A35DB94106F4B8 /* DeepLink.swift in Sources */,
 				680BED90B321E91109B64E1D /* SessionTimeline.swift in Sources */,
 				D603AC02389813AEB4BE8231 /* DesignComponents.swift in Sources */,
 				B2C5BD3D02EF609C912C8507 /* DesignSystem.swift in Sources */,

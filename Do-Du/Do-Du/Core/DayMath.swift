@@ -82,3 +82,12 @@ extension TimeInterval {
         return String(format: "%d:%02d:%02d", s / 3600, s / 60 % 60, s % 60)
     }
 }
+
+/// "3h", "2h 30m", "45m".
+func compactHours(_ minutes: Int) -> String {
+    switch (minutes / 60, minutes % 60) {
+    case (0, let m): return "\(m)m"
+    case (let h, 0): return "\(h)h"
+    case (let h, let m): return "\(h)h \(m)m"
+    }
+}

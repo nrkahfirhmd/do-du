@@ -120,7 +120,7 @@ struct OnboardingView: View {
         case .done:
             answers.isRestDay(weekday: weekday)
                 ? highlighted("Today is a ", "rest day", ".")
-                : highlighted("You need ", OnboardingAnswers.hm(answers.targetMinutes), " to call it a day.")
+                : highlighted("You need ", compactHours(answers.targetMinutes), " to call it a day.")
         }
     }
 
@@ -185,7 +185,7 @@ struct OnboardingView: View {
                 HStack {
                     Text("Daily target")
                     Spacer()
-                    Text(OnboardingAnswers.hm(answers.targetMinutes)).font(.rounded(15, .bold)).monospacedDigit()
+                    Text(compactHours(answers.targetMinutes)).font(.rounded(15, .bold)).monospacedDigit()
                     Stepper("Daily target", value: $answers.targetMinutes, in: 15...720, step: 15).labelsHidden()
                 }
                 .frame(height: 54)
@@ -409,7 +409,7 @@ struct OnboardingPreview: View {
                             .frame(width: 10, height: 10)
                         Text(answers.projectName).font(.rounded(17, .bold)).foregroundStyle(DD.ink).lineLimit(1)
                     }
-                    Text("0m of \(OnboardingAnswers.hm(answers.targetMinutes)) · \(answers.daysLabel)")
+                    Text("0m of \(compactHours(answers.targetMinutes)) · \(answers.daysLabel)")
                         .font(.rounded(13, .semibold)).foregroundStyle(DD.ink3).lineLimit(1)
                 }
             }

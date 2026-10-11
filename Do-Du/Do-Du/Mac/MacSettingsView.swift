@@ -30,12 +30,6 @@ private struct SettingsPage<Content: View>: View {
     }
 }
 
-private func hm(_ minutes: Int) -> String {
-    let h = minutes / 60
-    let m = minutes % 60
-    return h == 0 ? "\(m)m" : m == 0 ? "\(h)h" : "\(h)h \(m)m"
-}
-
 private struct ValueStepper: View {
     let title: String
     let value: String
@@ -112,12 +106,12 @@ struct MacTimerSettings: View {
         SettingsPage {
             Section {
                 ValueStepper(
-                    title: "Stop when idle for", value: hm(idleMinutes),
+                    title: "Stop when idle for", value: compactHours(idleMinutes),
                     increment: { idleMinutes = min(60, idleMinutes + 5) },
                     decrement: { idleMinutes = max(5, idleMinutes - 5) })
                 Toggle("Stop on sleep or lock", isOn: $sleepStop)
                 ValueStepper(
-                    title: "Warn when a timer runs over", value: hm(Int(longRunHours * 60)),
+                    title: "Warn when a timer runs over", value: compactHours(Int(longRunHours * 60)),
                     increment: { longRunHours = min(8, longRunHours + 0.5) },
                     decrement: { longRunHours = max(1, longRunHours - 0.5) })
             } header: {
@@ -132,11 +126,11 @@ struct MacTimerSettings: View {
                 }
                 if pomodoroOn {
                     ValueStepper(
-                        title: "Focus", value: hm(focusMinutes),
+                        title: "Focus", value: compactHours(focusMinutes),
                         increment: { focusMinutes = min(90, focusMinutes + 5) },
                         decrement: { focusMinutes = max(10, focusMinutes - 5) })
                     ValueStepper(
-                        title: "Break", value: hm(breakMinutes),
+                        title: "Break", value: compactHours(breakMinutes),
                         increment: { breakMinutes = min(30, breakMinutes + 1) },
                         decrement: { breakMinutes = max(1, breakMinutes - 1) })
                 }

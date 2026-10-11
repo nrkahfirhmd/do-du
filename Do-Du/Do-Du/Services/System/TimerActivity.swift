@@ -16,7 +16,7 @@ nonisolated struct TimerAttributes: ActivityAttributes, Equatable {
     var trackedBefore: TimeInterval = 0
 }
 
-/// Stop opens the app via `dodu://timer/toggle`, like the widgets.
+/// Stop opens the app via `DeepLink.toggleTimer`, like the widgets.
 struct TimerLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: TimerAttributes.self) { context in
@@ -66,7 +66,7 @@ struct TimerLiveActivity: Widget {
                     StopGlyph(size: 16, glyph: 6)
                 }
             }
-            .widgetURL(URL(string: "dodu://today"))
+            .widgetURL(DeepLink.today.url)
             .keylineTint(DD.mint)
         }
     }
@@ -159,7 +159,7 @@ private struct StopLink: View {
     let size: CGFloat
 
     var body: some View {
-        Link(destination: URL(string: "dodu://timer/toggle")!) {
+        Link(destination: DeepLink.toggleTimer.url) {
             StopGlyph(size: size, glyph: size * 0.31)
         }
         .accessibilityLabel("Stop timer")

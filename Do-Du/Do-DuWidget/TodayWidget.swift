@@ -27,8 +27,8 @@ struct DoDuEntry: TimelineEntry {
     let running: Running?
     let needsSetup: Bool
 
-    static let toggleURL = URL(string: "dodu://timer/toggle")!
-    static let todayURL = URL(string: "dodu://today")!
+    static let toggleURL = DeepLink.toggleTimer.url
+    static let todayURL = DeepLink.today.url
 
     static let preview = DoDuEntry(
         date: .now, verdict: .notYet(remaining: 8160), progress: 0.45,

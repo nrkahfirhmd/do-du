@@ -563,7 +563,7 @@ func checkOnboarding() throws {
     precondition(a.targetMinutes == 15, "min target")
     a.stepTarget(by: 1000)
     precondition(a.targetMinutes == 720, "max target")
-    precondition(OnboardingAnswers.hm(135) == "2h 15m" && OnboardingAnswers.hm(45) == "45m", "hm")
+    precondition(compactHours(135) == "2h 15m" && compactHours(45) == "45m", "hm")
     print("✓ onboarding rules")
 }
 

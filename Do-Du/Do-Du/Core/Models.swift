@@ -135,9 +135,6 @@ enum Palette {
 enum Weekdays {
     static let all = 0b111_1111
     static let monToFri = 0b011_1110
-
-    /// Calendar weekday symbols in Calendar order (index 0 = Sunday).
-    static var shortSymbols: [String] { Calendar.current.veryShortWeekdaySymbols }
 }
 
 let allModels: [any PersistentModel.Type] = [Project.self, Category.self, TaskItem.self, TimeEntry.self]

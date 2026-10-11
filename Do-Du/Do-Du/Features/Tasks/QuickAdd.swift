@@ -1,6 +1,8 @@
 import SwiftData
 import SwiftUI
 
+#if os(iOS)
+/// iPhone Quick Add; the Mac uses QuickAddPanel.
 struct QuickAddSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
@@ -42,9 +44,6 @@ struct QuickAddSheet: View {
                     }
                 }
             }
-            #if os(macOS)
-            .frame(minWidth: 420, minHeight: 200)
-            #endif
         }
     }
 
@@ -67,3 +66,4 @@ struct QuickAddSheet: View {
         }
     }
 }
+#endif

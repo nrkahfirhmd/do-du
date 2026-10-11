@@ -133,7 +133,7 @@ struct QuickAddPanelView: View {
         context.insert(task)
         try? context.save()
         close()
-        NSWorkspace.shared.open(URL(string: "dodu://tasks")!)
+        NSWorkspace.shared.open(DeepLink.tasks.url)
     }
 
     // MARK: Strip

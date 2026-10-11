@@ -68,7 +68,7 @@ struct OnboardingAnswers: Equatable {
     var weekNote: String {
         guard dayCount > 0 else { return "Pick at least one day." }
         let count = dayCount == 7 ? "Every day" : "\(dayCount) day\(dayCount == 1 ? "" : "s")"
-        return "\(count) · \(Self.hm(targetMinutes * dayCount)) a week"
+        return "\(count) · \(compactHours(targetMinutes * dayCount)) a week"
     }
 
     var dayRange: String { dayStart == 0 ? "Midnight to midnight" : "\(dayStart):00 → \(dayStart):00 next day" }
@@ -84,12 +84,6 @@ struct OnboardingAnswers: Equatable {
             let next = nextScheduledDay(after: weekday).map { " Your first target starts \($0)." } ?? ""
             return ("Today is a ", "rest day", "." + next)
         }
-        return ("You need ", Self.hm(targetMinutes), " to call it a day.")
-    }
-
-    static func hm(_ minutes: Int) -> String {
-        let h = minutes / 60
-        let m = minutes % 60
-        return h == 0 ? "\(m)m" : m == 0 ? "\(h)h" : "\(h)h \(m)m"
+        return ("You need ", compactHours(targetMinutes), " to call it a day.")
     }
 }

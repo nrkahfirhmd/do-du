@@ -7,17 +7,6 @@ struct DayEvent: Sendable, Equatable {
     var end: Date
 }
 
-enum CalendarError: LocalizedError, Equatable {
-    case noAccess, noCalendar
-
-    var errorDescription: String? {
-        switch self {
-        case .noAccess: "Allow calendar access in Settings to see meetings."
-        case .noCalendar: "Pick a calendar in Settings to see meetings."
-        }
-    }
-}
-
 enum CalendarAccess {
     static let calendarKey = "ekCalendarID"
 

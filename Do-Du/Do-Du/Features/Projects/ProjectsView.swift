@@ -189,14 +189,6 @@ func scheduleLabel(_ mask: Int) -> String {
     }
 }
 
-func compactHours(_ minutes: Int) -> String {
-    switch (minutes / 60, minutes % 60) {
-    case (0, let m): return "\(m)m"
-    case (let h, 0): return "\(h)h"
-    case (let h, let m): return "\(h)h \(m)m"
-    }
-}
-
 struct ProjectEditor: View {
     let project: Project?
     @Environment(\.modelContext) private var context

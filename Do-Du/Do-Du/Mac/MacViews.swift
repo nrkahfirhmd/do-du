@@ -48,8 +48,9 @@ struct MacRootView: View {
         .tint(DD.forestFill)
         .frame(minWidth: 1000, minHeight: 640)
         .onOpenURL { url in
-            if url.host() == "timer" && url.path() == "/toggle" { TimerService.toggleQuick(in: context) }
-            section = url.host() == "tasks" ? .tasks : .today
+            let link = DeepLink(url)
+            if link == .toggleTimer { TimerService.toggleQuick(in: context) }
+            section = link == .tasks ? .tasks : .today
         }
         .sheet(isPresented: $planning) { PlanSheet() }
         #if DEBUG
