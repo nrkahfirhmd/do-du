@@ -87,5 +87,5 @@ struct TimerSync: ViewModifier {
 
 #Preview {
     ContentView()
-        .modelContainer(for: allModels, inMemory: true)
+        .modelContainer(SharedStore.preview)
 }

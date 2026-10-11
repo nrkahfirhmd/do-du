@@ -284,5 +284,5 @@ struct SectionHeader: View {
 
 #Preview {
     NavigationStack { TodayView() }
-        .modelContainer(for: allModels, inMemory: true)
+        .modelContainer(SharedStore.preview)
 }

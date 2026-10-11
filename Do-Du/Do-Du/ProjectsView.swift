@@ -194,5 +194,5 @@ struct ProjectEditor: View {
 
 #Preview {
     NavigationStack { ProjectsView() }
-        .modelContainer(for: allModels, inMemory: true)
+        .modelContainer(SharedStore.preview)
 }
