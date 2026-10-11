@@ -1,8 +1,3 @@
-//
-//  Do-DuWidgetBundle.swift
-//  Do-Du
-//
-
 import SwiftUI
 import WidgetKit
 

@@ -1,6 +1,6 @@
 # Do-Du — Phase 4 Tickets (Redesign)
 
-Source: design handoff in `docs/design_handoff_dodu_app/` (git-ignored; README has every token). Behaviour, data and rules still come from [AGENTS.md](AGENTS.md); this phase changes visuals and layout only, plus the items marked **new behaviour**.
+Source: the Phase 4 design handoff (since removed; its tokens live in `DesignSystem.swift`). Behaviour, data and rules still come from [AGENTS.md](AGENTS.md); this phase changes visuals and layout only, plus the items marked **new behaviour**.
 
 Decided 2026-10-11: dark mode too (adapted from the light tokens); keep Shortcuts and add a real ⌘⇧T global hotkey on Mac; widget start/stop opens the app (no widget-process writes).
 

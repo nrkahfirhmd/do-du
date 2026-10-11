@@ -27,6 +27,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | Design handoff removed after Phase 4; `DesignSystem.swift` (`DD`) and the shipped UI are now the design source | Fully implemented; keeps the repo lean |
 | 2026-10-11 | Mac Quick Add saves on Return: the live "Do-Du will add" preview is the confirmation (typed syntax first, Foundation Models fill gaps; never a guessed project) | Handoff flow; the user sees every field before adding, so the "AI never writes silently" rule holds |
 | 2026-10-11 | Mac idle stop is always on (5–60 min, default 10); stopping on sleep or lock has its own switch | Handoff Settings design; forgotten timers stay the main data risk, so only the sleep stop can be turned off |
 | 2026-10-11 | Mac Quick Add: ⌘K inside the app plus a **global ⌥⌘K**; no Settings button in the menu-bar panel (app menu ⌘, only) | A global ⌘K would take the key from Slack, browsers and editors; owner wants no extra Settings buttons on Mac |
@@ -68,10 +69,13 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 - **Read first:** [Current Version](#current-version) and [Decision Log](#decision-log). Don't silently undo a logged decision; add a new row if you change one.
 - **Stack:** SwiftUI + SwiftData, Xcode project at `Do-Du/Do-Du.xcodeproj`. Targets: `Do-Du` (multiplatform: macOS 27 + iOS 27 iPhone; all code shared, `#if os(macOS)` for platform-only UI) and `DoDuWidget` (Today widget + iOS Live Activity).
+- **Folders** (`Do-Du/Do-Du/`, a synced group, so new files need no project edit): `App/` entry point and root view · `Core/` models, day math, stats, store, timer service · `DesignSystem/` tokens and shared views · `Features/<Area>/` screens (Today, Tasks, Projects, Stats, Assistant, Onboarding, Settings, Import) · `Services/` AI, integrations, system hooks (alerts, idle, hotkey, widget sync, Live Activity) · `Mac/` macOS-only window, settings and Quick Add panel. Plists and entitlements live in `Do-Du/Config/`. Files shared with the widget are listed by path in the project file; update them there if they move.
 - **Data store:** always use `SharedStore.shared` (App Group store, CloudKit). Never create another `ModelContainer` in the app process; the widget opens the store read-only in its own process.
+- **Style:** format with `xcrun swift-format format -i -r Do-Du/Do-Du Do-Du/Do-DuWidget checks/main.swift` (config in `.swift-format`). Comments are one line and only where they carry a why, an invariant or a platform quirk; no file headers.
+- **Deep links** go through `DeepLink` (`dodu://…`); widgets and the Live Activity open the app rather than writing data.
 - **Self-checks:** `checks/run.sh` compiles the pure/core files listed in it with `checks/main.swift` and runs assertions. Add a check for new logic and add new core files to the list. No XCTest target.
 - **Integrations** plug in as a `TaskSource` (`TaskSource.swift`) and import through `ExternalImportSheet<Source>`; don't touch core models for a new source.
-- **Visuals:** use `DD` tokens and `DesignComponents` views; never hard-code colours. Text on mint uses `DD.onMint`. Check light and dark.
+- **Visuals:** the design source is `DesignSystem.swift` (the Phase 4 handoff is retired); use `DD` tokens and `DesignComponents` views; never hard-code colours. Text on mint uses `DD.onMint`. Check light and dark.
 - **Privacy strings:** add `INFOPLIST_KEY_*` build settings on the `Do-Du` target (both configs), not per-platform plist files.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
