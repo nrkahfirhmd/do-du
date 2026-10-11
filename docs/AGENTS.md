@@ -27,6 +27,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | Design handoff removed after Phase 4; `DesignSystem.swift` (`DD`) and the shipped UI are now the design source | Fully implemented; keeps the repo lean |
 | 2026-10-11 | Mac Quick Add saves on Return: the live "Do-Du will add" preview is the confirmation (typed syntax first, Foundation Models fill gaps; never a guessed project) | Handoff flow; the user sees every field before adding, so the "AI never writes silently" rule holds |
 | 2026-10-11 | Mac idle stop is always on (5–60 min, default 10); stopping on sleep or lock has its own switch | Handoff Settings design; forgotten timers stay the main data risk, so only the sleep stop can be turned off |
 | 2026-10-11 | Mac Quick Add: ⌘K inside the app plus a **global ⌥⌘K**; no Settings button in the menu-bar panel (app menu ⌘, only) | A global ⌘K would take the key from Slack, browsers and editors; owner wants no extra Settings buttons on Mac |
@@ -71,7 +72,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 - **Data store:** always use `SharedStore.shared` (App Group store, CloudKit). Never create another `ModelContainer` in the app process; the widget opens the store read-only in its own process.
 - **Self-checks:** `checks/run.sh` compiles the pure/core files listed in it with `checks/main.swift` and runs assertions. Add a check for new logic and add new core files to the list. No XCTest target.
 - **Integrations** plug in as a `TaskSource` (`TaskSource.swift`) and import through `ExternalImportSheet<Source>`; don't touch core models for a new source.
-- **Visuals:** use `DD` tokens and `DesignComponents` views; never hard-code colours. Text on mint uses `DD.onMint`. Check light and dark.
+- **Visuals:** the design source is `DesignSystem.swift` (the Phase 4 handoff is retired); use `DD` tokens and `DesignComponents` views; never hard-code colours. Text on mint uses `DD.onMint`. Check light and dark.
 - **Privacy strings:** add `INFOPLIST_KEY_*` build settings on the `Do-Du` target (both configs), not per-platform plist files.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
