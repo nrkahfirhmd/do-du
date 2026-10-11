@@ -205,6 +205,7 @@ struct RecordButton: View {
                 .animation(DD.colorChange, value: running)
             }
             .buttonStyle(.plain)
+            .hoverLift(1.04)
             .accessibilityLabel(running ? "Stop timer" : "Start timer")
             if showsLabel {
                 Text(running ? "Stop" : "Start").font(.rounded(12, .semibold)).opacity(0.6)
@@ -277,4 +278,26 @@ extension View {
     func ddPrimary() -> some View {
         buttonStyle(.borderedProminent).tint(DD.forestFill)
     }
+}
+
+/// Mac pointer feedback: a slight lift on hover. Off with Reduce Motion; no-op on iPhone.
+struct HoverLift: ViewModifier {
+    var scale: CGFloat = 1.015
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var hovering = false
+
+    func body(content: Content) -> some View {
+        #if os(macOS)
+        content
+            .scaleEffect(hovering && !reduceMotion ? scale : 1)
+            .brightness(hovering ? 0.02 : 0)
+            .onHover { h in withAnimation(DD.hover) { hovering = h } }
+        #else
+        content
+        #endif
+    }
+}
+
+extension View {
+    func hoverLift(_ scale: CGFloat = 1.015) -> some View { modifier(HoverLift(scale: scale)) }
 }

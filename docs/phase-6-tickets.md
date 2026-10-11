@@ -23,5 +23,6 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [x] Imports Notion + Reminders, reloads the calendar, saves; a banner shows the result (imports, errors, last iCloud sync).
 
 ## DD-74 · Mac motion + haptics — M
-- [ ] Haptics at the iPhone moments using macOS kinds (Force Touch trackpad only).
-- [ ] Hover feedback, sliding sidebar selection, list insert/remove transitions, running pulse, ring fills; Reduce Motion respected.
+- [x] Haptics at the iPhone moments via `SensoryFeedback.dd*` (Mac maps to `.levelChange` / `.alignment`, the only kinds macOS plays; Force Touch trackpad only).
+- [x] Hover lift on buttons, tiles and the record button; row highlight in tables and sessions; section crossfade; task/session insert/remove transitions; running pulse and ring fills (already there). Reduce Motion turns off the lift. Sidebar selection stays the system's.
+- [ ] Owner: feel the haptics on a Force Touch trackpad.

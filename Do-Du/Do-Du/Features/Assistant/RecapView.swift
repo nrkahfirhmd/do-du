@@ -88,7 +88,7 @@ struct RecapView: View {
         #if !os(macOS)
         .navigationTitle("Recap")  // Mac shows both side by side under "Assistant"
         #endif
-        .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
+        .sensoryFeedback(.ddError, trigger: error) { _, new in new != nil }
         .onChange(of: span) { error = nil }
     }
 

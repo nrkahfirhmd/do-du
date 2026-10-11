@@ -104,3 +104,23 @@ extension DD {
     }
 }
 #endif
+
+/// Haptics by meaning. macOS only plays `.alignment` and `.levelChange` (Force Touch trackpad, finger on it),
+/// so the iPhone kinds map onto those there.
+extension SensoryFeedback {
+    #if os(macOS)
+    static let ddStart = SensoryFeedback.levelChange
+    static let ddStop = SensoryFeedback.levelChange
+    static let ddSwitch = SensoryFeedback.alignment
+    static let ddSuccess = SensoryFeedback.levelChange
+    static let ddTick = SensoryFeedback.alignment
+    static let ddError = SensoryFeedback.levelChange
+    #else
+    static let ddStart = SensoryFeedback.start
+    static let ddStop = SensoryFeedback.stop
+    static let ddSwitch = SensoryFeedback.impact(weight: .light)
+    static let ddSuccess = SensoryFeedback.success
+    static let ddTick = SensoryFeedback.impact(weight: .light)
+    static let ddError = SensoryFeedback.error
+    #endif
+}

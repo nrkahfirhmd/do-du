@@ -2,7 +2,7 @@
 
 > Personal to-do list + work timer. Purpose: answer one question at end of every day — **"Did I do enough today?"** — with data, not guilt.
 
-**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–4 done, Phase 5 (2nd iteration) code complete · **Last updated:** 2026-10-11
+**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–4 done, Phases 5–6 code complete · **Last updated:** 2026-10-11
 
 ---
 
@@ -16,6 +16,7 @@
 | **Phase 2 — AI assistant** (DD-20…30) | Done | Quick Add (on-device), Recap, Plan my day, Chat, day-start hour, CSV export, Pomodoro, widgets + Live Activity, Mac idle/sleep stop | Quick Add live in simulator; Claude paths offline + no-key UI | Claude features with your API key; widget + Live Activity on device |
 | **Phase 3 — Integrations** (DD-31…34) | Done | Notion import, Apple Calendar (read-only), Siri/Shortcuts, Reminders import | Parsing/mapping in `checks/run.sh`; Reminders permission + sheet in simulator | Live Notion import; Calendar access; Siri phrases; real reminders |
 | **Phase 4 — Redesign** (DD-40…52, [tickets](phase-4-tickets.md)) | Done (DD-40…52) | Design tokens + light/dark, timer-first Today, tab bar + timer accessory, restyled tabs and sheets, Mac window + menu-bar panel, ⌘⇧T hotkey, widgets (Today S/M/L, Timer, Lock Screen), Live Activity + Dynamic Island, app icon, motion + haptics, onboarding, Mac Settings window, Mac sheets + Quick Add panel (⌥⌘K), Mac Tasks table | iPhone simulator light/dark; medium widget toggle; Dynamic Island compact/expanded; Lock Screen banner; Mac window (test build) | ⌘⇧T press; menu-bar panel look; small/large/Lock Screen widgets; Live Activity Stop on device; haptics feel on device; onboarding skip with real iCloud data |
+| **Phase 6 — 3rd iteration** (DD-70…74, [tickets](phase-6-tickets.md)) | Done | All projects in the timer menu; menu-bar setting fix; delete sessions with Undo; manual refresh; Mac haptics + hover motion | `checks/run.sh`; Mac + iOS builds; iPhone simulator | Mac haptics on a Force Touch trackpad; Mac hover/transitions in a signed build |
 | **Phase 5 — 2nd iteration** (DD-60…66, [tickets](phase-5-tickets.md)) | Done (DD-60…66) | iCloud sync status; Mac Tasks empty state; chat field; timer chip; keyboard dismissal; due date picker; automatic Notion/Reminders import + calendar refresh | `checks/run.sh`; Mac + iOS builds | Deploy CloudKit schema to Production; same build source on both devices; live auto-import test |
 
 **Known limits:** Notion is one-way (Notion wins); Calendar shows one calendar, read-only; Chat is read-only; widgets need the App Group (signed builds).
@@ -28,6 +29,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | Haptics go through `SensoryFeedback.ddStart/ddStop/ddSwitch/ddSuccess/ddTick/ddError`; on Mac they map to `.levelChange`/`.alignment` | macOS ignores `.start`, `.stop`, `.success`, `.impact`, so Mac had no haptics |
 | 2026-10-11 | Manual refresh (iPhone pull down, Mac ⌘R) runs the import, reloads the calendar and saves; it can't force a CloudKit download, so it shows the last sync result instead | SwiftData has no sync-now API; downloads arrive by push |
 | 2026-10-11 | Deleting a session is permanent with a short inline Undo; no "exclude from stats" flag | Owner's choice; stats stay computed from entries with no new field |
 | 2026-10-11 | Notion/Reminders import runs automatically while the app is active (activation + every 15 min, `AutoImport`): linked tasks refresh, new items with a matching project are added, unmatched wait for the sheet; Settings switch; duplicates from two devices merged by external ID | Owner approved adding without per-item review; still never creates projects |

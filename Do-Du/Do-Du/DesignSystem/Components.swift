@@ -216,6 +216,9 @@ struct CapsuleButton: ButtonStyle {
             .padding(.horizontal, height == 30 ? 14 : 12).frame(height: height)
             .background(fill, in: Capsule())
             .opacity(configuration.isPressed ? 0.8 : 1)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .animation(DD.hover, value: configuration.isPressed)
             .contentShape(Capsule())
+            .hoverLift(1.03)
     }
 }

@@ -66,9 +66,9 @@ struct TimerSync: ViewModifier {
         content
             .sensoryFeedback(trigger: running.first?.persistentModelID) { old, new in
                 switch (old, new) {
-                case (nil, .some): .start
-                case (.some, nil): .stop
-                case (.some, .some): .impact(weight: .light)  // switched session
+                case (nil, .some): .ddStart
+                case (.some, nil): .ddStop
+                case (.some, .some): .ddSwitch  // switched session
                 case (nil, nil): nil
                 }
             }

@@ -29,6 +29,9 @@ struct MacRootView: View {
                     case .projects: ProjectsView()
                     }
                 }
+                .id(section)
+                .transition(.opacity.combined(with: .offset(y: 6)))
+                .animation(DD.listChange, value: section)
                 .tint(DD.sage)
                 .navigationTitle(title)
                 .navigationSubtitle(Date.now.formatted(.dateTime.weekday(.wide).day().month(.wide)))
@@ -327,7 +330,7 @@ struct MacTaskTable: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(task.isDone ? "Mark not done" : "Mark done")
-                    .sensoryFeedback(.impact(weight: .light), trigger: task.isDone) { _, done in done }
+                    .sensoryFeedback(.ddTick, trigger: task.isDone) { _, done in done }
                 } title: {
                     Button {
                         edit(task)
@@ -356,6 +359,8 @@ struct MacTaskTable: View {
                 .font(.system(size: 14))
                 .frame(height: 44)
                 .background(task.isRunning ? DD.runningRow : .clear)
+                .modifier(RowHover())
+                .transition(.opacity.combined(with: .move(edge: .top)))
                 .contextMenu {
                     Button("Edit…") { edit(task) }
                     Button("Time Entries…") { entries(task) }
@@ -365,6 +370,7 @@ struct MacTaskTable: View {
         }
         .background(DD.surface, in: .dd(18))
         .clipShape(.dd(18))
+        .animation(DD.listChange, value: tasks.map(\.persistentModelID))
     }
 
     private func dueLabel(_ due: Date, today: Date) -> String {
@@ -398,6 +404,17 @@ struct MacTaskTable: View {
             cell(48, .trailing, play())
         }
         .padding(.horizontal, 14)
+    }
+}
+
+/// Row highlight under the pointer.
+private struct RowHover: ViewModifier {
+    @State private var hovering = false
+
+    func body(content: Content) -> some View {
+        content
+            .background(hovering ? DD.fill.opacity(0.6) : .clear)
+            .onHover { h in withAnimation(DD.hover) { hovering = h } }
     }
 }
 #endif

@@ -254,7 +254,8 @@ struct ProjectTile: View {
         .padding(EdgeInsets(top: 16, leading: 16, bottom: 18, trailing: 16))
         .background(met ? DD.mint : DD.surface, in: .dd(DD.Radius.tile))
         .animation(DD.colorChange, value: met)
-        .sensoryFeedback(.success, trigger: met) { was, now in !was && now }
+        .hoverLift()
+        .sensoryFeedback(.ddSuccess, trigger: met) { was, now in !was && now }
     }
 
     /// Very light swatches read poorly as a ring, so they use pine.

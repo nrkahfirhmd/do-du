@@ -41,7 +41,7 @@ struct PlanSheet: View {
         } footer: {
             Text("Nothing is saved until you accept.").font(.system(size: 12)).foregroundStyle(DD.ink3)
         }
-        .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
+        .sensoryFeedback(.ddError, trigger: error) { _, new in new != nil }
         .task { if hasKey { plan() } }
         #else
         NavigationStack {
@@ -62,7 +62,7 @@ struct PlanSheet: View {
             }
             .ddForm()
             .navigationTitle("Plan My Day")
-            .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
+            .sensoryFeedback(.ddError, trigger: error) { _, new in new != nil }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Discard") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
