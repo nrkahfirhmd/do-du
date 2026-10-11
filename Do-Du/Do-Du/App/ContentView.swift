@@ -1,6 +1,6 @@
-import SwiftUI
-import SwiftData
 import CoreData
+import SwiftData
+import SwiftUI
 
 enum AppTab: Hashable { case today, tasks, assistant, stats, projects }
 
@@ -36,8 +36,10 @@ struct ContentView: View {
         .tabViewStyle(.sidebarAdaptable)
         .tint(DD.forest)
         #if os(iOS)
-        .tabViewBottomAccessory(isEnabled: running.first != nil && tab != .today
-                                && !(tab == .assistant && assistantMode == .chat)) {
+        .tabViewBottomAccessory(
+            isEnabled: running.first != nil && tab != .today
+                && !(tab == .assistant && assistantMode == .chat)
+        ) {
             if let entry = running.first {
                 TimerAccessory(entry: entry) { tab = .today }
             }
@@ -61,23 +63,23 @@ struct TimerSync: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-        .sensoryFeedback(trigger: running.first?.persistentModelID) { old, new in
-            switch (old, new) {
-            case (nil, .some): .start
-            case (.some, nil): .stop
-            case (.some, .some): .impact(weight: .light)   // switched session
-            case (nil, nil): nil
+            .sensoryFeedback(trigger: running.first?.persistentModelID) { old, new in
+                switch (old, new) {
+                case (nil, .some): .start
+                case (.some, nil): .stop
+                case (.some, .some): .impact(weight: .light)  // switched session
+                case (nil, nil): nil
+                }
             }
-        }
-        .onChange(of: scenePhase, initial: true) {
-            guard scenePhase == .active else { return }
-            TimerService.resolveConflicts(in: context)
-            LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .NSPersistentStoreRemoteChange)) { _ in
-            TimerService.resolveConflicts(in: context)
-            LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
-        }
+            .onChange(of: scenePhase, initial: true) {
+                guard scenePhase == .active else { return }
+                TimerService.resolveConflicts(in: context)
+                LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .NSPersistentStoreRemoteChange)) { _ in
+                TimerService.resolveConflicts(in: context)
+                LongRunAlert.schedule(from: TimerService.current(in: context)?.start)
+            }
     }
 }
 

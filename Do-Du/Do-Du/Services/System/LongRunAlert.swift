@@ -17,13 +17,15 @@ enum LongRunAlert {
 
     static func register(container: ModelContainer) {
         let center = UNUserNotificationCenter.current()
-        center.setNotificationCategories([UNNotificationCategory(
-            identifier: categoryID,
-            actions: [
-                UNNotificationAction(identifier: stopAction, title: "Stop now", options: .destructive),
-                UNNotificationAction(identifier: keepAction, title: "Keep going"),
-            ],
-            intentIdentifiers: [])])
+        center.setNotificationCategories([
+            UNNotificationCategory(
+                identifier: categoryID,
+                actions: [
+                    UNNotificationAction(identifier: stopAction, title: "Stop now", options: .destructive),
+                    UNNotificationAction(identifier: keepAction, title: "Keep going"),
+                ],
+                intentIdentifiers: [])
+        ])
         delegate = Delegate(container: container)
         center.delegate = delegate
         TimerService.onChange = {
@@ -44,8 +46,9 @@ enum LongRunAlert {
         content.body = "Running for \(TimeInterval(thresholdHours * 3600).hoursMinutes). Forgot to stop it?"
         content.categoryIdentifier = categoryID
         content.sound = .default
-        let request = UNNotificationRequest(identifier: requestID, content: content,
-                                            trigger: UNTimeIntervalNotificationTrigger(timeInterval: fireIn, repeats: false))
+        let request = UNNotificationRequest(
+            identifier: requestID, content: content,
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: fireIn, repeats: false))
         Task {
             guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
             try? await center.add(request)
@@ -56,8 +59,10 @@ enum LongRunAlert {
         let container: ModelContainer
         init(container: ModelContainer) { self.container = container }
 
-        nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                                didReceive response: UNNotificationResponse) async {
+        nonisolated func userNotificationCenter(
+            _ center: UNUserNotificationCenter,
+            didReceive response: UNNotificationResponse
+        ) async {
             let action = response.actionIdentifier
             await MainActor.run {
                 switch action {
@@ -68,9 +73,12 @@ enum LongRunAlert {
             }
         }
 
-        nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                                willPresent notification: UNNotification) async
-            -> UNNotificationPresentationOptions { [.banner, .sound] }
+        nonisolated func userNotificationCenter(
+            _ center: UNUserNotificationCenter,
+            willPresent notification: UNNotification
+        ) async
+            -> UNNotificationPresentationOptions
+        { [.banner, .sound] }
     }
 }
 
@@ -91,10 +99,12 @@ enum Pomodoro {
         let breakAt = start.addingTimeInterval(Double(focus) * 60).timeIntervalSinceNow
         guard breakAt > 0 else { return }
         let requests = [
-            request(requestID, in: breakAt, title: "Time for a break",
-                    body: "\(focus) minutes of focus done. Take \(rest) minutes, then keep going."),
-            request(breakEndID, in: breakAt + Double(rest) * 60, title: "Break’s over",
-                    body: "Back to it. The timer is still running."),
+            request(
+                requestID, in: breakAt, title: "Time for a break",
+                body: "\(focus) minutes of focus done. Take \(rest) minutes, then keep going."),
+            request(
+                breakEndID, in: breakAt + Double(rest) * 60, title: "Break’s over",
+                body: "Back to it. The timer is still running."),
         ]
         Task {
             guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
@@ -107,7 +117,8 @@ enum Pomodoro {
         content.title = title
         content.body = body
         content.sound = .default
-        return UNNotificationRequest(identifier: id, content: content,
-                                     trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false))
+        return UNNotificationRequest(
+            identifier: id, content: content,
+            trigger: UNTimeIntervalNotificationTrigger(timeInterval: seconds, repeats: false))
     }
 }

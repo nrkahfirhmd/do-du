@@ -8,7 +8,7 @@ enum GlobalHotKey {
     private static var hotKey: EventHotKeyRef?
     private static var quickAddKey: EventHotKeyRef?
     private static var handler: EventHandlerRef?
-    private static let signature = OSType(0x444F4455)   // 'DODU'
+    private static let signature = OSType(0x444F_4455)  // 'DODU'
     private static let timerID: UInt32 = 1, quickAddID: UInt32 = 2
     private static var container: ModelContainer?
 
@@ -18,27 +18,35 @@ enum GlobalHotKey {
         self.container = container
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
         // C callback: no captures, hop to the main actor for SwiftData.
-        InstallEventHandler(GetApplicationEventTarget(), { _, event, _ in
-            var id = EventHotKeyID()
-            GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
-                              nil, MemoryLayout<EventHotKeyID>.size, nil, &id)
-            let which = id.id
-            Task { @MainActor in
-                if which == GlobalHotKey.quickAddID { QuickAddPanel.show() } else { GlobalHotKey.toggleTimer() }
-            }
-            return noErr
-        }, 1, &spec, nil, &handler)
-        RegisterEventHotKey(UInt32(kVK_ANSI_K), UInt32(cmdKey | optionKey), EventHotKeyID(signature: signature, id: quickAddID),
-                            GetApplicationEventTarget(), 0, &quickAddKey)
+        InstallEventHandler(
+            GetApplicationEventTarget(),
+            { _, event, _ in
+                var id = EventHotKeyID()
+                GetEventParameter(
+                    event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
+                    nil, MemoryLayout<EventHotKeyID>.size, nil, &id)
+                let which = id.id
+                Task { @MainActor in
+                    if which == GlobalHotKey.quickAddID { QuickAddPanel.show() } else { GlobalHotKey.toggleTimer() }
+                }
+                return noErr
+            }, 1, &spec, nil, &handler)
+        RegisterEventHotKey(
+            UInt32(kVK_ANSI_K), UInt32(cmdKey | optionKey), EventHotKeyID(signature: signature, id: quickAddID),
+            GetApplicationEventTarget(), 0, &quickAddKey)
         apply()
     }
 
     static func apply() {
-        if let hotKey { UnregisterEventHotKey(hotKey); self.hotKey = nil }
+        if let hotKey {
+            UnregisterEventHotKey(hotKey)
+            self.hotKey = nil
+        }
         guard isEnabled else { return }
         let id = EventHotKeyID(signature: signature, id: timerID)
-        RegisterEventHotKey(UInt32(kVK_ANSI_T), UInt32(cmdKey | shiftKey), id,
-                            GetApplicationEventTarget(), 0, &hotKey)
+        RegisterEventHotKey(
+            UInt32(kVK_ANSI_T), UInt32(cmdKey | shiftKey), id,
+            GetApplicationEventTarget(), 0, &hotKey)
     }
 
     private static func toggleTimer() {

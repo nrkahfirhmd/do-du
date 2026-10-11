@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct QuickAddSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -29,7 +29,7 @@ struct QuickAddSheet: View {
                             Text("Apple Intelligence isn't available here, so the text becomes the task title.")
                                 .font(.footnote).foregroundStyle(.secondary)
                         }
-                                    }
+                    }
                     .ddRows()
                 }
                 .ddForm()

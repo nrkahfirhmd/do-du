@@ -32,8 +32,10 @@ struct DoDuEntry: TimelineEntry {
 
     static let preview = DoDuEntry(
         date: .now, verdict: .notYet(remaining: 8160), progress: 0.45,
-        rows: [Row(name: "Do-Du", tracked: 6540, target: 10800, colorName: "forest"),
-               Row(name: "Client X", tracked: 3600, target: 7200, colorName: "moss")],
+        rows: [
+            Row(name: "Do-Du", tracked: 6540, target: 10800, colorName: "forest"),
+            Row(name: "Client X", tracked: 3600, target: 7200, colorName: "moss"),
+        ],
         running: Running(title: "Build Today view", project: "Do-Du", colorName: "forest", start: .now.addingTimeInterval(-552)),
         needsSetup: false)
 }
@@ -55,15 +57,18 @@ struct DoDuProvider: TimelineProvider {
     private func load(now: Date = .now) -> DoDuEntry {
         // Never create the store: the app opens it first, and onboarding treats a store file as an existing user.
         guard let url = SharedStore.storeURL(groupURL: SharedStore.groupURL),
-              FileManager.default.fileExists(atPath: url.path),
-              let container = try? ModelContainer(
+            FileManager.default.fileExists(atPath: url.path),
+            let container = try? ModelContainer(
                 for: Schema(allModels),
-                configurations: [ModelConfiguration(schema: Schema(allModels), url: url, cloudKitDatabase: .none)]) else {
+                configurations: [ModelConfiguration(schema: Schema(allModels), url: url, cloudKitDatabase: .none)])
+        else {
             return DoDuEntry(date: now, verdict: .restDay, progress: 0, rows: [], running: nil, needsSetup: true)
         }
         let context = ModelContext(container)
-        let projects = (try? context.fetch(FetchDescriptor<Project>(
-            predicate: #Predicate { !$0.isArchived }, sortBy: [SortDescriptor(\.createdAt)]))) ?? []
+        let projects =
+            (try? context.fetch(
+                FetchDescriptor<Project>(
+                    predicate: #Predicate { !$0.isArchived }, sortBy: [SortDescriptor(\.createdAt)]))) ?? []
         let day = DayMath.day(now)
         let active = projects.filter { $0.isActive(on: now) }
         let rows = active.map {
@@ -74,24 +79,34 @@ struct DoDuProvider: TimelineProvider {
         let runningEntry = (try? context.fetch(FetchDescriptor<TimeEntry>(predicate: #Predicate { $0.end == nil })))?
             .max { $0.start < $1.start }
         let running = runningEntry.map {
-            DoDuEntry.Running(title: $0.title, project: $0.effectiveProject?.name,
-                              colorName: $0.effectiveProject?.colorName, start: $0.start)
+            DoDuEntry.Running(
+                title: $0.title, project: $0.effectiveProject?.name,
+                colorName: $0.effectiveProject?.colorName, start: $0.start)
         }
-        return DoDuEntry(date: now, verdict: Stats.verdict(for: projects, on: now, now: now),
-                         progress: total > 0 ? covered / total : 0, rows: rows, running: running, needsSetup: false)
+        return DoDuEntry(
+            date: now, verdict: Stats.verdict(for: projects, on: now, now: now),
+            progress: total > 0 ? covered / total : 0, rows: rows, running: running, needsSetup: false)
     }
 }
 
 // MARK: - Shared bits
 
-private extension Verdict {
-    var kicker: String {
-        switch self { case .notYet: "NOT YET"; case .enough: "ENOUGH"; case .restDay: "REST DAY" }
+extension Verdict {
+    fileprivate var kicker: String {
+        switch self {
+        case .notYet: "NOT YET"
+        case .enough: "ENOUGH"
+        case .restDay: "REST DAY"
+        }
     }
-    var bigValue: String {
-        switch self { case .notYet(let r): r.hoursMinutes; case .enough: "Done ✓"; case .restDay: "Off" }
+    fileprivate var bigValue: String {
+        switch self {
+        case .notYet(let r): r.hoursMinutes
+        case .enough: "Done ✓"
+        case .restDay: "Off"
+        }
     }
-    var caption: String {
+    fileprivate var caption: String {
         switch self {
         case .notYet: "to call it a day"
         case .enough: "Stopping is allowed."
@@ -99,7 +114,7 @@ private extension Verdict {
         }
     }
     /// Widgets ignore AttributedString backgrounds, so the key value is sage text instead of a mint tag.
-    var sentence: Text {
+    fileprivate var sentence: Text {
         func highlighted(_ before: String, _ key: String, _ after: String) -> Text {
             Text("\(before)\(Text(key).foregroundStyle(DD.sage))\(after)")
         }
@@ -142,7 +157,8 @@ private struct ProjectBar: View {
             HStack {
                 Text(row.name).font(.caption.weight(.semibold)).lineLimit(1)
                 Spacer()
-                Text("\(row.tracked.hoursMinutes) / \(row.target.hoursMinutes)").font(.rounded(11, .semibold)).monospacedDigit().opacity(0.7)
+                Text("\(row.tracked.hoursMinutes) / \(row.target.hoursMinutes)").font(.rounded(11, .semibold)).monospacedDigit().opacity(
+                    0.7)
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
@@ -180,8 +196,9 @@ struct TodayWidgetView: View {
             HStack(alignment: .top) {
                 Text(entry.verdict.kicker).font(.rounded(11, .heavy)).tracking(1.1).opacity(0.65)
                 Spacer()
-                ProgressRing(value: enough ? 1 : entry.progress, size: 30, thickness: 4,
-                             color: enough ? DD.onMint : DD.forest, track: enough ? DD.onMint.opacity(0.15) : DD.track)
+                ProgressRing(
+                    value: enough ? 1 : entry.progress, size: 30, thickness: 4,
+                    color: enough ? DD.onMint : DD.forest, track: enough ? DD.onMint.opacity(0.15) : DD.track)
             }
             Spacer(minLength: 0)
             Text(entry.verdict.bigValue).font(.rounded(40)).tracking(-1).monospacedDigit()
@@ -220,9 +237,10 @@ struct TodayWidgetView: View {
             HStack(spacing: 10) {
                 ForEach(entry.rows.prefix(2)) { row in
                     HStack(spacing: 10) {
-                        ProgressRing(value: row.target > 0 ? row.tracked / row.target : 1, size: 44, thickness: 6,
-                                     color: row.met ? DD.onMint : Palette.color(row.colorName),
-                                     track: row.met ? DD.onMint.opacity(0.15) : DD.track)
+                        ProgressRing(
+                            value: row.target > 0 ? row.tracked / row.target : 1, size: 44, thickness: 6,
+                            color: row.met ? DD.onMint : Palette.color(row.colorName),
+                            track: row.met ? DD.onMint.opacity(0.15) : DD.track)
                         VStack(alignment: .leading, spacing: 1) {
                             Text(row.name).font(.rounded(14, .bold)).lineLimit(1)
                             Text(row.met ? "DONE ✓" : "\(row.tracked.hoursMinutes) of \(row.target.hoursMinutes)")

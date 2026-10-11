@@ -61,19 +61,24 @@ enum DayPlanner {
     /// Maps the model's JSON onto real tasks. Unknown or repeated indexes are dropped; minutes clamped.
     static func items(from text: String, openTasks: [TaskItem]) -> (items: [PlanItem], note: String)? {
         guard let json = try? JSONDecoder().decode(JSON.self, from: Data(text.utf8)),
-              let raw = json["items"]?.array else { return nil }
+            let raw = json["items"]?.array
+        else { return nil }
         var seen = Set<Int>()
         let items = raw.compactMap { r -> PlanItem? in
             guard let i = r["task"]?.int, openTasks.indices.contains(i), seen.insert(i).inserted else { return nil }
-            return PlanItem(task: openTasks[i], minutes: min(max(r["minutes"]?.int ?? 30, 5), 600),
-                            reason: r["reason"]?.string ?? "")
+            return PlanItem(
+                task: openTasks[i], minutes: min(max(r["minutes"]?.int ?? 30, 5), 600),
+                reason: r["reason"]?.string ?? "")
         }
         return (items, json["note"]?.string ?? "")
     }
 
     static func accept(_ items: [PlanItem], allTasks: [TaskItem], now: Date = .now) {
         let today = DayMath.logicalDate(now)
-        for t in allTasks where t.plannedFor == today { t.plannedFor = nil; t.plannedMinutes = nil }
+        for t in allTasks where t.plannedFor == today {
+            t.plannedFor = nil
+            t.plannedMinutes = nil
+        }
         for (i, item) in items.enumerated() {
             item.task.plannedFor = today
             item.task.planOrder = i

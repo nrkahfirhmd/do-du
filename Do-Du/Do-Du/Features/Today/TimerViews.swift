@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TimerButton: View {
     let task: TaskItem
@@ -38,7 +38,11 @@ struct ProjectAssignMenu: View {
             ForEach(projects) { p in Button(p.name) { entry.project = p } }
         } label: {
             if let p = entry.project {
-                Label { Text(p.name) } icon: { ColorDot(color: p.color) }
+                Label {
+                    Text(p.name)
+                } icon: {
+                    ColorDot(color: p.color)
+                }
             } else {
                 Label("Add project", systemImage: "folder.badge.plus")
             }
@@ -71,7 +75,9 @@ struct TimerAccessory: View {
             Text(entry.title).font(.subheadline.weight(.semibold)).foregroundStyle(DD.ink).lineLimit(1)
             Spacer(minLength: 4)
             ElapsedText(start: entry.start).font(.rounded(17, .semibold)).foregroundStyle(DD.forest)
-            Button { TimerService.stop(in: context) } label: {
+            Button {
+                TimerService.stop(in: context)
+            } label: {
                 RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(.white)
                     .frame(width: 11, height: 11)
                     .frame(width: 40, height: 40)
@@ -117,16 +123,20 @@ struct MenuBarPanel: View {
         TimelineView(.periodic(from: .now, by: 1)) { tl in
             VStack(alignment: .leading, spacing: 12) {
                 hero(running, now: tl.date)
-                VerdictStrip(verdict: Stats.verdict(for: projects, on: tl.date, now: tl.date),
-                             progress: 0, font: .rounded(15, .bold))
-                    .padding(-4)
+                VerdictStrip(
+                    verdict: Stats.verdict(for: projects, on: tl.date, now: tl.date),
+                    progress: 0, font: .rounded(15, .bold)
+                )
+                .padding(-4)
                 Text("Recent").font(.footnote.weight(.semibold)).foregroundStyle(DD.ink3)
                 if recentTasks.isEmpty {
                     Text("No tracked tasks yet").font(.subheadline).foregroundStyle(DD.ink3)
                 }
                 VStack(spacing: 2) {
                     ForEach(recentTasks) { task in
-                        Button { TimerService.toggle(task, in: context) } label: {
+                        Button {
+                            TimerService.toggle(task, in: context)
+                        } label: {
                             HStack(spacing: 10) {
                                 RoundedRectangle(cornerRadius: 3, style: .continuous)
                                     .fill(task.project?.color ?? DD.disabled).frame(width: 10, height: 10)

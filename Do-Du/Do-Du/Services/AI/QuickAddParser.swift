@@ -26,22 +26,27 @@ struct TaskPrefill {
 enum QuickAddParser {
     static var isAvailable: Bool { SystemLanguageModel.default.isAvailable }
 
-    static func parse(_ text: String, projects: [Project], categories: [Category],
-                      now: Date = .now) async throws -> TaskPrefill {
-        let session = LanguageModelSession(instructions: """
-            Extract one to-do task from the user's sentence.
-            Today is \(now.formatted(.dateTime.weekday(.wide).day().month(.wide).year())).
-            Projects: \(projects.map(\.name).joined(separator: ", ")).
-            Categories: \(categories.map(\.name).joined(separator: ", ")).
-            Only use a project or category name from these lists.
-            """)
+    static func parse(
+        _ text: String, projects: [Project], categories: [Category],
+        now: Date = .now
+    ) async throws -> TaskPrefill {
+        let session = LanguageModelSession(
+            instructions: """
+                Extract one to-do task from the user's sentence.
+                Today is \(now.formatted(.dateTime.weekday(.wide).day().month(.wide).year())).
+                Projects: \(projects.map(\.name).joined(separator: ", ")).
+                Categories: \(categories.map(\.name).joined(separator: ", ")).
+                Only use a project or category name from these lists.
+                """)
         let draft = try await session.respond(to: text, generating: TaskDraft.self).content
         return prefill(from: draft, projects: projects, categories: categories, now: now)
     }
 
     /// Maps model output onto real objects. Unknown names stay nil (never auto-created).
-    static func prefill(from d: TaskDraft, projects: [Project], categories: [Category],
-                        now: Date, calendar: Calendar = .current) -> TaskPrefill {
+    static func prefill(
+        from d: TaskDraft, projects: [Project], categories: [Category],
+        now: Date, calendar: Calendar = .current
+    ) -> TaskPrefill {
         func match<T>(_ name: String, in items: [T], _ key: (T) -> String) -> T? {
             let n = name.trimmingCharacters(in: .whitespaces)
             return n.isEmpty ? nil : items.first { key($0).localizedCaseInsensitiveCompare(n) == .orderedSame }
@@ -68,7 +73,8 @@ struct QuickAddSyntax: Equatable {
         var rest = text
         func take(_ pattern: String) -> [String]? {
             guard let re = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
-                  let m = re.firstMatch(in: rest, range: NSRange(rest.startIndex..., in: rest)) else { return nil }
+                let m = re.firstMatch(in: rest, range: NSRange(rest.startIndex..., in: rest))
+            else { return nil }
             let groups = (0..<m.numberOfRanges).map { i in
                 Range(m.range(at: i), in: rest).map { String(rest[$0]) } ?? ""
             }
@@ -77,9 +83,11 @@ struct QuickAddSyntax: Equatable {
         }
 
         var due: Int?
-        if take(#"\btoday\b"#) != nil { due = 0 }
-        else if take(#"\btomorrow\b"#) != nil { due = 1 }
-        else if let g = take(#"\b(?:on\s+)?(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b"#) {
+        if take(#"\btoday\b"#) != nil {
+            due = 0
+        } else if take(#"\btomorrow\b"#) != nil {
+            due = 1
+        } else if let g = take(#"\b(?:on\s+)?(mon|tue|wed|thu|fri|sat|sun)[a-z]*\b"#) {
             let names = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
             if let target = names.firstIndex(of: g[1].lowercased()) { due = (target + 1 - weekday + 7) % 7 }
         }
@@ -108,7 +116,8 @@ struct QuickAddSyntax: Equatable {
         }
 
         let title = rest.split(whereSeparator: \.isWhitespace).joined(separator: " ")
-        return QuickAddSyntax(title: title, projectName: project, categoryName: category,
-                              dueInDays: due, estimateMinutes: estimate)
+        return QuickAddSyntax(
+            title: title, projectName: project, categoryName: category,
+            dueInDays: due, estimateMinutes: estimate)
     }
 }

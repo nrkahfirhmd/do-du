@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TodayView: View {
     @Environment(\.modelContext) private var context
@@ -31,13 +31,17 @@ struct TodayView: View {
                     #if !os(macOS)
                     navRow
                     #endif
-                    TimerHero(running: running.first, quickProject: $quickProject, projects: active,
-                              recent: recent, now: now) { planning = true }
-                        .padding(.horizontal, 12)
+                    TimerHero(
+                        running: running.first, quickProject: $quickProject, projects: active,
+                        recent: recent, now: now
+                    ) { planning = true }
+                    .padding(.horizontal, 12)
 
-                    VerdictStrip(verdict: Stats.verdict(for: projects, on: now, now: now),
-                                 progress: overallProgress(active, day: day, now: now))
-                        .padding(.horizontal, 12).padding(.top, 10)
+                    VerdictStrip(
+                        verdict: Stats.verdict(for: projects, on: now, now: now),
+                        progress: overallProgress(active, day: day, now: now)
+                    )
+                    .padding(.horizontal, 12).padding(.top, 10)
 
                     if !active.isEmpty {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
@@ -146,8 +150,10 @@ struct TodayView: View {
                 ForEach(Array(meetings.enumerated()), id: \.offset) { _, m in
                     VStack(alignment: .leading, spacing: 2) {
                         Text(m.title).lineLimit(1).foregroundStyle(DD.ink)
-                        Text("\(m.start.formatted(date: .omitted, time: .shortened)) – \(m.end.formatted(date: .omitted, time: .shortened))")
-                            .font(.footnote).foregroundStyle(DD.ink3)
+                        Text(
+                            "\(m.start.formatted(date: .omitted, time: .shortened)) – \(m.end.formatted(date: .omitted, time: .shortened))"
+                        )
+                        .font(.footnote).foregroundStyle(DD.ink3)
                     }
                     .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                     .padding(.horizontal, 16)
@@ -180,8 +186,9 @@ struct VerdictStrip: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            ProgressRing(value: verdict == .enough ? 1 : progress, size: 46, thickness: 6,
-                         color: verdict == .enough ? DD.mint : DD.forest)
+            ProgressRing(
+                value: verdict == .enough ? 1 : progress, size: 46, thickness: 6,
+                color: verdict == .enough ? DD.mint : DD.forest)
             sentence.font(font).foregroundStyle(DD.forest).fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
         }
@@ -217,9 +224,11 @@ struct ProjectTile: View {
                     Text(met ? "DONE ✓" : "\(max(0, target - tracked).hoursMinutes) left").font(.rounded(13, .heavy)).lineLimit(1)
                 }
             }
-            ProgressRing(value: value, size: ringSize, thickness: ringSize * 0.115,
-                         color: met ? DD.onMint : ringColor,
-                         track: met ? DD.onMint.opacity(0.15) : DD.track) {
+            ProgressRing(
+                value: value, size: ringSize, thickness: ringSize * 0.115,
+                color: met ? DD.onMint : ringColor,
+                track: met ? DD.onMint.opacity(0.15) : DD.track
+            ) {
                 Text("\(Int(min(1, value) * 100))%").font(ringSize >= 90 ? .ddStat : .rounded(15)).tracking(-0.5).monospacedDigit()
             }
             Text("\(tracked.hoursMinutes) of \(target.hoursMinutes)")

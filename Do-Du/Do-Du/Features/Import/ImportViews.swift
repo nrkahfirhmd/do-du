@@ -28,17 +28,22 @@ struct ExternalImportSheet<Source: TaskSource>: View {
                     } else {
                         Section {
                             ForEach(drafts) { d in
-                                Toggle(isOn: Binding(
-                                    get: { included.contains(d.externalID) },
-                                    set: { included.insertOrRemove(d.externalID, $0) })) {
+                                Toggle(
+                                    isOn: Binding(
+                                        get: { included.contains(d.externalID) },
+                                        set: { included.insertOrRemove(d.externalID, $0) })
+                                ) {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(d.title).lineLimit(2)
                                         Text(rowSubtitle(d)).font(.caption).foregroundStyle(.secondary)
                                     }
                                 }
-                                Picker("Project", selection: Binding(
-                                    get: { picks[d.externalID] ?? "" },
-                                    set: { picks[d.externalID] = $0 })) {
+                                Picker(
+                                    "Project",
+                                    selection: Binding(
+                                        get: { picks[d.externalID] ?? "" },
+                                        set: { picks[d.externalID] = $0 })
+                                ) {
                                     ForEach(projects.map(\.name), id: \.self) { Text($0) }
                                 }
                                 .pickerStyle(.menu)
@@ -56,7 +61,7 @@ struct ExternalImportSheet<Source: TaskSource>: View {
                     if let result {
                         Section { Text(result).foregroundStyle(.secondary) }
                     }
-                            }
+                }
                 .ddRows()
             }
             .ddForm()
@@ -89,13 +94,15 @@ struct ExternalImportSheet<Source: TaskSource>: View {
         result = nil
         Task {
             do {
-                let split = Source.split(try await Source.fetchDrafts(),
-                                         tasks: (try? context.fetch(FetchDescriptor<TaskItem>())) ?? [])
+                let split = Source.split(
+                    try await Source.fetchDrafts(),
+                    tasks: (try? context.fetch(FetchDescriptor<TaskItem>())) ?? [])
                 drafts = split.new
                 linked = split.linked
                 included = Set(drafts.map(\.externalID))
                 for d in drafts {
-                    picks[d.externalID] = Source.resolveProject(d.projectName, in: projects)?.name
+                    picks[d.externalID] =
+                        Source.resolveProject(d.projectName, in: projects)?.name
                         ?? projects.first?.name ?? ""
                 }
             } catch {
@@ -143,13 +150,15 @@ struct RemindersSettingsSection: View {
         } header: {
             Text("Reminders")
         } footer: {
-            Text("One-way import from Tasks → Import. Each list matches a project with the same name; others get a project picker. Nothing is written back to Reminders.")
+            Text(
+                "One-way import from Tasks → Import. Each list matches a project with the same name; others get a project picker. Nothing is written back to Reminders."
+            )
         }
     }
 }
 
-private extension Set where Element == String {
-    mutating func insertOrRemove(_ member: String, _ insert: Bool) {
+extension Set where Element == String {
+    fileprivate mutating func insertOrRemove(_ member: String, _ insert: Bool) {
         if insert { self.insert(member) } else { self.remove(member) }
     }
 }

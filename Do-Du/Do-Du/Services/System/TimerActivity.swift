@@ -24,7 +24,8 @@ struct TimerLiveActivity: Widget {
                 .activityBackgroundTint(Color(hex: 0x1A312C))
                 .activitySystemActionForegroundColor(DD.mint)
         } dynamicIsland: { context in
-            let a = context.attributes, start = context.state.startedAt
+            let a = context.attributes
+            let start = context.state.startedAt
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 6) {
@@ -55,8 +56,12 @@ struct TimerLiveActivity: Widget {
                     .foregroundStyle(DD.mint).frame(maxWidth: 52)
             } minimal: {
                 if let range = a.progressRange(startedAt: start) {
-                    ProgressView(timerInterval: range, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
-                        .progressViewStyle(.circular).tint(DD.mint)
+                    ProgressView(timerInterval: range, countsDown: false) {
+                        EmptyView()
+                    } currentValueLabel: {
+                        EmptyView()
+                    }
+                    .progressViewStyle(.circular).tint(DD.mint)
                 } else {
                     StopGlyph(size: 16, glyph: 6)
                 }
@@ -104,9 +109,13 @@ private struct LiveBanner: View {
             }
             .padding(.top, 10)
             if let range = attributes.progressRange(startedAt: startedAt) {
-                ProgressView(timerInterval: range, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
-                    .progressViewStyle(.linear).tint(DD.mint)
-                    .padding(.top, 12)
+                ProgressView(timerInterval: range, countsDown: false) {
+                    EmptyView()
+                } currentValueLabel: {
+                    EmptyView()
+                }
+                .progressViewStyle(.linear).tint(DD.mint)
+                .padding(.top, 12)
             }
         }
         .foregroundStyle(.white)

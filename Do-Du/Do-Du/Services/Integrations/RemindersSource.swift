@@ -30,24 +30,28 @@ enum RemindersSource: TaskSource {
         return await withCheckedContinuation { continuation in
             store.fetchReminders(matching: predicate) { reminders in
                 let drafts = (reminders ?? []).compactMap { r in
-                    draft(id: r.calendarItemExternalIdentifier ?? r.calendarItemIdentifier,
-                          title: r.title ?? "", isDone: r.isCompleted,
-                          due: r.dueDateComponents, list: r.calendar?.title, calendar: calendar)
+                    draft(
+                        id: r.calendarItemExternalIdentifier ?? r.calendarItemIdentifier,
+                        title: r.title ?? "", isDone: r.isCompleted,
+                        due: r.dueDateComponents, list: r.calendar?.title, calendar: calendar)
                 }
                 continuation.resume(returning: drafts)
             }
         }
     }
 
-    nonisolated static func draft(id: String, title: String, isDone: Bool, due: DateComponents?,
-                                  list: String?, calendar: Calendar) -> ExternalDraft? {
+    nonisolated static func draft(
+        id: String, title: String, isDone: Bool, due: DateComponents?,
+        list: String?, calendar: Calendar
+    ) -> ExternalDraft? {
         let t = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t.isEmpty, !id.isEmpty else { return nil }
         let dueDate = due.flatMap { c -> Date? in
             guard let y = c.year, let m = c.month, let d = c.day else { return nil }
             return calendar.date(from: DateComponents(year: y, month: m, day: d))
         }
-        return ExternalDraft(source: "reminders", externalID: id, title: t, isDone: isDone,
-                             dueDate: dueDate, projectName: list)
+        return ExternalDraft(
+            source: "reminders", externalID: id, title: t, isDone: isDone,
+            dueDate: dueDate, projectName: list)
     }
 }

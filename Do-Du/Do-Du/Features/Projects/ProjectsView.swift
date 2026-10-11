@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct ProjectsView: View {
     @Environment(\.modelContext) private var context
@@ -11,18 +11,21 @@ struct ProjectsView: View {
 
     var body: some View {
         content
-        .background(DD.page)
-        .navigationTitle("Projects")
-        .sheet(isPresented: $creating) { ProjectEditor(project: nil) }
-        .sheet(item: $editing) { ProjectEditor(project: $0) }
-        .confirmationDialog("Delete \(deleting?.name ?? "project")?", isPresented: .init(
-            get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
-            Button("Delete Project, Tasks and Time", role: .destructive) {
-                if let deleting { context.delete(deleting) }
+            .background(DD.page)
+            .navigationTitle("Projects")
+            .sheet(isPresented: $creating) { ProjectEditor(project: nil) }
+            .sheet(item: $editing) { ProjectEditor(project: $0) }
+            .confirmationDialog(
+                "Delete \(deleting?.name ?? "project")?",
+                isPresented: .init(
+                    get: { deleting != nil }, set: { if !$0 { deleting = nil } })
+            ) {
+                Button("Delete Project, Tasks and Time", role: .destructive) {
+                    if let deleting { context.delete(deleting) }
+                }
+            } message: {
+                Text("All tasks and tracked time in this project are removed. Archive instead to keep history.")
             }
-        } message: {
-            Text("All tasks and tracked time in this project are removed. Archive instead to keep history.")
-        }
     }
 
     #if os(macOS)
@@ -35,13 +38,17 @@ struct ProjectsView: View {
                         .onTapGesture { editing = p }
                         .contextMenu { menu(p) }
                 }
-                Button { creating = true } label: {
+                Button {
+                    creating = true
+                } label: {
                     Text("+ New project  ⌘N")
                         .font(.rounded(17, .bold)).foregroundStyle(DD.sage)
                         .padding(20)
                         .frame(maxWidth: .infinity, minHeight: 200, alignment: .bottomLeading)
-                        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .strokeBorder(DD.disabled, style: StrokeStyle(lineWidth: 2, dash: [6, 5])))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                                .strokeBorder(DD.disabled, style: StrokeStyle(lineWidth: 2, dash: [6, 5]))
+                        )
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
@@ -61,12 +68,15 @@ struct ProjectsView: View {
                             .onTapGesture { editing = p }
                             .contextMenu { menu(p) }
                     }
-                    Button { creating = true } label: {
+                    Button {
+                        creating = true
+                    } label: {
                         Label("New project", systemImage: "plus")
                             .font(.rounded(17, .bold)).foregroundStyle(DD.ink3)
                             .frame(maxWidth: .infinity, minHeight: 170)
-                            .overlay(RoundedRectangle(cornerRadius: DD.Radius.tile, style: .continuous)
-                                .strokeBorder(DD.disabled, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5])))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: DD.Radius.tile, style: .continuous)
+                                    .strokeBorder(DD.disabled, style: StrokeStyle(lineWidth: 1.5, dash: [6, 5])))
                     }
                     .buttonStyle(.plain)
                 }
@@ -74,7 +84,9 @@ struct ProjectsView: View {
 
                 let archived = projects.filter(\.isArchived)
                 if !archived.isEmpty {
-                    Button { withAnimation(.easeInOut(duration: 0.2)) { showArchived.toggle() } } label: {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { showArchived.toggle() }
+                    } label: {
                         HStack(spacing: 6) {
                             Text("Archived")
                             Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold))

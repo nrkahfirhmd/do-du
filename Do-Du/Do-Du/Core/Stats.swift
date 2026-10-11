@@ -25,11 +25,14 @@ extension Category {
 }
 
 enum Stats {
-    static func verdict(for projects: [Project], on date: Date, now: Date = .now,
-                        calendar: Calendar = .current) -> Verdict {
+    static func verdict(
+        for projects: [Project], on date: Date, now: Date = .now,
+        calendar: Calendar = .current
+    ) -> Verdict {
         let day = DayMath.day(date, calendar: calendar)
-        return DayMath.verdict(projects
-            .filter { $0.isActive(on: date, calendar: calendar) }
-            .map { ($0.tracked(in: day, now: now), $0.dailyTarget) })
+        return DayMath.verdict(
+            projects
+                .filter { $0.isActive(on: date, calendar: calendar) }
+                .map { ($0.tracked(in: day, now: now), $0.dailyTarget) })
     }
 }

@@ -7,12 +7,15 @@ struct ColorChoice: View {
         LabeledContent("Colour") {
             HStack(spacing: 8) {
                 ForEach(Palette.names, id: \.self) { name in
-                    Button { selection = name } label: {
+                    Button {
+                        selection = name
+                    } label: {
                         Circle()
                             .fill(Palette.color(name))
                             .frame(width: 22, height: 22)
                             .padding(3)
-                            .overlay(Circle().strokeBorder(Palette.canonical(selection) == name ? Palette.color(name) : .clear, lineWidth: 2))
+                            .overlay(
+                                Circle().strokeBorder(Palette.canonical(selection) == name ? Palette.color(name) : .clear, lineWidth: 2))
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(name)
@@ -35,7 +38,9 @@ struct WeekdayPicker: View {
             HStack(spacing: 6) {
                 ForEach(order, id: \.self) { i in
                     let on = mask & (1 << i) != 0
-                    Button { mask ^= 1 << i } label: {
+                    Button {
+                        mask ^= 1 << i
+                    } label: {
                         Text(symbols[i]).font(.rounded(13, .bold))
                             .frame(width: 30, height: 30)
                             .background(on ? DD.forestFill : DD.fill, in: Circle())
@@ -66,13 +71,22 @@ struct EditorSheet<Content: View>: View {
 
     var body: some View {
         #if os(macOS)
-        MacSheet(title: title, primary: "Save", primaryHint: "⌘S", primaryKey: KeyboardShortcut("s"),
-                 canSubmit: canSave, submit: { save(); dismiss() }) {
+        MacSheet(
+            title: title, primary: "Save", primaryHint: "⌘S", primaryKey: KeyboardShortcut("s"),
+            canSubmit: canSave,
+            submit: {
+                save()
+                dismiss()
+            }
+        ) {
             Form { content.ddRows() }.ddForm()
         } footer: {
             if let destructive {
-                Button(destructive.title) { destructive.action(); dismiss() }
-                    .buttonStyle(.plain).font(.system(size: 13, weight: .semibold)).foregroundStyle(DD.danger)
+                Button(destructive.title) {
+                    destructive.action()
+                    dismiss()
+                }
+                .buttonStyle(.plain).font(.system(size: 13, weight: .semibold)).foregroundStyle(DD.danger)
             }
         }
         #else
@@ -81,12 +95,15 @@ struct EditorSheet<Content: View>: View {
                 .ddForm()
                 .navigationTitle(title)
                 #if os(iOS)
-                .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
                 #endif
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() }.tint(DD.ink) }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Save") { save(); dismiss() }.ddPrimary().disabled(!canSave)
+                        Button("Save") {
+                            save()
+                            dismiss()
+                        }.ddPrimary().disabled(!canSave)
                     }
                 }
         }
@@ -128,7 +145,7 @@ struct MacSheet<Content: View, Footer: View>: View {
                 Button("\(primary)  \(primaryHint)", action: submit)
                     .buttonStyle(CapsuleButton(fill: canSubmit ? DD.forestFill : DD.disabled, ink: .white))
                     .keyboardShortcut(primaryKey)
-                .disabled(!canSubmit)
+                    .disabled(!canSubmit)
             }
             .padding(EdgeInsets(top: 8, leading: 20, bottom: 18, trailing: 20))
         }
@@ -138,12 +155,15 @@ struct MacSheet<Content: View, Footer: View>: View {
 }
 
 extension MacSheet where Footer == EmptyView {
-    init(title: String, subtitle: String? = nil, cancel: String = "Cancel", primary: String, primaryHint: String,
-         primaryKey: KeyboardShortcut, canSubmit: Bool, submit: @escaping () -> Void, width: CGFloat = 560,
-         @ViewBuilder content: () -> Content) {
-        self.init(title: title, subtitle: subtitle, cancel: cancel, primary: primary, primaryHint: primaryHint,
-                  primaryKey: primaryKey, canSubmit: canSubmit, submit: submit, width: width,
-                  content: content, footer: { EmptyView() })
+    init(
+        title: String, subtitle: String? = nil, cancel: String = "Cancel", primary: String, primaryHint: String,
+        primaryKey: KeyboardShortcut, canSubmit: Bool, submit: @escaping () -> Void, width: CGFloat = 560,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.init(
+            title: title, subtitle: subtitle, cancel: cancel, primary: primary, primaryHint: primaryHint,
+            primaryKey: primaryKey, canSubmit: canSubmit, submit: submit, width: width,
+            content: content, footer: { EmptyView() })
     }
 }
 #endif

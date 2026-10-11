@@ -34,13 +34,16 @@ extension IdleStop {
     static func register(container: ModelContainer) {
         self.container = container
         let center = NSWorkspace.shared.notificationCenter
-        let names = [NSWorkspace.willSleepNotification,
-                     NSWorkspace.screensDidSleepNotification,
-                     NSWorkspace.sessionDidResignActiveNotification]
+        let names = [
+            NSWorkspace.willSleepNotification,
+            NSWorkspace.screensDidSleepNotification,
+            NSWorkspace.sessionDidResignActiveNotification,
+        ]
         for name in names {
-            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { _ in
-                Task { @MainActor in stopForSleep() }
-            })
+            observers.append(
+                center.addObserver(forName: name, object: nil, queue: .main) { _ in
+                    Task { @MainActor in stopForSleep() }
+                })
         }
         timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { _ in
             Task { @MainActor in checkIdle() }
@@ -60,12 +63,15 @@ extension IdleStop {
 
     @MainActor private static func checkIdle(now: Date = .now) {
         guard let container,
-              let running = TimerService.current(in: container.mainContext) else { return }
+            let running = TimerService.current(in: container.mainContext)
+        else { return }
         let idle = idleSeconds()
         guard let stopAt = stopDate(now: now, idleSeconds: idle, thresholdSeconds: threshold),
-              stopAt > running.start else { return }
+            stopAt > running.start
+        else { return }
         TimerService.stop(in: container.mainContext, at: stopAt)
-        notify(body: "No activity for \(Int(idle / 60))m, so the timer was stopped at \(stopAt.formatted(date: .omitted, time: .shortened)).")
+        notify(
+            body: "No activity for \(Int(idle / 60))m, so the timer was stopped at \(stopAt.formatted(date: .omitted, time: .shortened)).")
     }
 
     private static func notify(body: String) {

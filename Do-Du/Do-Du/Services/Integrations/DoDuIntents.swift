@@ -58,8 +58,8 @@ nonisolated struct ProjectEntity: AppEntity {
     static func id(for pid: PersistentIdentifier) -> String { storeID(for: pid) }
 }
 
-private extension ProjectEntity {
-    static func pid(from id: String) -> PersistentIdentifier? {
+extension ProjectEntity {
+    fileprivate static func pid(from id: String) -> PersistentIdentifier? {
         guard let data = Data(base64Encoded: id) else { return nil }
         return try? JSONDecoder().decode(PersistentIdentifier.self, from: data)
     }
@@ -85,10 +85,11 @@ private nonisolated func storeID(for pid: PersistentIdentifier) -> String {
     (try? JSONEncoder().encode(pid)).map { Data($0).base64EncodedString() } ?? ""
 }
 
-private extension TaskItemEntity {
-    init(task: TaskItem) {
-        self.init(id: storeID(for: task.persistentModelID),
-                  title: task.title, projectName: task.project?.name ?? "")
+extension TaskItemEntity {
+    fileprivate init(task: TaskItem) {
+        self.init(
+            id: storeID(for: task.persistentModelID),
+            title: task.title, projectName: task.project?.name ?? "")
     }
 }
 
@@ -97,9 +98,11 @@ private extension TaskItemEntity {
 @MainActor
 private func openTasks() -> [TaskItem] {
     let ctx = SharedStore.shared.mainContext
-    return (try? ctx.fetch(FetchDescriptor<TaskItem>(
-        predicate: #Predicate { !$0.isDone },
-        sortBy: [SortDescriptor(\.createdAt)]))) ?? []
+    return
+        (try? ctx.fetch(
+            FetchDescriptor<TaskItem>(
+                predicate: #Predicate { !$0.isDone },
+                sortBy: [SortDescriptor(\.createdAt)]))) ?? []
 }
 
 @MainActor
@@ -172,8 +175,10 @@ struct AddTaskIntent: AppIntent {
             let ctx = SharedStore.shared.mainContext
             guard !name.isEmpty else { return "Give the task a title first." }
             let projects = allProjects()
-            guard let chosen = pid.flatMap({ id in projects.first { $0.persistentModelID == id } })
-                    ?? projects.first(where: { !$0.isArchived }) else {
+            guard
+                let chosen = pid.flatMap({ id in projects.first { $0.persistentModelID == id } })
+                    ?? projects.first(where: { !$0.isArchived })
+            else {
                 return "Create a project in Do-Du first."
             }
             let t = TaskItem(title: name, project: chosen)
@@ -189,14 +194,17 @@ struct AddTaskIntent: AppIntent {
 
 struct DoDuShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
-        AppShortcut(intent: StartTimerIntent(),
-                    phrases: ["Start my \(.applicationName) timer", "Start timing with \(.applicationName)"],
-                    shortTitle: "Start Timer", systemImageName: "play.fill")
-        AppShortcut(intent: StopTimerIntent(),
-                    phrases: ["Stop my \(.applicationName) timer"],
-                    shortTitle: "Stop Timer", systemImageName: "stop.fill")
-        AppShortcut(intent: AddTaskIntent(),
-                    phrases: ["Add a \(.applicationName) task"],
-                    shortTitle: "Add Task", systemImageName: "plus")
+        AppShortcut(
+            intent: StartTimerIntent(),
+            phrases: ["Start my \(.applicationName) timer", "Start timing with \(.applicationName)"],
+            shortTitle: "Start Timer", systemImageName: "play.fill")
+        AppShortcut(
+            intent: StopTimerIntent(),
+            phrases: ["Stop my \(.applicationName) timer"],
+            shortTitle: "Stop Timer", systemImageName: "stop.fill")
+        AppShortcut(
+            intent: AddTaskIntent(),
+            phrases: ["Add a \(.applicationName) task"],
+            shortTitle: "Add Task", systemImageName: "plus")
     }
 }

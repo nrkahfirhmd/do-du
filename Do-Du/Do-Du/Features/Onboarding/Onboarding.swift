@@ -88,7 +88,8 @@ struct OnboardingAnswers: Equatable {
     }
 
     static func hm(_ minutes: Int) -> String {
-        let h = minutes / 60, m = minutes % 60
+        let h = minutes / 60
+        let m = minutes % 60
         return h == 0 ? "\(m)m" : m == 0 ? "\(h)h" : "\(h)h \(m)m"
     }
 }

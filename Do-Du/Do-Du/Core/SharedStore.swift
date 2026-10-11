@@ -13,7 +13,8 @@ enum SharedStore {
     /// The App Group folder, or nil when this build can't use it.
     static var groupURL: URL? {
         guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID),
-              FileManager.default.isWritableFile(atPath: url.path) else { return nil }
+            FileManager.default.isWritableFile(atPath: url.path)
+        else { return nil }
         return url
     }
 
@@ -28,11 +29,13 @@ enum SharedStore {
     @discardableResult
     static func migrateIfNeeded(fileManager: FileManager = .default) -> URL? {
         guard let group = groupURL,
-              let target = storeURL(groupURL: group),
-              let support = try? fileManager.url(for: .applicationSupportDirectory,
-                                                 in: .userDomainMask,
-                                                 appropriateFor: nil,
-                                                 create: false) else { return nil }
+            let target = storeURL(groupURL: group),
+            let support = try? fileManager.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: false)
+        else { return nil }
         return migrate(from: legacyStoreURL(appSupport: support), to: target, fileManager: fileManager)
     }
 
@@ -58,10 +61,12 @@ enum SharedStore {
     @discardableResult
     static func migrate(from legacy: URL, to target: URL, fileManager: FileManager = .default) -> URL? {
         guard !fileManager.fileExists(atPath: target.path),
-              fileManager.fileExists(atPath: legacy.path) else { return nil }
+            fileManager.fileExists(atPath: legacy.path)
+        else { return nil }
         do {
-            try fileManager.createDirectory(at: target.deletingLastPathComponent(),
-                                            withIntermediateDirectories: true)
+            try fileManager.createDirectory(
+                at: target.deletingLastPathComponent(),
+                withIntermediateDirectories: true)
             try fileManager.moveItem(at: legacy, to: target)
             for suffix in ["-wal", "-shm"] {
                 let src = URL(fileURLWithPath: legacy.path + suffix)

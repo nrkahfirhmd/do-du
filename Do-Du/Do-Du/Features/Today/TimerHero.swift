@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TimerHero: View {
     let running: TimeEntry?
@@ -29,9 +29,10 @@ struct TimerHero: View {
                 StatusChip(recording: recording)
                 Spacer(minLength: 10)
                 SwitchMenu(running: running, quickProject: $quickProject, projects: projects) {
-                    ProjectChip(name: project?.name ?? "No project",
-                                color: project.map { chipColor($0) } ?? .clear,
-                                onDark: recording)
+                    ProjectChip(
+                        name: project?.name ?? "No project",
+                        color: project.map { chipColor($0) } ?? .clear,
+                        onDark: recording)
                 }
             }
 
@@ -48,11 +49,13 @@ struct TimerHero: View {
             stats.padding(.top, 26)
 
             let window = SessionTimeline.window(now: now)
-            SessionStripView(blocks: SessionTimeline.blocks(sessions, window: window, now: now, projectOrder: projectOrder),
-                             now: SessionTimeline.nowFraction(now, window: window),
-                             labels: SessionTimeline.labels(for: window),
-                             onDark: recording)
-                .padding(.top, 22)
+            SessionStripView(
+                blocks: SessionTimeline.blocks(sessions, window: window, now: now, projectOrder: projectOrder),
+                now: SessionTimeline.nowFraction(now, window: window),
+                labels: SessionTimeline.labels(for: window),
+                onDark: recording
+            )
+            .padding(.top, 22)
 
             #if os(macOS)
             ViewThatFits(in: .horizontal) {
@@ -106,15 +109,17 @@ struct TimerHero: View {
         let day = DayMath.day(now)
         let today = recent.tracked(in: day, now: now)
         let verdict = Stats.verdict(for: projects, on: now, now: now)
-        let toEnough: (String, Bool) = switch verdict {
-        case .restDay: ("—", false)
-        case .enough: ("Done", true)
-        case .notYet(let left): (left.hoursMinutes, false)
-        }
-        let projPct: (String, Bool) = project.map { p in
-            let pct = p.dailyTarget > 0 ? min(1, p.tracked(in: day, now: now) / p.dailyTarget) : 1
-            return ("\(Int(pct * 100))%", pct >= 1)
-        } ?? ("—", false)
+        let toEnough: (String, Bool) =
+            switch verdict {
+            case .restDay: ("—", false)
+            case .enough: ("Done", true)
+            case .notYet(let left): (left.hoursMinutes, false)
+            }
+        let projPct: (String, Bool) =
+            project.map { p in
+                let pct = p.dailyTarget > 0 ? min(1, p.tracked(in: day, now: now) / p.dailyTarget) : 1
+                return ("\(Int(pct * 100))%", pct >= 1)
+            } ?? ("—", false)
         return HStack(spacing: 0) {
             stat(today.hoursMinutes, "Today", good: false)
             Rectangle().fill(rule).frame(width: 1)
@@ -201,7 +206,9 @@ struct SwitchMenu<MenuLabel: View>: View {
                     }
                 }
             }
-        } label: { label }
+        } label: {
+            label
+        }
         .menuStyle(.button)
         .buttonStyle(.plain)
         .menuIndicator(.hidden)

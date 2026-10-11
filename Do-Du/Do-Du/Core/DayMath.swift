@@ -25,11 +25,14 @@ enum DayMath {
         dayStarting(logicalDate(date, calendar: calendar, startHour: startHour), calendar: calendar, startHour: startHour)
     }
 
-    static func period(_ component: Calendar.Component, for date: Date, calendar: Calendar = .current,
-                       startHour: Int = startHour) -> DateInterval {
+    static func period(
+        _ component: Calendar.Component, for date: Date, calendar: Calendar = .current,
+        startHour: Int = startHour
+    ) -> DateInterval {
         let base = calendar.dateInterval(of: component, for: logicalDate(date, calendar: calendar, startHour: startHour))!
-        return DateInterval(start: calendar.date(byAdding: .hour, value: startHour, to: base.start)!,
-                            end: calendar.date(byAdding: .hour, value: startHour, to: base.end)!)
+        return DateInterval(
+            start: calendar.date(byAdding: .hour, value: startHour, to: base.start)!,
+            end: calendar.date(byAdding: .hour, value: startHour, to: base.end)!)
     }
 
     static func logicalDates(in range: DateInterval, calendar: Calendar = .current, startHour: Int = startHour) -> [Date] {

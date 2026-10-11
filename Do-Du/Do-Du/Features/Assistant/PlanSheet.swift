@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct PlanSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -21,11 +21,13 @@ struct PlanSheet: View {
 
     var body: some View {
         #if os(macOS)
-        MacSheet(title: "Plan My Day",
-                 subtitle: "Suggested by Claude from your open tasks, today’s targets and your calendar.",
-                 cancel: "Discard", primary: "Accept Plan", primaryHint: "⌘↩",
-                 primaryKey: KeyboardShortcut(.return, modifiers: .command),
-                 canSubmit: canAccept, submit: accept, width: 620) {
+        MacSheet(
+            title: "Plan My Day",
+            subtitle: "Suggested by Claude from your open tasks, today’s targets and your calendar.",
+            cancel: "Discard", primary: "Accept Plan", primaryHint: "⌘↩",
+            primaryKey: KeyboardShortcut(.return, modifiers: .command),
+            canSubmit: canAccept, submit: accept, width: 620
+        ) {
             VStack(spacing: 14) {
                 if hasKey {
                     stats
@@ -83,10 +85,11 @@ struct PlanSheet: View {
     private var stats: some View {
         let now = Date.now
         let planned = items.reduce(0) { $0 + $1.minutes }
-        let left: Int = switch Stats.verdict(for: projects, on: now, now: now) {
-        case .notYet(let r): Int(r / 60)
-        default: 0
-        }
+        let left: Int =
+            switch Stats.verdict(for: projects, on: now, now: now) {
+            case .notYet(let r): Int(r / 60)
+            default: 0
+            }
         let cells: [(String, String, Bool)] = [
             ("Planned", compactHours(planned), left > 0 && planned >= left),
             ("To enough", left > 0 ? compactHours(left) : "Done", false),
@@ -171,11 +174,12 @@ struct PlanSheet: View {
                 if let meetings = DayPlanner.meetingsLine(events.map { ($0.title, $0.start, $0.end) }) {
                     prompt += "\n\n\(meetings)"
                 }
-                let res = try await ClaudeClient.send(ClaudeRequest(
-                    system: DayPlanner.system,
-                    messages: [["role": "user", "content": .string(prompt + "\n\nPlan my day.")]],
-                    effort: "medium",
-                    schema: DayPlanner.schema))
+                let res = try await ClaudeClient.send(
+                    ClaudeRequest(
+                        system: DayPlanner.system,
+                        messages: [["role": "user", "content": .string(prompt + "\n\nPlan my day.")]],
+                        effort: "medium",
+                        schema: DayPlanner.schema))
                 guard let parsed = DayPlanner.items(from: res.text, openTasks: snapshot.openTasks) else {
                     throw ClaudeError.invalidResponse
                 }
@@ -242,8 +246,13 @@ struct PlanSection: View {
                 HStack {
                     Text("Plan")
                     Spacer()
-                    Button("Clear") { planned.forEach { $0.plannedFor = nil; $0.plannedMinutes = nil } }
-                        .font(.caption)
+                    Button("Clear") {
+                        planned.forEach {
+                            $0.plannedFor = nil
+                            $0.plannedMinutes = nil
+                        }
+                    }
+                    .font(.caption)
                 }
             }
         }

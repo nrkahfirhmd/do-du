@@ -31,7 +31,8 @@ private struct SettingsPage<Content: View>: View {
 }
 
 private func hm(_ minutes: Int) -> String {
-    let h = minutes / 60, m = minutes % 60
+    let h = minutes / 60
+    let m = minutes % 60
     return h == 0 ? "\(m)m" : m == 0 ? "\(h)h" : "\(h)h \(m)m"
 }
 
@@ -65,10 +66,11 @@ struct MacGeneralSettings: View {
     var body: some View {
         SettingsPage {
             Section("Day") {
-                ValueStepper(title: "Day starts at", value: "\(dayStartHour):00",
-                             subtitle: "Work before this hour counts toward the previous day.",
-                             increment: { dayStartHour = min(6, dayStartHour + 1) },
-                             decrement: { dayStartHour = max(0, dayStartHour - 1) })
+                ValueStepper(
+                    title: "Day starts at", value: "\(dayStartHour):00",
+                    subtitle: "Work before this hour counts toward the previous day.",
+                    increment: { dayStartHour = min(6, dayStartHour + 1) },
+                    decrement: { dayStartHour = max(0, dayStartHour - 1) })
             }
             Section {
                 Toggle("Open at login", isOn: Binding(get: { openAtLogin }, set: setOpenAtLogin))
@@ -109,13 +111,15 @@ struct MacTimerSettings: View {
     var body: some View {
         SettingsPage {
             Section {
-                ValueStepper(title: "Stop when idle for", value: hm(idleMinutes),
-                             increment: { idleMinutes = min(60, idleMinutes + 5) },
-                             decrement: { idleMinutes = max(5, idleMinutes - 5) })
+                ValueStepper(
+                    title: "Stop when idle for", value: hm(idleMinutes),
+                    increment: { idleMinutes = min(60, idleMinutes + 5) },
+                    decrement: { idleMinutes = max(5, idleMinutes - 5) })
                 Toggle("Stop on sleep or lock", isOn: $sleepStop)
-                ValueStepper(title: "Warn when a timer runs over", value: hm(Int(longRunHours * 60)),
-                             increment: { longRunHours = min(8, longRunHours + 0.5) },
-                             decrement: { longRunHours = max(1, longRunHours - 0.5) })
+                ValueStepper(
+                    title: "Warn when a timer runs over", value: hm(Int(longRunHours * 60)),
+                    increment: { longRunHours = min(8, longRunHours + 0.5) },
+                    decrement: { longRunHours = max(1, longRunHours - 0.5) })
             } header: {
                 Text("Stopping")
             } footer: {
@@ -127,12 +131,14 @@ struct MacTimerSettings: View {
                     Text("Work and break intervals on top of the timer.")
                 }
                 if pomodoroOn {
-                    ValueStepper(title: "Focus", value: hm(focusMinutes),
-                                 increment: { focusMinutes = min(90, focusMinutes + 5) },
-                                 decrement: { focusMinutes = max(10, focusMinutes - 5) })
-                    ValueStepper(title: "Break", value: hm(breakMinutes),
-                                 increment: { breakMinutes = min(30, breakMinutes + 1) },
-                                 decrement: { breakMinutes = max(1, breakMinutes - 1) })
+                    ValueStepper(
+                        title: "Focus", value: hm(focusMinutes),
+                        increment: { focusMinutes = min(90, focusMinutes + 5) },
+                        decrement: { focusMinutes = max(10, focusMinutes - 5) })
+                    ValueStepper(
+                        title: "Break", value: hm(breakMinutes),
+                        increment: { breakMinutes = min(30, breakMinutes + 1) },
+                        decrement: { breakMinutes = max(1, breakMinutes - 1) })
                 }
             }
         }
@@ -153,8 +159,11 @@ struct MacAssistantSettings: View {
                         Text(hasKey ? ClaudeKey.masked ?? "Saved" : "Not set")
                             .font(.system(.body, design: .monospaced)).foregroundStyle(DD.ink3)
                         if hasKey {
-                            Button("Remove Key", role: .destructive) { ClaudeKey.remove(); hasKey = false }
-                                .tint(DD.danger)
+                            Button("Remove Key", role: .destructive) {
+                                ClaudeKey.remove()
+                                hasKey = false
+                            }
+                            .tint(DD.danger)
                         } else {
                             Button("Add Key…") { adding = true }.ddPrimary()
                         }
@@ -202,7 +211,10 @@ struct MacDataSettings: View {
                 Text("iCloud")
             } footer: {
                 if iCloudOn != SharedStore.iCloudOnAtLaunch {
-                    Text(iCloudOn ? "Sync starts next time you open Do-Du." : "Sync stops next time you open Do-Du. Data already in iCloud stays there.")
+                    Text(
+                        iCloudOn
+                            ? "Sync starts next time you open Do-Du."
+                            : "Sync stops next time you open Do-Du. Data already in iCloud stays there.")
                 }
             }
             Section("Export") {

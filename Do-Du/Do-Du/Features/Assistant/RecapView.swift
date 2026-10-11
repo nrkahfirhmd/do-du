@@ -1,10 +1,11 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 import UserNotifications
 
 struct RecapView: View {
     enum Span: String, CaseIterable, Identifiable {
-        case today = "Today", week = "This Week"
+        case today = "Today"
+        case week = "This Week"
         var id: Self { self }
     }
 
@@ -47,13 +48,14 @@ struct RecapView: View {
                     let target = days.filter { p.isActive(on: $0.start) }.reduce(0) { a, _ in a + p.dailyTarget }
                     let t = p.tracked(in: elapsed, now: now)
                     if target > 0 || t > 0 {
-                        LabeledContent { Text("\(t.hoursMinutes) / \(target.hoursMinutes)").monospacedDigit() }
-                            label: {
-                                HStack(spacing: 10) {
-                                    RoundedRectangle(cornerRadius: 3, style: .continuous).fill(p.color).frame(width: 10, height: 10)
-                                    Text(p.name)
-                                }
+                        LabeledContent {
+                            Text("\(t.hoursMinutes) / \(target.hoursMinutes)").monospacedDigit()
+                        } label: {
+                            HStack(spacing: 10) {
+                                RoundedRectangle(cornerRadius: 3, style: .continuous).fill(p.color).frame(width: 10, height: 10)
+                                Text(p.name)
                             }
+                        }
                     }
                 }
                 let loose = entries.filter { $0.effectiveProject == nil }.tracked(in: elapsed, now: now)
@@ -84,7 +86,7 @@ struct RecapView: View {
         .background(DD.page)
         .tint(DD.sage)
         #if !os(macOS)
-        .navigationTitle("Recap")   // Mac shows both side by side under "Assistant"
+        .navigationTitle("Recap")  // Mac shows both side by side under "Assistant"
         #endif
         .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
         .onChange(of: span) { error = nil }
@@ -105,10 +107,16 @@ struct RecapView: View {
         error = nil
         Task {
             do {
-                let res = try await ClaudeClient.send(ClaudeRequest(
-                    system: Self.system,
-                    messages: [["role": "user", "content": .string(
-                        "\(snapshot.text)\n\nWrite my \(which == .today ? "daily" : "weekly") recap.")]]))
+                let res = try await ClaudeClient.send(
+                    ClaudeRequest(
+                        system: Self.system,
+                        messages: [
+                            [
+                                "role": "user",
+                                "content": .string(
+                                    "\(snapshot.text)\n\nWrite my \(which == .today ? "daily" : "weekly") recap."),
+                            ]
+                        ]))
                 writeUps[which] = res.text.trimmingCharacters(in: .whitespacesAndNewlines)
             } catch {
                 self.error = error.localizedDescription
@@ -131,7 +139,7 @@ struct RecapView: View {
 
 enum RecapReminder {
     static let enabledKey = "recapReminderOn"
-    static let minutesKey = "recapReminderMinutes"   // minutes after midnight
+    static let minutesKey = "recapReminderMinutes"  // minutes after midnight
     private static let id = "recap-reminder"
 
     static func apply(enabled: Bool, minutesAfterMidnight: Int) {

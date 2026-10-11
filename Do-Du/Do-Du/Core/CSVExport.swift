@@ -12,13 +12,15 @@ enum TimeEntryCSV {
         stamp.timeZone = calendar.timeZone
         let header = "date,start,end,minutes,project,task,category"
         let rows = entries.sorted { $0.start < $1.start }.map { e in
-            [day.string(from: DayMath.logicalDate(e.start, calendar: calendar)),
-             stamp.string(from: e.start),
-             e.end.map(stamp.string) ?? "",
-             String(Int(e.duration(now: now) / 60)),
-             e.effectiveProject?.name ?? "",
-             e.task?.title ?? "",
-             e.task?.category?.name ?? ""].map(field).joined(separator: ",")
+            [
+                day.string(from: DayMath.logicalDate(e.start, calendar: calendar)),
+                stamp.string(from: e.start),
+                e.end.map(stamp.string) ?? "",
+                String(Int(e.duration(now: now) / 60)),
+                e.effectiveProject?.name ?? "",
+                e.task?.title ?? "",
+                e.task?.category?.name ?? "",
+            ].map(field).joined(separator: ",")
         }
         return ([header] + rows).joined(separator: "\n") + "\n"
     }

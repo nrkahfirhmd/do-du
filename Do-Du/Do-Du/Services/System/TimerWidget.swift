@@ -37,10 +37,12 @@ enum LiveTimer {
                 let target = project.map { $0.isActive(on: running.start) ? $0.dailyTarget : 0 } ?? 0
                 // Tracked up to this session's start (the running entry adds nothing yet).
                 let before = project?.tracked(in: DayMath.day(running.start), now: running.start) ?? 0
-                let attributes = TimerAttributes(taskTitle: running.title, projectName: project?.name ?? "",
-                                                 target: target, trackedBefore: before)
-                let content = ActivityContent(state: TimerAttributes.ContentState(startedAt: running.start),
-                                              staleDate: nil)
+                let attributes = TimerAttributes(
+                    taskTitle: running.title, projectName: project?.name ?? "",
+                    target: target, trackedBefore: before)
+                let content = ActivityContent(
+                    state: TimerAttributes.ContentState(startedAt: running.start),
+                    staleDate: nil)
                 if let existing = Activity<TimerAttributes>.activities.first {
                     if existing.attributes != attributes {
                         await existing.end(nil, dismissalPolicy: .immediate)

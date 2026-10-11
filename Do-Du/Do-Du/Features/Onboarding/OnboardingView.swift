@@ -118,7 +118,8 @@ struct OnboardingView: View {
         case .dayStart: Text("When does your day start?")
         case .sync: Text("Sync and assistant")
         case .done:
-            answers.isRestDay(weekday: weekday) ? highlighted("Today is a ", "rest day", ".")
+            answers.isRestDay(weekday: weekday)
+                ? highlighted("Today is a ", "rest day", ".")
                 : highlighted("You need ", OnboardingAnswers.hm(answers.targetMinutes), " to call it a day.")
         }
     }
@@ -166,7 +167,9 @@ struct OnboardingView: View {
                     Spacer()
                     HStack(spacing: 9) {
                         ForEach(Palette.names, id: \.self) { name in
-                            Button { answers.colorName = name } label: {
+                            Button {
+                                answers.colorName = name
+                            } label: {
                                 Circle().fill(Palette.color(name)).frame(width: 24, height: 24)
                                     .padding(2)
                                     .overlay(Circle().strokeBorder(answers.colorName == name ? Palette.color(name) : .clear, lineWidth: 2))
@@ -194,16 +197,21 @@ struct OnboardingView: View {
 
     private var daysControls: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Picker("Days", selection: Binding(
-                get: { OnboardingAnswers.presets.firstIndex { $0.days == answers.days } ?? -1 },
-                set: { if $0 >= 0 { answers.days = OnboardingAnswers.presets[$0].days } })) {
+            Picker(
+                "Days",
+                selection: Binding(
+                    get: { OnboardingAnswers.presets.firstIndex { $0.days == answers.days } ?? -1 },
+                    set: { if $0 >= 0 { answers.days = OnboardingAnswers.presets[$0].days } })
+            ) {
                 ForEach(OnboardingAnswers.presets.indices, id: \.self) { Text(OnboardingAnswers.presets[$0].label).tag($0) }
             }
             .pickerStyle(.segmented).labelsHidden()
             .frame(maxWidth: .infinity)
             HStack {
                 ForEach(0..<7, id: \.self) { i in
-                    Button { answers.days[i].toggle() } label: {
+                    Button {
+                        answers.days[i].toggle()
+                    } label: {
                         Text(OnboardingAnswers.dayLetters[i]).font(.rounded(15, .bold))
                             .foregroundStyle(answers.days[i] ? DD.onMint : DD.ink3)
                             .frame(width: 44, height: 44)
@@ -227,7 +235,9 @@ struct OnboardingView: View {
                 .contentTransition(.numericText())
             HStack(spacing: 6) {
                 ForEach(0...6, id: \.self) { h in
-                    Button { answers.dayStart = h } label: {
+                    Button {
+                        answers.dayStart = h
+                    } label: {
                         Text("\(h):00").font(.rounded(13, .bold)).monospacedDigit()
                             .foregroundStyle(answers.dayStart == h ? DD.onMint : DD.ink)
                             .lineLimit(1).minimumScaleFactor(0.8)
@@ -281,9 +291,11 @@ struct OnboardingView: View {
 
     private var footer: some View {
         #if os(macOS)
-        let height: CGFloat = 34, font = Font.system(size: 14, weight: .semibold)
+        let height: CGFloat = 34
+        let font = Font.system(size: 14, weight: .semibold)
         #else
-        let height: CGFloat = 54, font = Font.system(size: 17, weight: .semibold)
+        let height: CGFloat = 54
+        let font = Font.system(size: 17, weight: .semibold)
         #endif
         let can = answers.canContinue(step)
         return HStack(spacing: 10) {
@@ -291,7 +303,9 @@ struct OnboardingView: View {
             Spacer()
             #endif
             if step != .welcome {
-                Button { back() } label: {
+                Button {
+                    back()
+                } label: {
                     Text("Back").font(font).foregroundStyle(DD.ink)
                         .padding(.horizontal, 20).frame(height: height)
                         .background(DD.sheetButton, in: Capsule())
@@ -303,7 +317,7 @@ struct OnboardingView: View {
                 Text(primaryLabel).font(font).foregroundStyle(.white)
                     .padding(.horizontal, 22).frame(height: height)
                     #if !os(macOS)
-                    .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity)
                     #endif
                     .background(can ? DD.forestFill : DD.disabled, in: Capsule())
                     .contentShape(Capsule())
@@ -326,7 +340,10 @@ struct OnboardingView: View {
 
     private func next() {
         guard answers.canContinue(step) else { return }
-        if step == .done { onFinish(answers); return }
+        if step == .done {
+            onFinish(answers)
+            return
+        }
         step = OnboardingStep(rawValue: step.rawValue + 1)!
         nameFocused = step == .project
     }
@@ -375,8 +392,9 @@ struct OnboardingPreview: View {
         content()
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(DD.page, in: .dd(radius))
-            .overlay(RoundedRectangle(cornerRadius: radius, style: .continuous)
-                .strokeBorder(DD.mint, lineWidth: step == section ? 2 : 0))
+            .overlay(
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .strokeBorder(DD.mint, lineWidth: step == section ? 2 : 0))
     }
 
     private var tile: some View {
@@ -478,7 +496,9 @@ private struct FlowChips: View {
     var body: some View {
         FlowLayout(spacing: 8) {
             ForEach(items, id: \.self) { item in
-                Button { pick(item) } label: {
+                Button {
+                    pick(item)
+                } label: {
                     Text(item).font(.system(size: 14, weight: .semibold)).foregroundStyle(selected(item) ? DD.onMint : DD.ink)
                         .padding(.horizontal, 14).frame(height: 32)
                         .background(selected(item) ? DD.mint : DD.fill, in: Capsule())
@@ -495,8 +515,9 @@ private struct FlowLayout: Layout {
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let rows = arrange(width: proposal.width ?? .infinity, subviews: subviews)
-        return CGSize(width: proposal.width ?? rows.map(\.width).max() ?? 0,
-                      height: rows.last.map { $0.y + $0.height } ?? 0)
+        return CGSize(
+            width: proposal.width ?? rows.map(\.width).max() ?? 0,
+            height: rows.last.map { $0.y + $0.height } ?? 0)
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
@@ -512,14 +533,22 @@ private struct FlowLayout: Layout {
 
     private func arrange(width: CGFloat, subviews: Subviews) -> [(items: [Int], y: CGFloat, width: CGFloat, height: CGFloat)] {
         var rows: [(items: [Int], y: CGFloat, width: CGFloat, height: CGFloat)] = []
-        var items: [Int] = [], x: CGFloat = 0, y: CGFloat = 0, h: CGFloat = 0
+        var items: [Int] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var h: CGFloat = 0
         for (i, sub) in subviews.enumerated() {
             let size = sub.sizeThatFits(.unspecified)
             if x > 0, x + size.width > width {
                 rows.append((items, y, x - spacing, h))
-                y += h + spacing; items = []; x = 0; h = 0
+                y += h + spacing
+                items = []
+                x = 0
+                h = 0
             }
-            items.append(i); x += size.width + spacing; h = max(h, size.height)
+            items.append(i)
+            x += size.width + spacing
+            h = max(h, size.height)
         }
         if !items.isEmpty { rows.append((items, y, x - spacing, h)) }
         return rows

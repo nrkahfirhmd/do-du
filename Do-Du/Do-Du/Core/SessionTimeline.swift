@@ -27,18 +27,22 @@ enum SessionTimeline {
     }
 
     /// Clips sessions to the window. Running sessions end at `now`. Ranks follow `projectOrder`.
-    static func blocks(_ sessions: [(start: Date, end: Date?, projectID: String?)],
-                       window: DateInterval, now: Date, projectOrder: [String]) -> [SessionBlock] {
+    static func blocks(
+        _ sessions: [(start: Date, end: Date?, projectID: String?)],
+        window: DateInterval, now: Date, projectOrder: [String]
+    ) -> [SessionBlock] {
         let total = window.duration
         guard total > 0 else { return [] }
         return sessions.compactMap { s in
             let end = s.end ?? now
-            let a = max(s.start, window.start), b = min(end, window.end)
+            let a = max(s.start, window.start)
+            let b = min(end, window.end)
             guard b > a else { return nil }
-            return SessionBlock(start: a.timeIntervalSince(window.start) / total,
-                                end: b.timeIntervalSince(window.start) / total,
-                                projectRank: s.projectID.flatMap { projectOrder.firstIndex(of: $0) },
-                                isLive: s.end == nil)
+            return SessionBlock(
+                start: a.timeIntervalSince(window.start) / total,
+                end: b.timeIntervalSince(window.start) / total,
+                projectRank: s.projectID.flatMap { projectOrder.firstIndex(of: $0) },
+                isLive: s.end == nil)
         }
     }
 

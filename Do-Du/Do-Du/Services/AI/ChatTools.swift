@@ -10,7 +10,8 @@ struct ChatTools {
     static let definitions: [JSON] = [
         [
             "name": "time_summary",
-            "description": "Tracked minutes between two dates (inclusive), grouped by project, category or day. Use for any question about how much time was spent.",
+            "description":
+                "Tracked minutes between two dates (inclusive), grouped by project, category or day. Use for any question about how much time was spent.",
             "input_schema": [
                 "type": "object",
                 "properties": [
@@ -80,10 +81,12 @@ struct ChatTools {
     }
 
     private func range(_ input: JSON) throws -> DateInterval {
-        let start = try date(input, "start"), end = try date(input, "end")
+        let start = try date(input, "start")
+        let end = try date(input, "end")
         guard start <= end else { throw BadInput(errorDescription: "start must not be after end") }
-        return DateInterval(start: DayMath.dayStarting(start, calendar: calendar).start,
-                            end: DayMath.dayStarting(end, calendar: calendar).end)
+        return DateInterval(
+            start: DayMath.dayStarting(start, calendar: calendar).start,
+            end: DayMath.dayStarting(end, calendar: calendar).end)
     }
 
     private func timeSummary(_ input: JSON) throws -> String {
@@ -138,11 +141,12 @@ struct ChatTools {
         return DayMath.logicalDates(in: r, calendar: calendar).compactMap { d in
             let day = DayMath.dayStarting(d, calendar: calendar)
             guard day.start <= now else { return nil }
-            let v: String = switch Stats.verdict(for: projects, on: day.start, now: now, calendar: calendar) {
-            case .enough: "enough"
-            case .restDay: "rest day"
-            case .notYet(let left): "not enough (\(Int(left / 60))m short)"
-            }
+            let v: String =
+                switch Stats.verdict(for: projects, on: day.start, now: now, calendar: calendar) {
+                case .enough: "enough"
+                case .restDay: "rest day"
+                case .notYet(let left): "not enough (\(Int(left / 60))m short)"
+                }
             let parts = projects.filter { $0.isActive(on: day.start, calendar: calendar) }
                 .map { "\($0.name) \(Int($0.tracked(in: day, now: now) / 60))/\($0.dailyTargetMinutes)" }
             return "\(f.string(from: d)): \(v)" + (parts.isEmpty ? "" : " | " + parts.joined(separator: ", "))

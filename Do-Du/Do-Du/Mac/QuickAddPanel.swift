@@ -16,8 +16,10 @@ enum QuickAddPanel {
         panel.layoutIfNeeded()
         if let screen = NSScreen.main?.visibleFrame {
             let size = host.view.fittingSize
-            panel.setFrame(NSRect(x: screen.midX - size.width / 2, y: screen.maxY - 150 - size.height,
-                                  width: size.width, height: size.height), display: true)
+            panel.setFrame(
+                NSRect(
+                    x: screen.midX - size.width / 2, y: screen.maxY - 150 - size.height,
+                    width: size.width, height: size.height), display: true)
         }
         panel.makeKeyAndOrderFront(nil)
     }
@@ -177,8 +179,9 @@ struct QuickAddPanelView: View {
         Menu {
             ForEach(projects) { p in Button(p.name) { chosenProject = p } }
         } label: {
-            cell("Project", project?.name ?? (text.isBlank ? nil : "Choose…"), swatch: project?.color,
-                 ink: project == nil ? DD.danger : DD.ink)
+            cell(
+                "Project", project?.name ?? (text.isBlank ? nil : "Choose…"), swatch: project?.color,
+                ink: project == nil ? DD.danger : DD.ink)
         }
         .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
     }

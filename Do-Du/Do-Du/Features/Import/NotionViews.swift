@@ -43,7 +43,9 @@ struct NotionSettingsSection: View {
         } header: {
             Text("Notion")
         } footer: {
-            Text("One-way import from one database (table). Create an internal integration at notion.so/my-integrations, invite it to the page, and paste the token and database ID here.")
+            Text(
+                "One-way import from one database (table). Create an internal integration at notion.so/my-integrations, invite it to the page, and paste the token and database ID here."
+            )
         }
     }
 

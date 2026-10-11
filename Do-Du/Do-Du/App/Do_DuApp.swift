@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct Do_DuApp: App {
@@ -39,9 +39,11 @@ struct Do_DuApp: App {
         defaults.set(true, forKey: OnboardingGate.doneKey)
         let opened = Self.openStore()
         if let answers {
-            opened.mainContext.insert(Project(name: answers.trimmedName, colorName: answers.colorName,
-                                              dailyTargetMinutes: answers.targetMinutes,
-                                              activeWeekdaysMask: answers.weekdayMask))
+            opened.mainContext.insert(
+                Project(
+                    name: answers.trimmedName, colorName: answers.colorName,
+                    dailyTargetMinutes: answers.targetMinutes,
+                    activeWeekdaysMask: answers.weekdayMask))
             try? opened.mainContext.save()
             OnboardingGate.justFinished = true
         }
@@ -55,8 +57,8 @@ struct Do_DuApp: App {
             } else {
                 OnboardingView(onFinish: finishOnboarding)
                     #if os(macOS)
-                    .toolbar(removing: .title)
-                    .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+                .toolbar(removing: .title)
+                .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
                     #endif
             }
         }

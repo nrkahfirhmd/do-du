@@ -57,7 +57,11 @@ struct MacRootView: View {
         .task {
             let d = UserDefaults.standard
             if d.bool(forKey: "openSettings") { openSettings() }
-            if let name = d.string(forKey: "macSection"), let tab = [AppTab.today, .tasks, .assistant, .stats, .projects].first(where: { "\($0)" == name }) { section = tab }
+            if let name = d.string(forKey: "macSection"),
+                let tab = [AppTab.today, .tasks, .assistant, .stats, .projects].first(where: { "\($0)" == name })
+            {
+                section = tab
+            }
             switch d.string(forKey: "macSheet") {
             case "quick": QuickAddPanel.show(text: d.string(forKey: "quickAddText") ?? "")
             case "plan": planning = true
@@ -184,27 +188,30 @@ struct MacTodayView: View {
             let day = DayMath.day(now)
             let active = projects.filter { $0.isActive(on: now) }
             GeometryReader { geo in
-            let usable = max(0, geo.size.width - 56 - 16)
-            ScrollView {
-                HStack(alignment: .top, spacing: 16) {
-                    TimerHero(running: running.first, quickProject: $quickProject, projects: active,
-                              recent: recent, now: now, clockFont: .ddClockMac) { planning = true }
+                let usable = max(0, geo.size.width - 56 - 16)
+                ScrollView {
+                    HStack(alignment: .top, spacing: 16) {
+                        TimerHero(
+                            running: running.first, quickProject: $quickProject, projects: active,
+                            recent: recent, now: now, clockFont: .ddClockMac
+                        ) { planning = true }
                         .frame(width: usable * 1.15 / 2.15)
-                    VStack(spacing: 12) {
-                        VerdictStrip(verdict: Stats.verdict(for: projects, on: now, now: now),
-                                     progress: progress(active, day: day, now: now), font: .rounded(30))
-                        if !active.isEmpty {
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                                ForEach(active) { ProjectTile(project: $0, tracked: $0.tracked(in: day, now: now), ringSize: 72) }
+                        VStack(spacing: 12) {
+                            VerdictStrip(
+                                verdict: Stats.verdict(for: projects, on: now, now: now),
+                                progress: progress(active, day: day, now: now), font: .rounded(30))
+                            if !active.isEmpty {
+                                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+                                    ForEach(active) { ProjectTile(project: $0, tracked: $0.tracked(in: day, now: now), ringSize: 72) }
+                                }
                             }
+                            sessions(day: day, now: now)
+                            loose(active: active, day: day, now: now)
                         }
-                        sessions(day: day, now: now)
-                        loose(active: active, day: day, now: now)
+                        .frame(width: usable / 2.15)
                     }
-                    .frame(width: usable / 2.15)
+                    .padding(EdgeInsets(top: 20, leading: 28, bottom: 28, trailing: 28))
                 }
-                .padding(EdgeInsets(top: 20, leading: 28, bottom: 28, trailing: 28))
-            }
             }
             .background(DD.page)
         }
@@ -274,8 +281,10 @@ struct MacTodayView: View {
                         }
                         .lineLimit(1)
                         Spacer()
-                        Text("\(e.start.formatted(date: .omitted, time: .shortened))–\(e.end?.formatted(date: .omitted, time: .shortened) ?? "now")")
-                            .font(.caption).monospacedDigit().foregroundStyle(e.isRunning ? DD.onMint.opacity(0.7) : DD.ink3)
+                        Text(
+                            "\(e.start.formatted(date: .omitted, time: .shortened))–\(e.end?.formatted(date: .omitted, time: .shortened) ?? "now")"
+                        )
+                        .font(.caption).monospacedDigit().foregroundStyle(e.isRunning ? DD.onMint.opacity(0.7) : DD.ink3)
                         Text(e.duration(now: now).hoursMinutes).font(.rounded(14, .semibold)).monospacedDigit()
                             .frame(width: 64, alignment: .trailing)
                     }
@@ -303,9 +312,19 @@ struct MacTaskTable: View {
         VStack(spacing: 0) {
             row {
                 Text("")
-            } title: { Text("Task") } category: { Text("Category") } due: { Text("Due") } estimate: { Text("Estimate") } play: { Text("") }
-                .font(.system(size: 11, weight: .semibold)).foregroundStyle(DD.ink3)
-                .frame(height: 30)
+            } title: {
+                Text("Task")
+            } category: {
+                Text("Category")
+            } due: {
+                Text("Due")
+            } estimate: {
+                Text("Estimate")
+            } play: {
+                Text("")
+            }
+            .font(.system(size: 11, weight: .semibold)).foregroundStyle(DD.ink3)
+            .frame(height: 30)
             ForEach(tasks) { task in
                 Divider()
                 let today = DayMath.logicalDate(.now)
@@ -326,7 +345,9 @@ struct MacTaskTable: View {
                     .accessibilityLabel(task.isDone ? "Mark not done" : "Mark done")
                     .sensoryFeedback(.impact(weight: .light), trigger: task.isDone) { _, done in done }
                 } title: {
-                    Button { edit(task) } label: {
+                    Button {
+                        edit(task)
+                    } label: {
                         Text(task.title).strikethrough(task.isDone).foregroundStyle(task.isDone ? DD.ink3 : DD.ink)
                             .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
                     }
@@ -374,11 +395,15 @@ struct MacTaskTable: View {
 
     private func row<A: View, B: View, C: View, D: View, E: View, F: View>(
         @ViewBuilder done: () -> A, @ViewBuilder title: () -> B, @ViewBuilder category: () -> C,
-        @ViewBuilder due: () -> D, @ViewBuilder estimate: () -> E, @ViewBuilder play: () -> F) -> some View {
+        @ViewBuilder due: () -> D, @ViewBuilder estimate: () -> E, @ViewBuilder play: () -> F
+    ) -> some View {
         // Each cell sits on Color.clear so an empty one still takes its column.
         func cell(_ width: CGFloat?, _ alignment: Alignment = .leading, _ content: some View) -> some View {
-            ZStack(alignment: alignment) { Color.clear; content }
-                .frame(width: width).frame(maxWidth: width == nil ? .infinity : nil)
+            ZStack(alignment: alignment) {
+                Color.clear
+                content
+            }
+            .frame(width: width).frame(maxWidth: width == nil ? .infinity : nil)
         }
         return HStack(spacing: 0) {
             cell(36, .leading, done())

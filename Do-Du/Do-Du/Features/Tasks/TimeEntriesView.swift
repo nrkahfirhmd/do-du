@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TimeEntriesView: View {
     let task: TaskItem
@@ -37,7 +37,7 @@ struct TimeEntriesView: View {
                         }
                         .swipeActions { Button("Delete", role: .destructive) { context.delete(entry) } }
                     }
-                            }
+                }
                 .ddRows()
             }
             .ddForm()
@@ -98,8 +98,10 @@ struct EntryEditor: View {
         if start >= effectiveEnd { return "End must be after start." }
         if effectiveEnd > now.addingTimeInterval(60) { return "Can't log time in the future." }
         let others = allEntries.filter { $0 != entry }
-        if let i = DayMath.firstConflict(start: start, end: effectiveEnd,
-                                         in: others.map { ($0.start, $0.end ?? now) }) {
+        if let i = DayMath.firstConflict(
+            start: start, end: effectiveEnd,
+            in: others.map { ($0.start, $0.end ?? now) })
+        {
             let o = others[i]
             let t = { (d: Date) in d.formatted(date: .abbreviated, time: .shortened) }
             return "Overlaps \"\(o.title)\" (\(t(o.start)) – \(o.end.map(t) ?? "now"))."
@@ -149,7 +151,7 @@ struct UnassignedEntriesView: View {
                             Button("Edit") { editing = entry }
                         }
                     }
-                            }
+                }
                 .ddRows()
             }
             .ddForm()

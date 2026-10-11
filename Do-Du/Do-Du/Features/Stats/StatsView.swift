@@ -1,13 +1,19 @@
-import SwiftUI
-import SwiftData
 import Charts
+import SwiftData
+import SwiftUI
 
 struct StatsView: View {
     enum Period: String, CaseIterable, Identifiable {
-        case day = "Day", week = "Week", month = "Month"
+        case day = "Day"
+        case week = "Week"
+        case month = "Month"
         var id: Self { self }
         var component: Calendar.Component {
-            switch self { case .day: .day; case .week: .weekOfYear; case .month: .month }
+            switch self {
+            case .day: .day
+            case .week: .weekOfYear
+            case .month: .month
+            }
         }
     }
 
@@ -72,14 +78,20 @@ struct StatsView: View {
             .listRowInsets(EdgeInsets())
 
             Section("By project") {
-                if byProject.isEmpty { Text("No time tracked.").foregroundStyle(DD.ink3) }
-                else { TotalsChart(rows: byProject, color: projectColor) }
+                if byProject.isEmpty {
+                    Text("No time tracked.").foregroundStyle(DD.ink3)
+                } else {
+                    TotalsChart(rows: byProject, color: projectColor)
+                }
             }
             .listRowBackground(DD.surface)
 
             Section("By category") {
-                if byCategory.isEmpty { Text("No time tracked.").foregroundStyle(DD.ink3) }
-                else { TotalsChart(rows: byCategory, color: categoryColor) }
+                if byCategory.isEmpty {
+                    Text("No time tracked.").foregroundStyle(DD.ink3)
+                } else {
+                    TotalsChart(rows: byCategory, color: categoryColor)
+                }
             }
             .listRowBackground(DD.surface)
 
@@ -138,8 +150,10 @@ struct StatsView: View {
 
     // MARK: Data
 
-    private func totals(in range: DateInterval, now: Date,
-                        by key: (TimeEntry) -> String?) -> [TotalsChart.Row] {
+    private func totals(
+        in range: DateInterval, now: Date,
+        by key: (TimeEntry) -> String?
+    ) -> [TotalsChart.Row] {
         Dictionary(grouping: entries) { key($0) ?? "" }
             .filter { !$0.key.isEmpty }
             .map { TotalsChart.Row(name: $0.key, seconds: $0.value.tracked(in: range, now: now)) }
@@ -161,7 +175,8 @@ struct StatsView: View {
     private func title(_ range: DateInterval) -> String {
         switch period {
         case .day: range.start.formatted(.dateTime.weekday(.wide).day().month())
-        case .week: "\(range.start.formatted(.dateTime.day().month())) – \(range.end.addingTimeInterval(-1).formatted(.dateTime.day().month()))"
+        case .week:
+            "\(range.start.formatted(.dateTime.day().month())) – \(range.end.addingTimeInterval(-1).formatted(.dateTime.day().month()))"
         case .month: range.start.formatted(.dateTime.month(.wide).year())
         }
     }

@@ -78,7 +78,8 @@ enum NotionClient: TaskSource {
 
     static func parse(_ data: Data, calendar: Calendar = .current) throws -> QueryResult {
         guard let json = try? JSONDecoder().decode(JSON.self, from: data),
-              let results = json["results"]?.array else {
+            let results = json["results"]?.array
+        else {
             throw NotionError.http(0, "Bad response")
         }
         let pages = results.compactMap { r -> NotionPage? in
@@ -93,22 +94,25 @@ enum NotionClient: TaskSource {
         guard let props = properties.object else { return nil }
         let byType = { (t: String) in props.values.filter { $0["type"]?.string == t } }
 
-        let title = byType("title").compactMap { p in
-            p["title"]?.array?.compactMap { $0["plain_text"]?.string }.joined()
-        }.first(where: { !$0.isEmpty }) ?? ""
+        let title =
+            byType("title").compactMap { p in
+                p["title"]?.array?.compactMap { $0["plain_text"]?.string }.joined()
+            }.first(where: { !$0.isEmpty }) ?? ""
         guard !title.isEmpty else { return nil }
 
-        let done: Bool = if let check = byType("checkbox").first {
-            check["checkbox"]?.bool ?? false
-        } else if let status = byType("status").first?.dig("status", "name") {
-            doneNames.contains(status.lowercased())
-        } else { false }
+        let done: Bool =
+            if let check = byType("checkbox").first {
+                check["checkbox"]?.bool ?? false
+            } else if let status = byType("status").first?.dig("status", "name") {
+                doneNames.contains(status.lowercased())
+            } else { false }
 
         let due = byType("date").compactMap { $0["date"]?["start"]?.string }.first.flatMap {
             parseDate($0, calendar: calendar)
         }
 
-        let project = byType("select").compactMap { $0["select"]?["name"]?.string }.first
+        let project =
+            byType("select").compactMap { $0["select"]?["name"]?.string }.first
             ?? byType("rich_text").compactMap { p in
                 p["rich_text"]?.array?.compactMap { $0["plain_text"]?.string }.joined()
             }.first(where: { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
@@ -145,15 +149,19 @@ enum NotionClient: TaskSource {
             cursor = result.nextCursor
         } while cursor != nil
         return out.map {
-            ExternalDraft(source: id, externalID: $0.id, title: $0.title,
-                          isDone: $0.isDone, dueDate: $0.dueDate, projectName: $0.projectName)
+            ExternalDraft(
+                source: id, externalID: $0.id, title: $0.title,
+                isDone: $0.isDone, dueDate: $0.dueDate, projectName: $0.projectName)
         }
     }
 
-    private static func queryPage(databaseID: String, token: String, cursor: String?,
-                                  session: URLSession = .shared) async throws -> QueryResult {
-        var req = URLRequest(url: endpoint.appendingPathComponent("databases/\(databaseID)/query"),
-                             timeoutInterval: 60)
+    private static func queryPage(
+        databaseID: String, token: String, cursor: String?,
+        session: URLSession = .shared
+    ) async throws -> QueryResult {
+        var req = URLRequest(
+            url: endpoint.appendingPathComponent("databases/\(databaseID)/query"),
+            timeoutInterval: 60)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "content-type")
         req.setValue("Bearer \(token)", forHTTPHeaderField: "authorization")
@@ -166,8 +174,12 @@ enum NotionClient: TaskSource {
             let (d, r) = try await session.data(for: req)
             data = d
             status = (r as? HTTPURLResponse)?.statusCode ?? 0
-        } catch let e as URLError where [.notConnectedToInternet, .networkConnectionLost,
-                                         .timedOut, .cannotFindHost, .cannotConnectToHost].contains(e.code) {
+        } catch let e as URLError
+            where [
+                .notConnectedToInternet, .networkConnectionLost,
+                .timedOut, .cannotFindHost, .cannotConnectToHost,
+            ].contains(e.code)
+        {
             throw NotionError.offline
         }
         guard status == 200 else {
@@ -177,8 +189,8 @@ enum NotionClient: TaskSource {
     }
 }
 
-private extension JSON {
-    func dig(_ keys: String...) -> String? {
+extension JSON {
+    fileprivate func dig(_ keys: String...) -> String? {
         var node: JSON? = self
         for k in keys { node = node?[k] }
         return node?.string

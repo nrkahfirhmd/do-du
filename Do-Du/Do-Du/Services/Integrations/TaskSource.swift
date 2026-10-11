@@ -28,20 +28,35 @@ extension TaskSource {
 
     static func split(_ drafts: [ExternalDraft], tasks: [TaskItem]) -> (new: [ExternalDraft], linked: [ExternalDraft]) {
         let linkedIDs = Set(tasks.filter { $0.externalSource == id }.compactMap(\.externalID))
-        return (drafts.filter { !linkedIDs.contains($0.externalID) && !$0.isDone },
-                drafts.filter { linkedIDs.contains($0.externalID) })
+        return (
+            drafts.filter { !linkedIDs.contains($0.externalID) && !$0.isDone },
+            drafts.filter { linkedIDs.contains($0.externalID) }
+        )
     }
 
-    static func apply(_ drafts: [ExternalDraft], projects: [Project], in context: ModelContext) -> (inserted: Int, updated: Int, skipped: Int) {
+    static func apply(_ drafts: [ExternalDraft], projects: [Project], in context: ModelContext) -> (
+        inserted: Int, updated: Int, skipped: Int
+    ) {
         let linked = ((try? context.fetch(FetchDescriptor<TaskItem>())) ?? [])
             .filter { $0.externalSource == id }
-        var inserted = 0, updated = 0, skipped = 0
+        var inserted = 0
+        var updated = 0
+        var skipped = 0
         for d in drafts {
             if let t = linked.first(where: { $0.externalID == d.externalID }) {
                 var changed = false
-                if t.title != d.title { t.title = d.title; changed = true }
-                if t.isDone != d.isDone { t.setDone(d.isDone); changed = true }
-                if t.dueDate != d.dueDate { t.dueDate = d.dueDate; changed = true }
+                if t.title != d.title {
+                    t.title = d.title
+                    changed = true
+                }
+                if t.isDone != d.isDone {
+                    t.setDone(d.isDone)
+                    changed = true
+                }
+                if t.dueDate != d.dueDate {
+                    t.dueDate = d.dueDate
+                    changed = true
+                }
                 if changed { updated += 1 }
             } else if let p = resolveProject(d.projectName, in: projects) {
                 let t = TaskItem(title: d.title, project: p)

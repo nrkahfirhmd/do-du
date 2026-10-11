@@ -18,8 +18,10 @@ final class Project {
     @Relationship(deleteRule: .cascade, inverse: \TimeEntry.project)
     var looseEntries: [TimeEntry]? = []
 
-    init(name: String, colorName: String = Palette.names[0], dailyTargetMinutes: Int = 0,
-         activeWeekdaysMask: Int = Weekdays.monToFri) {
+    init(
+        name: String, colorName: String = Palette.names[0], dailyTargetMinutes: Int = 0,
+        activeWeekdaysMask: Int = Weekdays.monToFri
+    ) {
         self.name = name
         self.colorName = colorName
         self.dailyTargetMinutes = dailyTargetMinutes
@@ -114,7 +116,7 @@ enum Palette {
         case "yellow", "pink": return "seafoam"
         case "orange", "red": return "pine"
         case "purple", "gray": return "slate"
-        default: return "forest"   // "blue" and anything unknown
+        default: return "forest"  // "blue" and anything unknown
         }
     }
 

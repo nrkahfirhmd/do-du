@@ -1,8 +1,12 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct TasksView: View {
-    enum Status: String, CaseIterable { case open = "Open", done = "Done", all = "All" }
+    enum Status: String, CaseIterable {
+        case open = "Open"
+        case done = "Done"
+        case all = "All"
+    }
 
     @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
@@ -19,54 +23,55 @@ struct TasksView: View {
 
     var body: some View {
         content
-        .background(DD.page)
-        .overlay { emptyState }
-        .navigationTitle("Tasks")
-        .toolbar {
-            ToolbarItem {
-                Menu("Filter", systemImage: hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle") {
-                    #if !os(macOS)
-                    Picker("Status", selection: $status) {
-                        ForEach(Status.allCases, id: \.self) { Text($0.rawValue) }
+            .background(DD.page)
+            .overlay { emptyState }
+            .navigationTitle("Tasks")
+            .toolbar {
+                ToolbarItem {
+                    Menu("Filter", systemImage: hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                    {
+                        #if !os(macOS)
+                        Picker("Status", selection: $status) {
+                            ForEach(Status.allCases, id: \.self) { Text($0.rawValue) }
+                        }
+                        #endif
+                        Picker("Category", selection: $categoryFilter) {
+                            Text("Any category").tag(Category?.none)
+                            ForEach(categories) { Text($0.name).tag(Optional($0)) }
+                        }
+                        Toggle("Due today", isOn: $dueTodayOnly)
                     }
-                    #endif
-                    Picker("Category", selection: $categoryFilter) {
-                        Text("Any category").tag(Category?.none)
-                        ForEach(categories) { Text($0.name).tag(Optional($0)) }
+                }
+                ToolbarItem {
+                    Menu("Import", systemImage: "square.and.arrow.down") {
+                        Button("From Notion") { notionImport = true }
+                        Button("From Reminders") { remindersImport = true }
                     }
-                    Toggle("Due today", isOn: $dueTodayOnly)
+                    .disabled(projects.isEmpty)
+                }
+                #if !os(macOS)
+                // Mac has Quick Add (⌘K) in the window toolbar.
+                ToolbarItem {
+                    Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
+                        .keyboardShortcut("k")
+                        .disabled(projects.isEmpty)
+                }
+                #endif
+                ToolbarSpacer(.fixed)
+                ToolbarItem {
+                    Button("New Task", systemImage: "plus") { creating = true }
+                        .keyboardShortcut("n")
+                        .buttonStyle(.borderedProminent)
+                        .tint(DD.forestFill)
+                        .disabled(projects.isEmpty)
                 }
             }
-            ToolbarItem {
-                Menu("Import", systemImage: "square.and.arrow.down") {
-                    Button("From Notion") { notionImport = true }
-                    Button("From Reminders") { remindersImport = true }
-                }
-                .disabled(projects.isEmpty)
-            }
-            #if !os(macOS)
-            // Mac has Quick Add (⌘K) in the window toolbar.
-            ToolbarItem {
-                Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
-                    .keyboardShortcut("k")
-                    .disabled(projects.isEmpty)
-            }
-            #endif
-            ToolbarSpacer(.fixed)
-            ToolbarItem {
-                Button("New Task", systemImage: "plus") { creating = true }
-                    .keyboardShortcut("n")
-                    .buttonStyle(.borderedProminent)
-                    .tint(DD.forestFill)
-                    .disabled(projects.isEmpty)
-            }
-        }
-        .sheet(isPresented: $creating) { TaskEditor(task: nil) }
-        .sheet(item: $editing) { TaskEditor(task: $0) }
-        .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
-        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
-        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
-        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
+            .sheet(isPresented: $creating) { TaskEditor(task: nil) }
+            .sheet(item: $editing) { TaskEditor(task: $0) }
+            .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
+            .sheet(isPresented: $quickAdd) { QuickAddSheet() }
+            .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
+            .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
     }
 
     #if os(macOS)
@@ -76,8 +81,10 @@ struct TasksView: View {
                 HStack(spacing: 8) {
                     ForEach(Status.allCases, id: \.self) { s in
                         Button(s.rawValue) { status = s }
-                            .buttonStyle(CapsuleButton(fill: status == s ? DD.forestFill : DD.fill,
-                                                       ink: status == s ? .white : DD.ink, height: 28))
+                            .buttonStyle(
+                                CapsuleButton(
+                                    fill: status == s ? DD.forestFill : DD.fill,
+                                    ink: status == s ? .white : DD.ink, height: 28))
                     }
                 }
                 ForEach(projects) { project in
@@ -136,8 +143,9 @@ struct TasksView: View {
 
     @ViewBuilder private var emptyState: some View {
         if projects.isEmpty {
-            ContentUnavailableView("No projects yet", systemImage: "folder.badge.plus",
-                                   description: Text("Tasks live inside projects. Create a project first."))
+            ContentUnavailableView(
+                "No projects yet", systemImage: "folder.badge.plus",
+                description: Text("Tasks live inside projects. Create a project first."))
         } else if projects.allSatisfy({ visibleTasks(in: $0).isEmpty }) {
             ContentUnavailableView {
                 Label(hasFilter ? "No matching tasks" : "No open tasks", systemImage: "checklist")
@@ -179,11 +187,17 @@ struct TaskRow: View {
                 if !meta.isEmpty {
                     HStack(spacing: 10) {
                         if let c = task.category {
-                            HStack(spacing: 4) { Circle().fill(c.color).frame(width: 7, height: 7); Text(c.name) }
+                            HStack(spacing: 4) {
+                                Circle().fill(c.color).frame(width: 7, height: 7)
+                                Text(c.name)
+                            }
                         }
                         if let due = task.dueDate {
-                            Text("Due " + (Calendar.current.isDateInToday(due) ? "today" : due.formatted(.dateTime.day().month(.abbreviated))))
-                                .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? DD.danger : DD.ink3)
+                            Text(
+                                "Due "
+                                    + (Calendar.current.isDateInToday(due) ? "today" : due.formatted(.dateTime.day().month(.abbreviated)))
+                            )
+                            .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? DD.danger : DD.ink3)
                         }
                         if let est = task.estimateMinutes { Text("~" + TimeInterval(est * 60).hoursMinutes) }
                     }
@@ -243,27 +257,29 @@ struct TaskEditor: View {
     @State private var estimate = 0
 
     var body: some View {
-        EditorSheet(title: task == nil ? "New Task" : "Edit Task", canSave: !title.isBlank && project != nil, save: save,
-                    destructive: task.map { t in ("Delete Task", { context.delete(t) }) }) {
+        EditorSheet(
+            title: task == nil ? "New Task" : "Edit Task", canSave: !title.isBlank && project != nil, save: save,
+            destructive: task.map { t in ("Delete Task", { context.delete(t) }) }
+        ) {
             Section { TextField("Title", text: $title).font(.system(size: 17, weight: .semibold)).labelsHidden() }
             Section {
-            Picker("Project", selection: $project) {
-                if project == nil { Text("Choose…").tag(Project?.none) }
-                ForEach(projects) { Text($0.name).tag(Optional($0)) }
-            }
-            Picker("Category", selection: $category) {
-                Text("None").tag(Category?.none)
-                ForEach(categories) { Text($0.name).tag(Optional($0)) }
-            }
-            Toggle("Due date", isOn: $hasDue)
-            if hasDue { DatePicker("Due", selection: $due, displayedComponents: .date) }
-            LabeledContent("Estimate") {
-                HStack(spacing: 8) {
-                    Text(estimate == 0 ? "None" : compactHours(estimate)).font(.rounded(13, .bold)).monospacedDigit()
-                        .foregroundStyle(estimate == 0 ? DD.ink3 : DD.ink)
-                    Stepper("Estimate", value: $estimate, in: 0...(8 * 60), step: 15).labelsHidden()
+                Picker("Project", selection: $project) {
+                    if project == nil { Text("Choose…").tag(Project?.none) }
+                    ForEach(projects) { Text($0.name).tag(Optional($0)) }
                 }
-            }
+                Picker("Category", selection: $category) {
+                    Text("None").tag(Category?.none)
+                    ForEach(categories) { Text($0.name).tag(Optional($0)) }
+                }
+                Toggle("Due date", isOn: $hasDue)
+                if hasDue { DatePicker("Due", selection: $due, displayedComponents: .date) }
+                LabeledContent("Estimate") {
+                    HStack(spacing: 8) {
+                        Text(estimate == 0 ? "None" : compactHours(estimate)).font(.rounded(13, .bold)).monospacedDigit()
+                            .foregroundStyle(estimate == 0 ? DD.ink3 : DD.ink)
+                        Stepper("Estimate", value: $estimate, in: 0...(8 * 60), step: 15).labelsHidden()
+                    }
+                }
             }
             Section { TextField("Notes", text: $notes, axis: .vertical).lineLimit(3...8) }
         }

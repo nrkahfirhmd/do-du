@@ -1,5 +1,5 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 import UniformTypeIdentifiers
 
 struct SettingsView: View {
@@ -26,16 +26,22 @@ struct SettingsView: View {
                         Stepper("Focus \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
                         Stepper("Break \(breakMinutes) min", value: $breakMinutes, in: 1...30)
                     }
-                    Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
-                            value: $longRunHours, in: 0.5...12, step: 0.5)
+                    Stepper(
+                        "Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
+                        value: $longRunHours, in: 0.5...12, step: 0.5)
                 }
                 Section("Recap") {
                     Toggle("Daily recap reminder", isOn: $recapOn)
                     if recapOn {
-                        DatePicker("Remind at", selection: Binding(
-                            get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
-                            set: { recapMinutes = Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0) }),
-                                   displayedComponents: .hourAndMinute)
+                        DatePicker(
+                            "Remind at",
+                            selection: Binding(
+                                get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
+                                set: {
+                                    recapMinutes =
+                                        Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0)
+                                }),
+                            displayedComponents: .hourAndMinute)
                     }
                 }
                 .onChange(of: recapOn) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
@@ -52,7 +58,10 @@ struct SettingsView: View {
                     Text("Sync")
                 } footer: {
                     if iCloudOn != SharedStore.iCloudOnAtLaunch {
-                        Text(iCloudOn ? "Sync starts next time you open Do-Du." : "Sync stops next time you open Do-Du. Data already in iCloud stays there.")
+                        Text(
+                            iCloudOn
+                                ? "Sync starts next time you open Do-Du."
+                                : "Sync stops next time you open Do-Du. Data already in iCloud stays there.")
                     }
                 }
                 Section("Data") {
@@ -72,9 +81,11 @@ struct SettingsView: View {
 
 extension View {
     func csvExport(_ document: Binding<CSVDocument?>) -> some View {
-        fileExporter(isPresented: .init(get: { document.wrappedValue != nil }, set: { if !$0 { document.wrappedValue = nil } }),
-                     document: document.wrappedValue, contentType: .commaSeparatedText,
-                     defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))") { _ in }
+        fileExporter(
+            isPresented: .init(get: { document.wrappedValue != nil }, set: { if !$0 { document.wrappedValue = nil } }),
+            document: document.wrappedValue, contentType: .commaSeparatedText,
+            defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))"
+        ) { _ in }
     }
 }
 

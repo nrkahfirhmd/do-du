@@ -96,13 +96,25 @@ struct StatTile: View {
     }
 
     private var background: Color {
-        switch tone { case .forest: DD.forestFill; case .mint: DD.mint; case .surface: DD.surface }
+        switch tone {
+        case .forest: DD.forestFill
+        case .mint: DD.mint
+        case .surface: DD.surface
+        }
     }
     private var valueColor: Color {
-        switch tone { case .forest: .white; case .mint: DD.onMint; case .surface: DD.forest }
+        switch tone {
+        case .forest: .white
+        case .mint: DD.onMint
+        case .surface: DD.forest
+        }
     }
     private var labelColor: Color {
-        switch tone { case .forest: DD.mint; case .mint: DD.onMint.opacity(0.75); case .surface: DD.ink3 }
+        switch tone {
+        case .forest: DD.mint
+        case .mint: DD.onMint.opacity(0.75)
+        case .surface: DD.ink3
+        }
     }
 }
 
@@ -231,7 +243,10 @@ struct DDIconButton: View {
     }
 
     private var foreground: Color {
-        switch variant { case .solid, .onDark: .white; case .glass, .tint: DD.ink }
+        switch variant {
+        case .solid, .onDark: .white
+        case .glass, .tint: DD.ink
+        }
     }
     private var background: AnyShapeStyle {
         switch variant {

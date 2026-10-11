@@ -2,8 +2,14 @@ import Foundation
 
 /// Just enough JSON to build requests and echo assistant content back unchanged.
 enum JSON: Codable, Equatable, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral,
-           ExpressibleByBooleanLiteral, ExpressibleByArrayLiteral, ExpressibleByDictionaryLiteral {
-    case null, bool(Bool), number(Double), string(String), array([JSON]), object([String: JSON])
+    ExpressibleByBooleanLiteral, ExpressibleByArrayLiteral, ExpressibleByDictionaryLiteral
+{
+    case null
+    case bool(Bool)
+    case number(Double)
+    case string(String)
+    case array([JSON])
+    case object([String: JSON])
 
     init(stringLiteral v: String) { self = .string(v) }
     init(integerLiteral v: Int) { self = .number(Double(v)) }
@@ -13,12 +19,19 @@ enum JSON: Codable, Equatable, ExpressibleByStringLiteral, ExpressibleByIntegerL
 
     init(from decoder: Decoder) throws {
         let c = try decoder.singleValueContainer()
-        if c.decodeNil() { self = .null }
-        else if let b = try? c.decode(Bool.self) { self = .bool(b) }
-        else if let n = try? c.decode(Double.self) { self = .number(n) }
-        else if let s = try? c.decode(String.self) { self = .string(s) }
-        else if let a = try? c.decode([JSON].self) { self = .array(a) }
-        else { self = .object(try c.decode([String: JSON].self)) }
+        if c.decodeNil() {
+            self = .null
+        } else if let b = try? c.decode(Bool.self) {
+            self = .bool(b)
+        } else if let n = try? c.decode(Double.self) {
+            self = .number(n)
+        } else if let s = try? c.decode(String.self) {
+            self = .string(s)
+        } else if let a = try? c.decode([JSON].self) {
+            self = .array(a)
+        } else {
+            self = .object(try c.decode([String: JSON].self))
+        }
     }
 
     func encode(to encoder: Encoder) throws {
@@ -90,7 +103,8 @@ struct ClaudeResponse {
     var toolUses: [ToolUse] {
         content.compactMap { block in
             guard block["type"]?.string == "tool_use", let id = block["id"]?.string,
-                  let name = block["name"]?.string else { return nil }
+                let name = block["name"]?.string
+            else { return nil }
             return ToolUse(id: id, name: name, input: block["input"] ?? [:])
         }
     }
@@ -120,14 +134,17 @@ enum ClaudeClient {
 
     static func parse(_ data: Data) throws -> ClaudeResponse {
         guard let json = try? JSONDecoder().decode(JSON.self, from: data),
-              let content = json["content"]?.array,
-              let stop = json["stop_reason"]?.string else { throw ClaudeError.invalidResponse }
+            let content = json["content"]?.array,
+            let stop = json["stop_reason"]?.string
+        else { throw ClaudeError.invalidResponse }
         if stop == "refusal" { throw ClaudeError.refused }
         return ClaudeResponse(content: content, stopReason: stop)
     }
 
-    static func send(_ r: ClaudeRequest, key: String? = nil,
-                     session: URLSession = .shared) async throws -> ClaudeResponse {
+    static func send(
+        _ r: ClaudeRequest, key: String? = nil,
+        session: URLSession = .shared
+    ) async throws -> ClaudeResponse {
         guard let key = key ?? ClaudeKey.current, !key.isEmpty else { throw ClaudeError.noKey }
         var req = URLRequest(url: endpoint, timeoutInterval: 120)
         req.httpMethod = "POST"
@@ -141,8 +158,12 @@ enum ClaudeClient {
             let (data, response): (Data, URLResponse)
             do {
                 (data, response) = try await session.data(for: req)
-            } catch let e as URLError where [.notConnectedToInternet, .networkConnectionLost,
-                                             .timedOut, .cannotFindHost, .cannotConnectToHost].contains(e.code) {
+            } catch let e as URLError
+                where [
+                    .notConnectedToInternet, .networkConnectionLost,
+                    .timedOut, .cannotFindHost, .cannotConnectToHost,
+                ].contains(e.code)
+            {
                 throw ClaudeError.offline
             }
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
@@ -161,8 +182,10 @@ enum ClaudeClient {
         throw ClaudeError.busy
     }
 
-    static func runTools(_ r: ClaudeRequest, messages: inout [JSON], maxSteps: Int = 8,
-                         handle: (ToolUse) async -> (result: String, isError: Bool)) async throws -> String {
+    static func runTools(
+        _ r: ClaudeRequest, messages: inout [JSON], maxSteps: Int = 8,
+        handle: (ToolUse) async -> (result: String, isError: Bool)
+    ) async throws -> String {
         for _ in 0..<maxSteps {
             var req = r
             req.messages = messages
@@ -172,8 +195,10 @@ enum ClaudeClient {
             var results: [JSON] = []
             for use in res.toolUses {
                 let out = await handle(use)
-                results.append(["type": "tool_result", "tool_use_id": .string(use.id),
-                                "content": .string(out.result), "is_error": .bool(out.isError)])
+                results.append([
+                    "type": "tool_result", "tool_use_id": .string(use.id),
+                    "content": .string(out.result), "is_error": .bool(out.isError),
+                ])
             }
             // All results for one turn go back in a single user message.
             messages.append(["role": "user", "content": .array(results)])

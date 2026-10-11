@@ -18,7 +18,8 @@ extension SharedStore {
 enum SampleData {
     static func seedIfRequested(_ context: ModelContext) {
         guard UserDefaults.standard.bool(forKey: "seedSampleData"),
-              (try? context.fetchCount(FetchDescriptor<Project>())) == 0 else { return }
+            (try? context.fetchCount(FetchDescriptor<Project>())) == 0
+        else { return }
         seed(context)
     }
 

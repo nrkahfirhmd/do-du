@@ -5,8 +5,10 @@ struct AISnapshot {
     /// Open tasks in the order listed in `text` (`[0]`, `[1]`, …) so model picks can be mapped back.
     let openTasks: [TaskItem]
 
-    init(projects: [Project], entries: [TimeEntry], tasks: [TaskItem],
-         range: DateInterval, now: Date = .now, calendar: Calendar = .current) {
+    init(
+        projects: [Project], entries: [TimeEntry], tasks: [TaskItem],
+        range: DateInterval, now: Date = .now, calendar: Calendar = .current
+    ) {
         let day = DateFormatter()
         day.calendar = calendar
         day.timeZone = calendar.timeZone
@@ -16,9 +18,11 @@ struct AISnapshot {
         let projects = projects.sorted { ($0.createdAt, $0.name) < ($1.createdAt, $1.name) }
         let clipped = DateInterval(start: range.start, end: min(range.end, max(now, range.start)))
 
-        var lines = ["Now: \(day.string(from: now)) \(now.formatted(.dateTime.hour().minute()))",
-                     "Range: \(day.string(from: range.start)) to \(day.string(from: range.end.addingTimeInterval(-1)))",
-                     "", "Projects (daily target · active days):"]
+        var lines = [
+            "Now: \(day.string(from: now)) \(now.formatted(.dateTime.hour().minute()))",
+            "Range: \(day.string(from: range.start)) to \(day.string(from: range.end.addingTimeInterval(-1)))",
+            "", "Projects (daily target · active days):",
+        ]
         for p in projects where !p.isArchived {
             let days = (0..<7).filter { p.activeWeekdaysMask & (1 << $0) != 0 }
                 .map { calendar.shortWeekdaySymbols[$0] }.joined(separator: " ")
@@ -39,11 +43,12 @@ struct AISnapshot {
             let verdict = Stats.verdict(for: projects, on: interval.start, now: now, calendar: calendar)
             let parts = projects.filter { $0.isActive(on: interval.start, calendar: calendar) }
                 .map { "\($0.name) \(Int($0.tracked(in: interval, now: now) / 60))/\($0.dailyTargetMinutes)" }
-            let v: String = switch verdict {
-            case .enough: "enough"
-            case .restDay: "rest day"
-            case .notYet(let r): "not enough (\(mins(r)) short)"
-            }
+            let v: String =
+                switch verdict {
+                case .enough: "enough"
+                case .restDay: "rest day"
+                case .notYet(let r): "not enough (\(mins(r)) short)"
+                }
             lines.append("- \(day.string(from: d)): \(v)\(parts.isEmpty ? "" : " | " + parts.joined(separator: ", "))")
         }
 

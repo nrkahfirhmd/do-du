@@ -1,9 +1,10 @@
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 struct AssistantView: View {
     enum Mode: String, CaseIterable, Identifiable, Codable {
-        case recap = "Recap", chat = "Chat"
+        case recap = "Recap"
+        case chat = "Chat"
         var id: Self { self }
     }
     @AppStorage("assistantMode") private var mode = Mode.recap
@@ -57,9 +58,11 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(spacing: 10) {
                         if lines.isEmpty {
-                            Text("Ask about your time and tasks, e.g. \"How much deep work did I do last week?\" or \"Which days this month weren't enough?\"")
-                                .font(.subheadline).foregroundStyle(DD.ink3)
-                                .padding(.horizontal, 16).padding(.top, 8)
+                            Text(
+                                "Ask about your time and tasks, e.g. \"How much deep work did I do last week?\" or \"Which days this month weren't enough?\""
+                            )
+                            .font(.subheadline).foregroundStyle(DD.ink3)
+                            .padding(.horizontal, 16).padding(.top, 8)
                         }
                         ForEach(lines) { line in
                             ChatBubble(text: line.text, fromUser: line.fromUser).id(line.id)
@@ -90,11 +93,14 @@ struct ChatView: View {
             .background(DD.page)
         }
         #if !os(macOS)
-        .navigationTitle("Chat")   // Mac shows both side by side under "Assistant"
+        .navigationTitle("Chat")  // Mac shows both side by side under "Assistant"
         #endif
         .toolbar {
-            Button("New Chat", systemImage: "square.and.pencil") { lines = []; history = [] }
-                .disabled(lines.isEmpty || busy)
+            Button("New Chat", systemImage: "square.and.pencil") {
+                lines = []
+                history = []
+            }
+            .disabled(lines.isEmpty || busy)
         }
     }
 
@@ -111,7 +117,8 @@ struct ChatView: View {
             do {
                 let answer = try await ClaudeClient.runTools(
                     ClaudeRequest(system: Self.system(now: .now), messages: [], tools: ChatTools.definitions),
-                    messages: &messages) { tools.run($0) }
+                    messages: &messages
+                ) { tools.run($0) }
                 history = messages
                 lines.append(Line(fromUser: false, text: answer.trimmingCharacters(in: .whitespacesAndNewlines)))
             } catch {

@@ -10,7 +10,8 @@ enum Keychain {
         query[kSecMatchLimit as String] = kSecMatchLimitOne
         var out: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &out) == errSecSuccess,
-              let data = out as? Data else { return nil }
+            let data = out as? Data
+        else { return nil }
         return String(data: data, encoding: .utf8)
     }
 
@@ -30,10 +31,12 @@ enum Keychain {
     }
 
     private static func base(_ account: String) -> [String: Any] {
-        [kSecClass as String: kSecClassGenericPassword,
-         kSecAttrService as String: service,
-         kSecAttrAccount as String: account,
-         kSecUseDataProtectionKeychain as String: true]
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecUseDataProtectionKeychain as String: true,
+        ]
     }
 }
 
