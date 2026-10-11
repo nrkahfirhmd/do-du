@@ -74,3 +74,45 @@ extension TaskSource {
         return (inserted, updated, skipped)
     }
 }
+
+/// Automatic import: same rules as the sheet, minus the per-item review.
+extension TaskSource {
+    /// New unfinished items whose project name matches, plus every linked item so its task refreshes.
+    /// Unmatched items are left for the import sheet; projects are never created.
+    static func autoDrafts(_ drafts: [ExternalDraft], tasks: [TaskItem], projects: [Project]) -> [ExternalDraft] {
+        let s = split(drafts, tasks: tasks)
+        return s.new.filter { resolveProject($0.projectName, in: projects) != nil } + s.linked
+    }
+
+    @discardableResult
+    static func autoImport(in context: ModelContext) async throws -> Int {
+        guard isConfigured() else { return 0 }
+        let drafts = try await fetchDrafts()
+        let tasks = (try? context.fetch(FetchDescriptor<TaskItem>())) ?? []
+        let projects = (try? context.fetch(FetchDescriptor<Project>(predicate: #Predicate { !$0.isArchived }))) ?? []
+        let r = apply(autoDrafts(drafts, tasks: tasks, projects: projects), projects: projects, in: context)
+        return r.inserted
+    }
+}
+
+enum ExternalLinks {
+    /// Two devices can import the same item before CloudKit syncs; keep the oldest task and move time onto it.
+    static func removeDuplicates(in context: ModelContext) {
+        let linked =
+            ((try? context.fetch(FetchDescriptor<TaskItem>(sortBy: [SortDescriptor(\.createdAt)])))
+            ?? []).filter { $0.externalSource != nil && $0.externalID != nil }
+        var keep: [String: TaskItem] = [:]
+        var removed = false
+        for t in linked {
+            let key = t.externalSource! + ":" + t.externalID!
+            guard let first = keep[key] else {
+                keep[key] = t
+                continue
+            }
+            for e in t.entries ?? [] { e.task = first }
+            context.delete(t)
+            removed = true
+        }
+        if removed { try? context.save() }
+    }
+}

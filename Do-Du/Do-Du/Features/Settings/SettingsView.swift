@@ -48,6 +48,7 @@ struct SettingsView: View {
                 .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
                 CategoriesSection()
                 ClaudeKeySection()
+                AutoImportSection()
                 NotionSettingsSection()
                 RemindersSettingsSection()
                 CalendarSettingsSection()

@@ -608,6 +608,44 @@ func checkDueDates() throws {
     assert(DayMath.dueLabel(iso.date(from: "2026-10-10T00:00:00Z")!, now: now, calendar: cal) == "Yesterday")
     assert(!DayMath.dueLabel(iso.date(from: "2027-01-05T00:00:00Z")!, now: now, calendar: cal).contains("Today"))
 }
+func checkAutoImport() throws {
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let home = Project(name: "Home")
+    ctx.insert(home)
+    func draft(_ id: String, list: String?, done: Bool = false) -> ExternalDraft {
+        ExternalDraft(source: "reminders", externalID: id, title: id, isDone: done, dueDate: nil, projectName: list)
+    }
+    let linkedTask = TaskItem(title: "old", project: home)
+    linkedTask.externalSource = "reminders"
+    linkedTask.externalID = "linked"
+    ctx.insert(linkedTask)
+    let picked = RemindersSource.autoDrafts(
+        [
+            draft("match", list: "home"), draft("nomatch", list: "Work"), draft("finished", list: "Home", done: true),
+            draft("linked", list: "Work"),
+        ],
+        tasks: [linkedTask], projects: [home])
+    precondition(picked.map(\.externalID) == ["match", "linked"], "only matched new items plus linked ones")
+
+    // Same item imported on two devices: the oldest task stays and keeps the other's time.
+    let a = TaskItem(title: "dup", project: home)
+    a.externalSource = "notion"
+    a.externalID = "n1"
+    a.createdAt = Date(timeIntervalSince1970: 100)
+    let b = TaskItem(title: "dup", project: home)
+    b.externalSource = "notion"
+    b.externalID = "n1"
+    b.createdAt = Date(timeIntervalSince1970: 200)
+    ctx.insert(a)
+    ctx.insert(b)
+    ctx.insert(TimeEntry(task: b, start: .now.addingTimeInterval(-60), end: .now))
+    try ctx.save()
+    ExternalLinks.removeDuplicates(in: ctx)
+    let left = try ctx.fetch(FetchDescriptor<TaskItem>()).filter { $0.externalID == "n1" }
+    precondition(left.count == 1 && left[0].createdAt == a.createdAt, "oldest kept")
+    precondition(left[0].entries?.count == 1, "time moved to the kept task")
+    print("✓ auto import")
+}
 func checkSyncMonitor() throws {
     let m = SyncMonitor()
     assert(!m.failing)
@@ -642,4 +680,5 @@ try checkOnboarding()
 try checkQuickAddSyntax()
 try checkSyncMonitor()
 try checkDueDates()
+try checkAutoImport()
 print("All checks passed")

@@ -9,6 +9,8 @@ struct DayEvent: Sendable, Equatable {
 
 enum CalendarAccess {
     static let calendarKey = "ekCalendarID"
+    /// Kept alive so `.EKEventStoreChanged` fires when the calendar changes.
+    @MainActor static let store = EKEventStore()
 
     static var chosenID: String {
         UserDefaults.standard.string(forKey: calendarKey) ?? ""
@@ -32,7 +34,6 @@ enum CalendarAccess {
     /// Empty when unconfigured or unauthorized — Today simply shows no schedule.
     @MainActor static func todayEvents(now: Date = .now) async -> [DayEvent] {
         guard !chosenID.isEmpty, authorization() == .fullAccess else { return [] }
-        let store = EKEventStore()
         guard let calendar = store.calendars(for: .event).first(where: { $0.calendarIdentifier == chosenID })
         else { return [] }
         let day = DayMath.day(now)

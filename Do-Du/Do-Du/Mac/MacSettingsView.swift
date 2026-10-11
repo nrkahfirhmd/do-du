@@ -221,6 +221,7 @@ struct MacDataSettings: View {
                     Text("Every session as a CSV file.")
                 }
             }
+            AutoImportSection()
             NotionSettingsSection()
             RemindersSettingsSection()
         }

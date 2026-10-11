@@ -14,7 +14,7 @@ struct ContentView: View {
 
     var body: some View {
         #if os(macOS)
-        MacRootView().modifier(TimerSync())
+        MacRootView().modifier(TimerSync()).modifier(AutoImport())
         #else
         TabView(selection: $tab) {
             Tab("Today", systemImage: "sun.max", value: AppTab.today) {
@@ -46,6 +46,7 @@ struct ContentView: View {
         }
         #endif
         .modifier(TimerSync())
+        .modifier(AutoImport())
         .onOpenURL { url in
             // Widgets open the app instead of writing data themselves.
             if DeepLink(url) == .toggleTimer { TimerService.toggleQuick(in: context) }

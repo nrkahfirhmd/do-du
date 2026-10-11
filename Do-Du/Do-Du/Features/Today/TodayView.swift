@@ -1,3 +1,4 @@
+import EventKit
 import SwiftData
 import SwiftUI
 
@@ -82,6 +83,9 @@ struct TodayView: View {
         }
         #endif
         .task { meetings = await CalendarAccess.todayEvents() }
+        .onReceive(NotificationCenter.default.publisher(for: .EKEventStoreChanged)) { _ in
+            Task { meetings = await CalendarAccess.todayEvents() }
+        }
         .sheet(isPresented: $showUnassigned) { UnassignedEntriesView() }
         .sheet(isPresented: $planning) { PlanSheet() }
     }

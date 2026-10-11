@@ -128,6 +128,22 @@ struct ExternalImportSheet<Source: TaskSource>: View {
     }
 }
 
+struct AutoImportSection: View {
+    @AppStorage(AutoImport.enabledKey) private var enabled = true
+
+    var body: some View {
+        Section {
+            Toggle("Import automatically", isOn: $enabled)
+        } header: {
+            Text("Import")
+        } footer: {
+            Text(
+                "While Do-Du is open, Notion and Reminders are checked every 15 minutes. Items whose project or list name matches a project are added; the rest wait in Tasks → Import."
+            )
+        }
+    }
+}
+
 struct RemindersSettingsSection: View {
     @State private var status = EKEventStore.authorizationStatus(for: .reminder)
 
@@ -151,7 +167,7 @@ struct RemindersSettingsSection: View {
             Text("Reminders")
         } footer: {
             Text(
-                "One-way import from Tasks → Import. Each list matches a project with the same name; others get a project picker. Nothing is written back to Reminders."
+                "One-way import. Each list matches a project with the same name; others get a project picker. Nothing is written back to Reminders."
             )
         }
     }
