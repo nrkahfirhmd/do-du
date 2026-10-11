@@ -73,3 +73,21 @@ First release.
 - The Assistant needs the reviewer's own Anthropic API key (Settings → Assistant); everything else works without one.
 - Calendar and Reminders access are optional and only requested from Settings or Import.
 - Category: Productivity.
+
+## TestFlight: What to Test (4000)
+Thanks for testing Do-Du! Please focus on these, on iPhone and Mac where you can:
+
+1. Onboarding: on a fresh install, set up a project, days, day start and iCloud. With Do-Du data already in iCloud, onboarding should be skipped.
+2. Timer: start and stop from Today, a task's play button, the Switch menu and the timer bar above the tabs. Only one timer should ever run.
+3. Sync: start a timer on one device and check it shows (and stops) on the other within a few seconds. Turn iCloud off in Settings, relaunch, and confirm nothing syncs.
+4. Verdict: track time until a project meets its target. The tile should turn mint, the iPhone should tap (haptic), and Today should say "enough" once every scheduled project is done.
+5. Widgets (iPhone): add the small, medium and large Today widgets, the Timer widget and the Lock Screen widgets. Start/stop opens the app and the widget updates.
+6. Live Activity: with a timer running, check the Lock Screen banner and the Dynamic Island (tap and long-press). Stop should open the app and stop the timer.
+7. Mac: Command-Shift-T and Option-Command-K from another app, the menu-bar panel, Space on Today, and the timer stopping when the Mac sleeps or sits idle.
+8. Quick Add: try "Invoice Client X tomorrow ~30m #admin" and check every field in the preview.
+9. Assistant (needs your own Anthropic API key in Settings): Plan My Day, Recap and Chat. Nothing should be saved until you accept.
+10. Imports: Apple Reminders and Notion (Settings for access, then Tasks → Import).
+
+Known limits: Notion and Reminders are one-way imports; Chat is read-only.
+
+Please report anything confusing, wrong totals, a timer that didn't stop, or layout issues in light or dark mode.
