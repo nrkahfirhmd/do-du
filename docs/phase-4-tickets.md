@@ -46,4 +46,4 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] **New behaviour:** widget start/stop opens the app via `dodu://timer/toggle` (decision: option A).
 
 ## DD-47 · Live Activity + Dynamic Island — M
-- [ ] Banner, compact, minimal, expanded per handoff.
+- [x] Banner, compact, minimal, expanded per handoff.
