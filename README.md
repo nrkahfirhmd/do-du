@@ -26,4 +26,4 @@ checks/             assertion-based self-checks
 docs/               spec (AGENTS.md), tickets, app icon sources
 ```
 
-See [docs/AGENTS.md](docs/AGENTS.md) for the spec, current version and decision log.
+See [docs/AGENTS.md](docs/AGENTS.md) for the spec, current version and decision log, and [docs/app-store.md](docs/app-store.md) for the App Store listing.
