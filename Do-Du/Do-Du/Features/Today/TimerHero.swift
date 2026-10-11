@@ -31,7 +31,7 @@ struct TimerHero: View {
                 SwitchMenu(running: running, quickProject: $quickProject, projects: projects) {
                     ProjectChip(
                         name: project?.name ?? "No project",
-                        color: project.map { chipColor($0) } ?? .clear,
+                        color: project.map { chipColor($0) } ?? DD.disabled,
                         onDark: recording)
                 }
             }

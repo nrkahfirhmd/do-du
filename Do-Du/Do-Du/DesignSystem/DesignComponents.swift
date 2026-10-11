@@ -45,7 +45,7 @@ struct ProjectChip: View {
         .padding(.leading, 10).padding(.trailing, 12)
         .frame(height: 32)
         .background(onDark ? DD.onDarkFill : DD.fill, in: Capsule())
-        .frame(maxWidth: 200)
+        .frame(maxWidth: 200, alignment: .trailing)
     }
 }
 
