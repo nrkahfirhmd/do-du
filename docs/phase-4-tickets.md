@@ -86,4 +86,7 @@ Added 2026-10-11 from the updated handoff (onboarding, Mac Settings window, Mac 
 - [x] Notes: the preview reads typed syntax instantly (`QuickAddSyntax`: today/tomorrow/weekday, `~30m`, `#tag`, project names; self-checked) and Foundation Models fill the gaps after a 0.45s pause; an unknown project is picked in the Project cell. Due stays a switch + date picker rather than a pop-up. No seventh mint swatch: mint means live/met in this design. DEBUG: `-macSheet quick|plan|task|project`, `-quickAddText "…"`. Verified each in a Mac test build.
 
 ## DD-52 · Mac screens — M
-- [ ] Today hero hint row and Switch task capsule; Tasks table with Open / Done / All; Stats third tile (category share); Assistant Recap beside Chat; Projects 200pt tiles, archived at 50%.
+- [x] Today: hero bottom row (88pt record button, "Stop timer" + "Space to start or stop · ⌘⇧T anywhere", Switch task capsule; hints drop in narrow windows), radius 32, No project row with Assign….
+- [x] Tasks: Open / Done / All capsules and one table per project (done · Task · Category · Due · Estimate · play, 44pt rows); clicking a title opens Edit Task.
+- [x] Stats third tile (largest category's share), Assistant with Recap beside Chat, Projects in four columns of 200pt tiles with archived ones at 50%.
+- [x] Notes: fixed white text on the forest project tile in dark mode (both platforms). Stats keeps the stacked list rather than the side-by-side trend/by-project panels. DEBUG: `-macSection tasks`. Verified each section in a Mac test build (dark), iPhone Tasks unchanged.

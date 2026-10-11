@@ -23,6 +23,82 @@ struct TasksView: View {
     @State private var remindersImport = false
 
     var body: some View {
+        content
+        .background(DD.page)
+        .overlay { emptyState }
+        .navigationTitle("Tasks")
+        .toolbar {
+            ToolbarItem {
+                Menu("Filter", systemImage: hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle") {
+                    #if !os(macOS)
+                    Picker("Status", selection: $status) {
+                        ForEach(Status.allCases, id: \.self) { Text($0.rawValue) }
+                    }
+                    #endif
+                    Picker("Category", selection: $categoryFilter) {
+                        Text("Any category").tag(Category?.none)
+                        ForEach(categories) { Text($0.name).tag(Optional($0)) }
+                    }
+                    Toggle("Due today", isOn: $dueTodayOnly)
+                }
+            }
+            ToolbarItem {
+                Menu("Import", systemImage: "square.and.arrow.down") {
+                    Button("From Notion") { notionImport = true }
+                    Button("From Reminders") { remindersImport = true }
+                }
+                .disabled(projects.isEmpty)
+            }
+            #if !os(macOS)
+            // Mac has Quick Add (⌘K) in the window toolbar.
+            ToolbarItem {
+                Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
+                    .keyboardShortcut("k")
+                    .disabled(projects.isEmpty)
+            }
+            #endif
+            ToolbarSpacer(.fixed)
+            ToolbarItem {
+                Button("New Task", systemImage: "plus") { creating = true }
+                    .keyboardShortcut("n")
+                    .buttonStyle(.borderedProminent)
+                    .tint(DD.forestFill)
+                    .disabled(projects.isEmpty)
+            }
+        }
+        .sheet(isPresented: $creating) { TaskEditor(task: nil) }
+        .sheet(item: $editing) { TaskEditor(task: $0) }
+        .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
+        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
+        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
+        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
+    }
+
+    #if os(macOS)
+    /// Mac: Open / Done / All capsules, then one table per project.
+    private var content: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 8) {
+                    ForEach(Status.allCases, id: \.self) { s in
+                        Button(s.rawValue) { status = s }
+                            .buttonStyle(CapsuleButton(fill: status == s ? DD.forestFill : DD.fill,
+                                                       ink: status == s ? .white : DD.ink, height: 28))
+                    }
+                }
+                ForEach(projects) { project in
+                    let tasks = visibleTasks(in: project)
+                    if !tasks.isEmpty {
+                        ProjectHeader(project: project, count: tasks.count).padding(.top, 18).padding(.bottom, 8)
+                        MacTaskTable(tasks: tasks, edit: { editing = $0 }, entries: { entriesFor = $0 })
+                    }
+                }
+            }
+            .padding(EdgeInsets(top: 16, leading: 28, bottom: 28, trailing: 28))
+        }
+    }
+    #else
+    private var content: some View {
         List {
             ForEach(projects) { project in
                 let tasks = visibleTasks(in: project)
@@ -50,56 +126,8 @@ struct TasksView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .background(DD.page)
-        .overlay { emptyState }
-        .navigationTitle("Tasks")
-        .toolbar {
-            ToolbarItem {
-                Menu("Filter", systemImage: hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle") {
-                    Picker("Status", selection: $status) {
-                        ForEach(Status.allCases, id: \.self) { Text($0.rawValue) }
-                    }
-                    Picker("Category", selection: $categoryFilter) {
-                        Text("Any category").tag(Category?.none)
-                        ForEach(categories) { Text($0.name).tag(Optional($0)) }
-                    }
-                    Toggle("Due today", isOn: $dueTodayOnly)
-                }
-            }
-            ToolbarItem {
-                Menu("Import", systemImage: "square.and.arrow.down") {
-                    Button("From Notion") { notionImport = true }
-                    Button("From Reminders") { remindersImport = true }
-                }
-                .disabled(projects.isEmpty)
-            }
-            ToolbarItem {
-                Button("Quick Add", systemImage: "sparkles") {
-                    #if os(macOS)
-                    QuickAddPanel.show()
-                    #else
-                    quickAdd = true
-                    #endif
-                }
-                    .keyboardShortcut("k")
-                    .disabled(projects.isEmpty)
-            }
-            ToolbarSpacer(.fixed)
-            ToolbarItem {
-                Button("New Task", systemImage: "plus") { creating = true }
-                    .keyboardShortcut("n")
-                    .buttonStyle(.borderedProminent)
-                    .tint(DD.forestFill)
-                    .disabled(projects.isEmpty)
-            }
-        }
-        .sheet(isPresented: $creating) { TaskEditor(task: nil) }
-        .sheet(item: $editing) { TaskEditor(task: $0) }
-        .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
-        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
-        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
-        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
     }
+    #endif
 
     private var hasFilter: Bool { status != .open || categoryFilter != nil || dueTodayOnly }
 

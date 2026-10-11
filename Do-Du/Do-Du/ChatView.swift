@@ -16,6 +16,14 @@ struct AssistantView: View {
     @AppStorage("assistantMode") private var mode = Mode.recap
 
     var body: some View {
+        #if os(macOS)
+        // Mac: Recap beside Chat.
+        HStack(spacing: 14) {
+            RecapView().frame(maxWidth: .infinity)
+            ChatView().frame(maxWidth: .infinity)
+        }
+        .background(DD.page)
+        #else
         Group {
             switch mode {
             case .recap: RecapView()
@@ -31,6 +39,7 @@ struct AssistantView: View {
                 .fixedSize()
             }
         }
+        #endif
     }
 }
 
@@ -88,7 +97,9 @@ struct ChatView: View {
             .padding(.horizontal, 16).padding(.vertical, 8)
             .background(DD.page)
         }
-        .navigationTitle("Chat")
+        #if !os(macOS)
+        .navigationTitle("Chat")   // Mac shows both side by side under "Assistant"
+        #endif
         .toolbar {
             Button("New Chat", systemImage: "square.and.pencil") { lines = []; history = [] }
                 .disabled(lines.isEmpty || busy)

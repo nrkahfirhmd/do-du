@@ -22,6 +22,11 @@ struct TimerHero: View {
     @Environment(\.modelContext) private var context
 
     private var recording: Bool { running != nil }
+    #if os(macOS)
+    private let heroRadius: CGFloat = 32
+    #else
+    private let heroRadius = DD.Radius.hero
+    #endif
     private var ink: Color { recording ? .white : DD.ink }
     private var rule: Color { recording ? DD.onDarkRule : DD.track }
     private var project: Project? { running.map(\.effectiveProject) ?? quickProject }
@@ -57,6 +62,15 @@ struct TimerHero: View {
                              onDark: recording)
                 .padding(.top, 22)
 
+            #if os(macOS)
+            // Mac: record button, its label with the keyboard hints, Switch task on the right.
+            // Narrow windows drop the hints rather than squeeze the hero.
+            ViewThatFits(in: .horizontal) {
+                macControls(hints: true)
+                macControls(hints: false)
+            }
+            .padding(.top, 26)
+            #else
             HStack(alignment: .top, spacing: 30) {
                 SwitchMenu(running: running, quickProject: $quickProject, projects: projects) {
                     sideButton("Switch", systemImage: "arrow.left.arrow.right")
@@ -66,14 +80,37 @@ struct TimerHero: View {
                     .buttonStyle(.plain)
             }
             .padding(.top, 22)
+            #endif
         }
         .foregroundStyle(ink)
         .padding(EdgeInsets(top: 18, leading: 20, bottom: 22, trailing: 20))
-        .background(recording ? DD.forestFill : DD.surface, in: .dd(DD.Radius.hero))
+        .background(recording ? DD.forestFill : DD.surface, in: .dd(heroRadius))
         .animation(DD.colorChange, value: recording)
     }
 
     // MARK: Pieces
+
+    #if os(macOS)
+    private func macControls(hints: Bool) -> some View {
+        HStack(spacing: hints ? 22 : 14) {
+            RecordButton(running: recording, size: 88, showsLabel: false) { toggle() }
+            VStack(alignment: .leading, spacing: 2) {
+                Text(recording ? "Stop timer" : "Start timer").font(.rounded(17, .bold))
+                if hints {
+                    Text("Space to start or stop · ⌘⇧T anywhere").font(.system(size: 13)).opacity(0.65)
+                }
+            }
+            .fixedSize()
+            Spacer(minLength: 0)
+            SwitchMenu(running: running, quickProject: $quickProject, projects: projects) {
+                Text("Switch task").font(.system(size: 14, weight: .semibold)).fixedSize()
+                    .padding(.horizontal, 16).frame(height: 40)
+                    .background(recording ? DD.onDarkFill : DD.fill, in: Capsule())
+            }
+            .fixedSize()
+        }
+    }
+    #endif
 
     private var stats: some View {
         let day = DayMath.day(now)

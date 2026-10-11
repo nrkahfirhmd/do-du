@@ -61,11 +61,12 @@ struct MacRootView: View {
         }
         .sheet(isPresented: $planning) { PlanSheet() }
         #if DEBUG
-        // Review hooks: `-openSettings YES` (with `-macSettingsTab timer`), or
+        // Review hooks: `-macSection tasks`, `-openSettings YES` (with `-macSettingsTab timer`), or
         // `-macSheet quick|plan|task|project` (with `-quickAddText "…"`).
         .task {
             let d = UserDefaults.standard
             if d.bool(forKey: "openSettings") { openSettings() }
+            if let name = d.string(forKey: "macSection"), let tab = [AppTab.today, .tasks, .assistant, .stats, .projects].first(where: { "\($0)" == name }) { section = tab }
             switch d.string(forKey: "macSheet") {
             case "quick": QuickAddPanel.show(text: d.string(forKey: "quickAddText") ?? "")
             case "plan": planning = true
@@ -210,6 +211,7 @@ struct MacTodayView: View {
                             }
                         }
                         sessions(day: day, now: now)
+                        loose(active: active, day: day, now: now)
                     }
                     .frame(width: usable / 2.15)
                 }
@@ -228,6 +230,38 @@ struct MacTodayView: View {
             return .handled
         }
         .sheet(isPresented: $planning) { PlanSheet() }
+    }
+
+    /// "No project · 25m not counted" with an Assign… menu.
+    @ViewBuilder
+    private func loose(active: [Project], day: DateInterval, now: Date) -> some View {
+        let entries = recent.filter { $0.effectiveProject == nil && $0.start < day.end && ($0.end ?? now) > day.start }
+        let time = entries.tracked(in: day, now: now)
+        if time > 0 {
+            HStack(spacing: 12) {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .strokeBorder(DD.ink3, style: StrokeStyle(lineWidth: 1.5, dash: [3, 2]))
+                    .frame(width: 10, height: 10)
+                Text("\(Text("No project").fontWeight(.semibold))\(Text(" · \(time.hoursMinutes) not counted").foregroundStyle(DD.ink3))")
+                    .font(.system(size: 14))
+                Spacer()
+                Menu("Assign…") {
+                    ForEach(active) { p in
+                        Button(p.name) {
+                            entries.forEach { $0.project = p }
+                            try? context.save()
+                        }
+                    }
+                }
+                .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
+                .font(.system(size: 14, weight: .semibold)).foregroundStyle(DD.sage)
+                .fixedSize()
+                .disabled(active.isEmpty)
+            }
+            .foregroundStyle(DD.ink)
+            .padding(.horizontal, 18).padding(.vertical, 12)
+            .background(DD.surface, in: .dd(22))
+        }
     }
 
     private func progress(_ active: [Project], day: DateInterval, now: Date) -> Double {
@@ -267,6 +301,109 @@ struct MacTodayView: View {
             .background(DD.surface, in: .dd(DD.Radius.card))
             .clipShape(.dd(DD.Radius.card))
         }
+    }
+}
+#endif
+
+#if os(macOS)
+/// One project's tasks as a table: done · Task · Category · Due · Estimate · play. 44pt rows.
+struct MacTaskTable: View {
+    let tasks: [TaskItem]
+    let edit: (TaskItem) -> Void
+    let entries: (TaskItem) -> Void
+    @Environment(\.modelContext) private var context
+
+    var body: some View {
+        VStack(spacing: 0) {
+            row {
+                Text("")
+            } title: { Text("Task") } category: { Text("Category") } due: { Text("Due") } estimate: { Text("Estimate") } play: { Text("") }
+                .font(.system(size: 11, weight: .semibold)).foregroundStyle(DD.ink3)
+                .frame(height: 30)
+            ForEach(tasks) { task in
+                Divider()
+                let today = DayMath.logicalDate(.now)
+                row {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { task.setDone(!task.isDone) }
+                    } label: {
+                        ZStack {
+                            Circle().strokeBorder(task.isDone ? DD.mint : DD.disabled, lineWidth: 2)
+                                .background(Circle().fill(task.isDone ? DD.mint : .clear))
+                            if task.isDone {
+                                Image(systemName: "checkmark").font(.system(size: 9, weight: .black)).foregroundStyle(DD.onMint)
+                            }
+                        }
+                        .frame(width: 20, height: 20)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(task.isDone ? "Mark not done" : "Mark done")
+                    .sensoryFeedback(.impact(weight: .light), trigger: task.isDone) { _, done in done }
+                } title: {
+                    Button { edit(task) } label: {
+                        Text(task.title).strikethrough(task.isDone).foregroundStyle(task.isDone ? DD.ink3 : DD.ink)
+                            .lineLimit(1).frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                } category: {
+                    if let c = task.category {
+                        HStack(spacing: 6) {
+                            Circle().fill(c.color).frame(width: 7, height: 7)
+                            Text(c.name).lineLimit(1)
+                        }
+                    }
+                } due: {
+                    if let due = task.dueDate {
+                        Text(dueLabel(due, today: today))
+                            .foregroundStyle(due <= today && !task.isDone ? DD.danger : DD.ink3)
+                    }
+                } estimate: {
+                    if let m = task.estimateMinutes { Text(compactHours(m)).monospacedDigit() }
+                } play: {
+                    if !task.isDone { TimerButton(task: task) }
+                }
+                .font(.system(size: 14))
+                .frame(height: 44)
+                .background(task.isRunning ? DD.runningRow : .clear)
+                .contextMenu {
+                    Button("Edit…") { edit(task) }
+                    Button("Time Entries…") { entries(task) }
+                    Button("Delete", role: .destructive) { context.delete(task) }
+                }
+            }
+        }
+        .background(DD.surface, in: .dd(18))
+        .clipShape(.dd(18))
+    }
+
+    private func dueLabel(_ due: Date, today: Date) -> String {
+        let days = Calendar.current.dateComponents([.day], from: today, to: due).day ?? 0
+        switch days {
+        case 0: return "Today"
+        case 1: return "Tomorrow"
+        case ..<0: return "Overdue"
+        default: return due.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated))
+        }
+    }
+
+    /// Fixed columns: 36 · flexible · 120 · 100 · 90 · 48, inside 14pt padding.
+    private func row<A: View, B: View, C: View, D: View, E: View, F: View>(
+        @ViewBuilder done: () -> A, @ViewBuilder title: () -> B, @ViewBuilder category: () -> C,
+        @ViewBuilder due: () -> D, @ViewBuilder estimate: () -> E, @ViewBuilder play: () -> F) -> some View {
+        // Each cell sits on Color.clear so an empty one still takes its column.
+        func cell(_ width: CGFloat?, _ alignment: Alignment = .leading, _ content: some View) -> some View {
+            ZStack(alignment: alignment) { Color.clear; content }
+                .frame(width: width).frame(maxWidth: width == nil ? .infinity : nil)
+        }
+        return HStack(spacing: 0) {
+            cell(36, .leading, done())
+            cell(nil, .leading, title())
+            cell(120, .leading, category())
+            cell(100, .leading, due())
+            cell(90, .leading, estimate())
+            cell(48, .trailing, play())
+        }
+        .padding(.horizontal, 14)
     }
 }
 #endif

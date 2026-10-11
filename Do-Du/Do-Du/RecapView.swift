@@ -90,7 +90,9 @@ struct RecapView: View {
         .scrollContentBackground(.hidden)
         .background(DD.page)
         .tint(DD.sage)
-        .navigationTitle("Recap")
+        #if !os(macOS)
+        .navigationTitle("Recap")   // Mac shows both side by side under "Assistant"
+        #endif
         .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
         .onChange(of: span) { error = nil }
     }

@@ -65,6 +65,13 @@ struct StatsView: View {
                 HStack(spacing: 10) {
                     StatTile(label: "Total tracked", value: byProject.reduce(0) { $0 + $1.seconds }.hoursMinutes, tone: .forest)
                     StatTile(label: "Enough days", value: workDays == 0 ? "—" : "\(enoughDays) of \(workDays)", tone: .mint)
+                    #if os(macOS)
+                    // Mac's third tile: the biggest category's share ("Deep Work share 71%").
+                    let total = byCategory.reduce(0) { $0 + $1.seconds }
+                    if total > 0, let top = byCategory.filter({ $0.name != "Uncategorized" }).max(by: { $0.seconds < $1.seconds }) {
+                        StatTile(label: "\(top.name) share", value: "\(Int((top.seconds / total * 100).rounded()))%", tone: .surface)
+                    }
+                    #endif
                 }
             }
             .listRowBackground(Color.clear)

@@ -15,6 +15,49 @@ struct ProjectsView: View {
     @State private var showArchived = false
 
     var body: some View {
+        content
+        .background(DD.page)
+        .navigationTitle("Projects")
+        .sheet(isPresented: $creating) { ProjectEditor(project: nil) }
+        .sheet(item: $editing) { ProjectEditor(project: $0) }
+        .confirmationDialog("Delete \(deleting?.name ?? "project")?", isPresented: .init(
+            get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
+            Button("Delete Project, Tasks and Time", role: .destructive) {
+                if let deleting { context.delete(deleting) }
+            }
+        } message: {
+            Text("All tasks and tracked time in this project are removed. Archive instead to keep history.")
+        }
+    }
+
+    #if os(macOS)
+    private var content: some View {
+        // Mac: four columns of 200pt tiles; archived ones sit in the grid at 50%.
+        ScrollView {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 14), count: 4), spacing: 14) {
+                ForEach(projects.sorted { !$0.isArchived && $1.isArchived }) { p in
+                    ProjectColorTile(project: p, height: 200)
+                        .opacity(p.isArchived ? 0.5 : 1)
+                        .onTapGesture { editing = p }
+                        .contextMenu { menu(p) }
+                }
+                Button { creating = true } label: {
+                    Text("+ New project  ⌘N")
+                        .font(.rounded(17, .bold)).foregroundStyle(DD.sage)
+                        .padding(20)
+                        .frame(maxWidth: .infinity, minHeight: 200, alignment: .bottomLeading)
+                        .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous)
+                            .strokeBorder(DD.disabled, style: StrokeStyle(lineWidth: 2, dash: [6, 5])))
+                        .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .keyboardShortcut("n")
+            }
+            .padding(EdgeInsets(top: 20, leading: 28, bottom: 28, trailing: 28))
+        }
+    }
+    #else
+    private var content: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
                 SectionHeader("Active")
@@ -72,23 +115,12 @@ struct ProjectsView: View {
             }
             .padding(.bottom, 24)
         }
-        .background(DD.page)
-        .navigationTitle("Projects")
         .toolbar {
             Button("New Project", systemImage: "plus") { creating = true }
                 .buttonStyle(.borderedProminent).tint(DD.forestFill)
         }
-        .sheet(isPresented: $creating) { ProjectEditor(project: nil) }
-        .sheet(item: $editing) { ProjectEditor(project: $0) }
-        .confirmationDialog("Delete \(deleting?.name ?? "project")?", isPresented: .init(
-            get: { deleting != nil }, set: { if !$0 { deleting = nil } })) {
-            Button("Delete Project, Tasks and Time", role: .destructive) {
-                if let deleting { context.delete(deleting) }
-            }
-        } message: {
-            Text("All tasks and tracked time in this project are removed. Archive instead to keep history.")
-        }
     }
+    #endif
 
     @ViewBuilder private func menu(_ p: Project) -> some View {
         Button("Edit") { editing = p }
@@ -100,6 +132,7 @@ struct ProjectsView: View {
 /// Project tile in its own colour: name, schedule, daily target; a faint circle bleeds off the corner.
 struct ProjectColorTile: View {
     let project: Project
+    var height: CGFloat = 170
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -115,7 +148,7 @@ struct ProjectColorTile: View {
         .foregroundStyle(ink)
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(height: 170)
+        .frame(height: height)
         .background {
             ZStack(alignment: .bottomTrailing) {
                 project.color
@@ -126,9 +159,13 @@ struct ProjectColorTile: View {
         .contentShape(.dd(DD.Radius.tile))
     }
 
-    /// Light swatches carry forest text; the rest white.
+    /// Light swatches carry forest text; the rest white. Forest itself turns light in dark mode.
     private var ink: Color {
-        Palette.canonical(project.colorName) == "seafoam" ? DD.onMint : .white
+        switch Palette.canonical(project.colorName) {
+        case "seafoam": DD.onMint
+        case "forest": Color.dynamic(light: .white, dark: DD.onMint)
+        default: .white
+        }
     }
 }
 
