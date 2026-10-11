@@ -62,3 +62,25 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
   | Plan / Recap fails | `.error` |
 
   Nothing else buzzes: no haptics on scrolling, tab changes, sheet accept or undone tasks.
+
+---
+
+Added 2026-10-11 from the updated handoff (onboarding, Mac Settings window, Mac sheets). Decided: no Settings button in the menu-bar panel (app menu ⌘, only); the onboarding iCloud switch is a real opt-out (applies after relaunch when changed later); Quick Add is ⌘K in the app plus a global ⌥⌘K. The Timer widget keeps opening the app (DD-46 option A).
+
+## DD-49 · Onboarding (iPhone + Mac) — L
+- [ ] Seven steps (Welcome, Project, Days, Day start, Sync and assistant, Done, Today) with the live preview card; iPhone page flow, Mac 880×600 window.
+- [ ] **New behaviour:** shown once per device (`hasOnboarded`), skipped when the store already has a project; nothing written before each Continue; "✓ Set up" chip on Today for the first session.
+- [ ] **New behaviour:** iCloud opt-out (store opens without CloudKit when off).
+- [ ] Self-check: step rules (Continue enabled, day presets, week summary).
+
+## DD-50 · Mac Settings window — M
+- [ ] `Settings` scene with General / Timer / Assistant / Data tabs per handoff.
+- [ ] **New behaviour:** Open at login, Show in menu bar, idle stop 5–60m (default 10m) separate from Stop on sleep or lock, Pomodoro focus + break.
+
+## DD-51 · Mac sheets — L
+- [ ] Quick Add floating panel (640pt, live five-cell preview), ⌘K in app, **new behaviour:** global ⌥⌘K.
+- [ ] Plan My Day 620pt with Planned / To enough / Meetings strip, reasons, no-key state.
+- [ ] Edit Task (Delete Task) and New/Edit Project (day circles, Archived, summary line).
+
+## DD-52 · Mac screens — M
+- [ ] Today hero hint row and Switch task capsule; Tasks table with Open / Done / All; Stats third tile (category share); Assistant Recap beside Chat; Projects 200pt tiles, archived at 50%.
