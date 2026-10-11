@@ -592,6 +592,22 @@ func checkQuickAddSyntax() throws {
     print("✓ quick add syntax")
 }
 
+func checkDueDates() throws {
+    let iso = ISO8601DateFormatter()
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    cal.firstWeekday = 2
+    let now = iso.date(from: "2026-10-11T10:00:00Z")!  // Sunday
+    let picks = DayMath.dueQuickPicks(now: now, calendar: cal)
+    assert(picks.map(\.name) == ["Today", "Tomorrow", "Next week"])
+    assert(picks[0].day == iso.date(from: "2026-10-11T00:00:00Z")!)
+    assert(picks[1].day == iso.date(from: "2026-10-12T00:00:00Z")!)
+    assert(picks[2].day == iso.date(from: "2026-10-12T00:00:00Z")!, "next Monday from Sunday is tomorrow")
+    assert(DayMath.dueLabel(picks[0].day, now: now, calendar: cal) == "Today")
+    assert(DayMath.dueLabel(picks[1].day, now: now, calendar: cal) == "Tomorrow")
+    assert(DayMath.dueLabel(iso.date(from: "2026-10-10T00:00:00Z")!, now: now, calendar: cal) == "Yesterday")
+    assert(!DayMath.dueLabel(iso.date(from: "2027-01-05T00:00:00Z")!, now: now, calendar: cal).contains("Today"))
+}
 func checkSyncMonitor() throws {
     let m = SyncMonitor()
     assert(!m.failing)
@@ -625,4 +641,5 @@ try checkDesignFoundation()
 try checkOnboarding()
 try checkQuickAddSyntax()
 try checkSyncMonitor()
+try checkDueDates()
 print("All checks passed")

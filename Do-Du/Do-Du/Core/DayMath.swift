@@ -91,3 +91,28 @@ func compactHours(_ minutes: Int) -> String {
     case (let h, let m): return "\(h)h \(m)m"
     }
 }
+
+extension DayMath {
+    /// Due-date quick picks, as start-of-day dates. "Next week" is the next first weekday of the locale.
+    static func dueQuickPicks(now: Date = .now, calendar: Calendar = .current) -> [(name: String, day: Date)] {
+        let today = logicalDate(now, calendar: calendar)
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        let nextWeek = calendar.nextDate(
+            after: today, matching: DateComponents(weekday: calendar.firstWeekday), matchingPolicy: .nextTime)!
+        return [("Today", today), ("Tomorrow", tomorrow), ("Next week", nextWeek)]
+    }
+
+    /// "Today", "Tomorrow", else "Mon 13 Oct" (year added when it isn't this year).
+    static func dueLabel(_ due: Date, now: Date = .now, calendar: Calendar = .current) -> String {
+        let today = logicalDate(now, calendar: calendar)
+        switch calendar.dateComponents([.day], from: today, to: calendar.startOfDay(for: due)).day {
+        case 0: return "Today"
+        case 1: return "Tomorrow"
+        case -1: return "Yesterday"
+        default:
+            let style = Date.FormatStyle(calendar: calendar).weekday(.abbreviated).day().month(.abbreviated)
+            return calendar.isDate(due, equalTo: today, toGranularity: .year)
+                ? due.formatted(style) : due.formatted(style.year())
+        }
+    }
+}

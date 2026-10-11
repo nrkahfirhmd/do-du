@@ -256,8 +256,7 @@ struct TaskEditor: View {
     @State private var notes = ""
     @State private var project: Project?
     @State private var category: Category?
-    @State private var hasDue = false
-    @State private var due = Date.now
+    @State private var due: Date?
     /// Minutes; 0 = no estimate.
     @State private var estimate = 0
 
@@ -276,8 +275,9 @@ struct TaskEditor: View {
                     Text("None").tag(Category?.none)
                     ForEach(categories) { Text($0.name).tag(Optional($0)) }
                 }
-                Toggle("Due date", isOn: $hasDue)
-                if hasDue { DatePicker("Due", selection: $due, displayedComponents: .date) }
+                LabeledContent("Due date") { DueDateField(date: $due) }
+                    // Keep the separator at the row edge rather than under the chip's text.
+                    .alignmentGuide(.listRowSeparatorLeading) { $0[.leading] }
                 LabeledContent("Estimate") {
                     HStack(spacing: 8) {
                         Text(estimate == 0 ? "None" : compactHours(estimate)).font(.rounded(13, .bold)).monospacedDigit()
@@ -301,8 +301,7 @@ struct TaskEditor: View {
             title = prefill.title
             project = prefill.project
             category = prefill.category
-            hasDue = prefill.dueDate != nil
-            due = prefill.dueDate ?? .now
+            due = prefill.dueDate
             estimate = prefill.estimateMinutes ?? 0
             return
         }
@@ -310,8 +309,7 @@ struct TaskEditor: View {
         notes = task.notes
         project = task.project
         category = task.category
-        hasDue = task.dueDate != nil
-        due = task.dueDate ?? .now
+        due = task.dueDate
         estimate = task.estimateMinutes ?? 0
     }
 
@@ -321,7 +319,7 @@ struct TaskEditor: View {
         t.notes = notes
         t.project = project
         t.category = category
-        t.dueDate = hasDue ? Calendar.current.startOfDay(for: due) : nil
+        t.dueDate = due.map { Calendar.current.startOfDay(for: $0) }
         t.estimateMinutes = estimate > 0 ? estimate : nil
         if task == nil { context.insert(t) }
     }

@@ -186,19 +186,4 @@ struct QuickAddPanelView: View {
         .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden)
     }
 }
-
-struct CapsuleButton: ButtonStyle {
-    let fill: Color
-    let ink: Color
-    var height: CGFloat = 30
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
-            .padding(.horizontal, height == 30 ? 14 : 12).frame(height: height)
-            .background(fill, in: Capsule())
-            .opacity(configuration.isPressed ? 0.8 : 1)
-            .contentShape(Capsule())
-    }
-}
 #endif

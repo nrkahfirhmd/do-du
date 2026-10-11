@@ -27,7 +27,7 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [x] Chat: tapping the thread hides the keyboard (the keyboard toolbar doesn't show under the tab bar).
 
 ## DD-65 · Styled due date picker — M
-- [ ] Due date chip with quick picks (Today, Tomorrow, Next week, Clear) and an app-tinted calendar.
+- [x] Due date chip with quick picks (Today, Tomorrow, Next week, No due date) and an app-tinted calendar in a popover.
 
 ## DD-66 · Automatic imports — M
 - [ ] Notion and Reminders import on app activation and every 15 min; linked tasks refresh, new items with a matching project are added, unmatched stay for the import sheet.
