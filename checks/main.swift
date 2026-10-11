@@ -646,6 +646,25 @@ func checkAutoImport() throws {
     precondition(left[0].entries?.count == 1, "time moved to the kept task")
     print("✓ auto import")
 }
+func checkDeleteSession() throws {
+    let ctx = ModelContext(try ModelContainer(for: Schema(allModels), configurations: ModelConfiguration(isStoredInMemoryOnly: true)))
+    let p = Project(name: "P", dailyTargetMinutes: 60)
+    ctx.insert(p)
+    let start = Date.now.addingTimeInterval(-3600)
+    let e = TimeEntry(task: nil, project: p, start: start, end: start.addingTimeInterval(1800))
+    ctx.insert(e)
+    let running = TimeEntry(task: nil, project: p, start: .now.addingTimeInterval(-60))
+    ctx.insert(running)
+    try ctx.save()
+    let day = DayMath.day(.now)
+    let before = p.tracked(in: day, now: .now)
+    precondition(TimerService.delete(running, in: ctx) == nil, "running session isn't deleted")
+    let snap = TimerService.delete(e, in: ctx)!
+    precondition(abs(p.tracked(in: day, now: .now) - (before - 1800)) < 1, "deleted time leaves the stats")
+    TimerService.restore(snap, in: ctx)
+    precondition(abs(p.tracked(in: day, now: .now) - before) < 1, "undo brings it back")
+    print("✓ delete session")
+}
 func checkSyncMonitor() throws {
     let m = SyncMonitor()
     assert(!m.failing)
@@ -681,4 +700,5 @@ try checkQuickAddSyntax()
 try checkSyncMonitor()
 try checkDueDates()
 try checkAutoImport()
+try checkDeleteSession()
 print("All checks passed")

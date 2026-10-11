@@ -206,7 +206,7 @@ struct MacTodayView: View {
                                     ForEach(active) { ProjectTile(project: $0, tracked: $0.tracked(in: day, now: now), ringSize: 72) }
                                 }
                             }
-                            sessions(day: day, now: now)
+                            SessionsCard(entries: todaysSessions(day: day, now: now), now: now)
                             loose(active: active, day: day, now: now)
                         }
                         .frame(width: usable / 2.15)
@@ -259,45 +259,14 @@ struct MacTodayView: View {
         }
     }
 
+    private func todaysSessions(day: DateInterval, now: Date) -> [TimeEntry] {
+        recent.filter { $0.start < day.end && ($0.end ?? now) > day.start }.reversed()
+    }
+
     private func progress(_ active: [Project], day: DateInterval, now: Date) -> Double {
         let total = active.reduce(0) { $0 + $1.dailyTarget }
         guard total > 0 else { return 0 }
         return active.reduce(0) { $0 + min($1.dailyTarget, $1.tracked(in: day, now: now)) } / total
-    }
-
-    @ViewBuilder
-    private func sessions(day: DateInterval, now: Date) -> some View {
-        let today = recent.filter { $0.start < day.end && ($0.end ?? now) > day.start }.reversed()
-        if !today.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Sessions today").font(.footnote.weight(.semibold)).foregroundStyle(DD.ink3)
-                    .padding(.horizontal, 16).padding(.top, 12).padding(.bottom, 6)
-                ForEach(Array(today), id: \.persistentModelID) { e in
-                    HStack(spacing: 10) {
-                        RoundedRectangle(cornerRadius: 3, style: .continuous)
-                            .fill(e.effectiveProject?.color ?? DD.disabled).frame(width: 10, height: 10)
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(e.effectiveProject?.name ?? "No project").font(.subheadline.weight(.semibold))
-                            Text(e.title).font(.caption).foregroundStyle(e.isRunning ? DD.onMint.opacity(0.7) : DD.ink3)
-                        }
-                        .lineLimit(1)
-                        Spacer()
-                        Text(
-                            "\(e.start.formatted(date: .omitted, time: .shortened))–\(e.end?.formatted(date: .omitted, time: .shortened) ?? "now")"
-                        )
-                        .font(.caption).monospacedDigit().foregroundStyle(e.isRunning ? DD.onMint.opacity(0.7) : DD.ink3)
-                        Text(e.duration(now: now).hoursMinutes).font(.rounded(14, .semibold)).monospacedDigit()
-                            .frame(width: 64, alignment: .trailing)
-                    }
-                    .foregroundStyle(e.isRunning ? DD.onMint : DD.ink)
-                    .padding(.horizontal, 16).frame(minHeight: 44)
-                    .background(e.isRunning ? DD.mint : .clear)
-                }
-            }
-            .padding(.bottom, 6)
-            .background(DD.surface, in: .dd(DD.Radius.card))
-            .clipShape(.dd(DD.Radius.card))
-        }
     }
 }
 #endif

@@ -53,6 +53,11 @@ struct TodayView: View {
 
                     looseGroup(active: active, day: day, now: now)
 
+                    SessionsCard(
+                        entries: recent.filter { $0.start < day.end && ($0.end ?? now) > day.start }.reversed(), now: now
+                    )
+                    .padding(.horizontal, 12).padding(.top, 10)
+
                     PlanSection(now: now)
                     if !meetings.isEmpty { scheduleGroup }
                     if SharedStore.iCloudOnAtLaunch, !SyncMonitor.shared.summary.ok {

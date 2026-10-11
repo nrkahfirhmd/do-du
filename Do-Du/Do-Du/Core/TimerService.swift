@@ -43,4 +43,27 @@ enum TimerService {
 
     /// Hook for side effects (long-run notification). Called with the new start date, or nil on stop.
     static var onChange: ((Date?) -> Void)?
+
+    /// What a deleted session needs to come back on Undo.
+    struct DeletedSession {
+        let task: TaskItem?
+        let project: Project?
+        let start: Date
+        let end: Date
+    }
+
+    /// Deletes a finished session; stats are computed from entries, so it drops out everywhere. Running ones stay.
+    @discardableResult
+    static func delete(_ entry: TimeEntry, in context: ModelContext) -> DeletedSession? {
+        guard let end = entry.end else { return nil }
+        let snapshot = DeletedSession(task: entry.task, project: entry.project, start: entry.start, end: end)
+        context.delete(entry)
+        try? context.save()
+        return snapshot
+    }
+
+    static func restore(_ s: DeletedSession, in context: ModelContext) {
+        context.insert(TimeEntry(task: s.task, project: s.project, start: s.start, end: s.end))
+        try? context.save()
+    }
 }

@@ -15,8 +15,8 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [x] Only a user removal turns "Show in menu bar" off; the removal while onboarding runs no longer does.
 
 ## DD-72 · Delete sessions — M
-- [ ] Today lists today's sessions (iPhone + Mac); delete with swipe / context menu / ⌫ and Undo.
-- [ ] A running session must be stopped first.
+- [x] Today lists today's sessions (iPhone + Mac); delete from the context menu (long-press / right-click) or the trash on hover (Mac), with an inline Undo for 6 s.
+- [x] A running session must be stopped first.
 
 ## DD-73 · Manual refresh — M
 - [ ] iPhone: pull down on Today and Tasks. Mac: toolbar Refresh (⌘R).

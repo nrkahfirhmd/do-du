@@ -65,6 +65,8 @@ enum DD {
     // MARK: Motion (no bounce)
     static let colorChange = Animation.easeInOut(duration: 0.4)
     static let fillChange = Animation.easeInOut(duration: 0.6)
+    static let listChange = Animation.easeInOut(duration: 0.25)
+    static let hover = Animation.easeOut(duration: 0.15)
 }
 
 extension Font {
