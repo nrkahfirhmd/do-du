@@ -11,6 +11,7 @@ import SwiftUI
 import SwiftData
 
 struct MacRootView: View {
+    @Environment(\.modelContext) private var context
     @State private var section = AppTab.today
     @State private var quickAdd = false
     @State private var planning = false
@@ -47,6 +48,10 @@ struct MacRootView: View {
         }
         .tint(DD.forestFill)
         .frame(minWidth: 1000, minHeight: 640)
+        .onOpenURL { url in
+            if url.host() == "timer" && url.path() == "/toggle" { TimerService.toggleQuick(in: context) }
+            section = .today
+        }
         .sheet(isPresented: $quickAdd) { QuickAddSheet() }
         .sheet(isPresented: $planning) { PlanSheet() }
     }
@@ -120,7 +125,7 @@ struct MacMiniTimer: View {
             }
             Spacer(minLength: 0)
             Button {
-                if entry != nil { TimerService.stop(in: context) } else { TimerService.start(nil, in: context) }
+                TimerService.toggleQuick(in: context)
             } label: {
                 Group {
                     if entry != nil {
@@ -194,7 +199,7 @@ struct MacTodayView: View {
         .onAppear { focused = true }
         // Space starts or stops the timer while Today has focus (never steals spaces from text fields).
         .onKeyPress(.space) {
-            if running.first != nil { TimerService.stop(in: context) } else { TimerService.start(nil, project: quickProject, in: context) }
+            TimerService.toggleQuick(project: quickProject, in: context)
             return .handled
         }
         .sheet(isPresented: $planning) { PlanSheet() }

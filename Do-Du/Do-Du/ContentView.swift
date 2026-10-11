@@ -54,6 +54,11 @@ struct ContentView: View {
         }
         #endif
         .modifier(TimerSync())
+        .onOpenURL { url in
+            // Widgets open the app instead of writing data themselves.
+            if url.host() == "timer" && url.path() == "/toggle" { TimerService.toggleQuick(in: context) }
+            tab = .today
+        }
         #endif
     }
 }

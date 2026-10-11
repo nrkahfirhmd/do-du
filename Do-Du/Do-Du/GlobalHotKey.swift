@@ -42,11 +42,7 @@ enum GlobalHotKey {
 
     private static func toggleTimer() {
         guard let context = container?.mainContext else { return }
-        if TimerService.current(in: context) != nil {
-            TimerService.stop(in: context)
-        } else {
-            TimerService.start(nil, in: context)
-        }
+        TimerService.toggleQuick(in: context)
     }
 }
 #endif

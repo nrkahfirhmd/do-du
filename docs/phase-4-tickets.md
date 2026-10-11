@@ -42,8 +42,8 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 - [x] Settings toggle (Mac, on by default). Registration verified (`noErr`) in a sandboxed build; the key press itself and the panel visuals still need a check on your Mac (keystrokes need Accessibility, opening the menu-bar panel needs a click).
 
 ## DD-46 · Widgets — L
-- [ ] Restyle Today small/medium, add large; small Timer widget; Lock Screen circular / rectangular / inline.
-- [ ] **New behaviour:** widget start/stop opens the app via `dodu://timer/toggle` (decision: option A).
+- [x] Restyle Today small/medium, add large; small Timer widget; Lock Screen circular / rectangular / inline.
+- [x] **New behaviour:** widget start/stop opens the app via `dodu://timer/toggle` (decision: option A).
 
 ## DD-47 · Live Activity + Dynamic Island — M
 - [ ] Banner, compact, minimal, expanded per handoff.

@@ -33,6 +33,11 @@ enum TimerService {
         onChange?(nil)
     }
 
+    /// Stop whatever runs, or start a quick session (hotkey, widget link, Mac controls).
+    static func toggleQuick(project: Project? = nil, in context: ModelContext) {
+        if current(in: context) != nil { stop(in: context) } else { start(nil, project: project, in: context) }
+    }
+
     static func toggle(_ task: TaskItem, in context: ModelContext) {
         if current(in: context)?.task == task { stop(in: context) } else { start(task, in: context) }
     }

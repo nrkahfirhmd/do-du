@@ -10,6 +10,7 @@ import WidgetKit
 struct DoDuWidgetBundle: WidgetBundle {
     var body: some Widget {
         TodayWidget()
+        TimerWidget()
         TimerLiveActivity()
     }
 }

@@ -6,6 +6,17 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.kv.Do-Du</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dodu</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 </dict>

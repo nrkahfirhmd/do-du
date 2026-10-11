@@ -178,7 +178,7 @@ struct MenuBarPanel: View {
             }
             Spacer(minLength: 0)
             Button {
-                if running != nil { TimerService.stop(in: context) } else { TimerService.start(nil, in: context) }
+                TimerService.toggleQuick(in: context)
             } label: {
                 Group {
                     if running != nil {
