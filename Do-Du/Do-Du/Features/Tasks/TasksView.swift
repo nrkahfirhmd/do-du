@@ -100,6 +100,7 @@ struct TasksView: View {
                 }
             }
             .padding(EdgeInsets(top: 16, leading: 28, bottom: 28, trailing: 28))
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     #else
