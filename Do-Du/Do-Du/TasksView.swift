@@ -23,6 +23,82 @@ struct TasksView: View {
     @State private var remindersImport = false
 
     var body: some View {
+        content
+        .background(DD.page)
+        .overlay { emptyState }
+        .navigationTitle("Tasks")
+        .toolbar {
+            ToolbarItem {
+                Menu("Filter", systemImage: hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle") {
+                    #if !os(macOS)
+                    Picker("Status", selection: $status) {
+                        ForEach(Status.allCases, id: \.self) { Text($0.rawValue) }
+                    }
+                    #endif
+                    Picker("Category", selection: $categoryFilter) {
+                        Text("Any category").tag(Category?.none)
+                        ForEach(categories) { Text($0.name).tag(Optional($0)) }
+                    }
+                    Toggle("Due today", isOn: $dueTodayOnly)
+                }
+            }
+            ToolbarItem {
+                Menu("Import", systemImage: "square.and.arrow.down") {
+                    Button("From Notion") { notionImport = true }
+                    Button("From Reminders") { remindersImport = true }
+                }
+                .disabled(projects.isEmpty)
+            }
+            #if !os(macOS)
+            // Mac has Quick Add (⌘K) in the window toolbar.
+            ToolbarItem {
+                Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
+                    .keyboardShortcut("k")
+                    .disabled(projects.isEmpty)
+            }
+            #endif
+            ToolbarSpacer(.fixed)
+            ToolbarItem {
+                Button("New Task", systemImage: "plus") { creating = true }
+                    .keyboardShortcut("n")
+                    .buttonStyle(.borderedProminent)
+                    .tint(DD.forestFill)
+                    .disabled(projects.isEmpty)
+            }
+        }
+        .sheet(isPresented: $creating) { TaskEditor(task: nil) }
+        .sheet(item: $editing) { TaskEditor(task: $0) }
+        .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
+        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
+        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
+        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
+    }
+
+    #if os(macOS)
+    /// Mac: Open / Done / All capsules, then one table per project.
+    private var content: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 8) {
+                    ForEach(Status.allCases, id: \.self) { s in
+                        Button(s.rawValue) { status = s }
+                            .buttonStyle(CapsuleButton(fill: status == s ? DD.forestFill : DD.fill,
+                                                       ink: status == s ? .white : DD.ink, height: 28))
+                    }
+                }
+                ForEach(projects) { project in
+                    let tasks = visibleTasks(in: project)
+                    if !tasks.isEmpty {
+                        ProjectHeader(project: project, count: tasks.count).padding(.top, 18).padding(.bottom, 8)
+                        MacTaskTable(tasks: tasks, edit: { editing = $0 }, entries: { entriesFor = $0 })
+                    }
+                }
+            }
+            .padding(EdgeInsets(top: 16, leading: 28, bottom: 28, trailing: 28))
+        }
+    }
+    #else
+    private var content: some View {
         List {
             ForEach(projects) { project in
                 let tasks = visibleTasks(in: project)
@@ -44,51 +120,14 @@ struct TasksView: View {
                                 }
                         }
                     } header: {
-                        Label { Text(project.name) } icon: { ColorDot(color: project.color) }
+                        ProjectHeader(project: project, count: tasks.count)
                     }
                 }
             }
         }
-        .overlay { emptyState }
-        .navigationTitle("Tasks")
-        .toolbar {
-            ToolbarItem {
-                Menu("Filter", systemImage: hasFilter ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle") {
-                    Picker("Status", selection: $status) {
-                        ForEach(Status.allCases, id: \.self) { Text($0.rawValue) }
-                    }
-                    Picker("Category", selection: $categoryFilter) {
-                        Text("Any category").tag(Category?.none)
-                        ForEach(categories) { Text($0.name).tag(Optional($0)) }
-                    }
-                    Toggle("Due today", isOn: $dueTodayOnly)
-                }
-            }
-            ToolbarItem {
-                Menu("Import", systemImage: "square.and.arrow.down") {
-                    Button("From Notion") { notionImport = true }
-                    Button("From Reminders") { remindersImport = true }
-                }
-                .disabled(projects.isEmpty)
-            }
-            ToolbarItem {
-                Button("Quick Add", systemImage: "sparkles") { quickAdd = true }
-                    .keyboardShortcut("k")
-                    .disabled(projects.isEmpty)
-            }
-            ToolbarItem {
-                Button("New Task", systemImage: "plus") { creating = true }
-                    .keyboardShortcut("n")
-                    .disabled(projects.isEmpty)
-            }
-        }
-        .sheet(isPresented: $creating) { TaskEditor(task: nil) }
-        .sheet(item: $editing) { TaskEditor(task: $0) }
-        .sheet(item: $entriesFor) { TimeEntriesView(task: $0) }
-        .sheet(isPresented: $quickAdd) { QuickAddSheet() }
-        .sheet(isPresented: $notionImport) { ExternalImportSheet<NotionClient>() }
-        .sheet(isPresented: $remindersImport) { ExternalImportSheet<RemindersSource>() }
+        .scrollContentBackground(.hidden)
     }
+    #endif
 
     private var hasFilter: Bool { status != .open || categoryFilter != nil || dueTodayOnly }
 
@@ -115,41 +154,83 @@ struct TasksView: View {
     }
 }
 
+/// Done circle, title + meta line, play/stop. Running rows tint mint.
 struct TaskRow: View {
     let task: TaskItem
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             Button {
-                withAnimation { task.setDone(!task.isDone) }
+                withAnimation(.easeInOut(duration: 0.2)) { task.setDone(!task.isDone) }
             } label: {
-                Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(task.isDone ? .green : .secondary)
-                    .imageScale(.large)
+                ZStack {
+                    Circle().strokeBorder(task.isDone ? DD.mint : DD.disabled, lineWidth: 2)
+                        .background(Circle().fill(task.isDone ? DD.mint : .clear))
+                    if task.isDone {
+                        Image(systemName: "checkmark").font(.system(size: 11, weight: .black)).foregroundStyle(DD.onMint)
+                    }
+                }
+                .frame(width: 24, height: 24)
+                .frame(width: 44, height: 44)
+                .sensoryFeedback(.impact(weight: .light), trigger: task.isDone) { _, done in done }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .padding(.horizontal, -10)
             .accessibilityLabel(task.isDone ? "Mark open" : "Mark done")
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(task.title).strikethrough(task.isDone).foregroundStyle(task.isDone ? .secondary : .primary)
-                HStack(spacing: 8) {
-                    if let c = task.category { Label { Text(c.name) } icon: { ColorDot(color: c.color) } }
-                    if let due = task.dueDate {
-                        Label(Calendar.current.isDateInToday(due) ? "Today" : due.formatted(date: .abbreviated, time: .omitted),
-                              systemImage: "calendar")
-                            .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? .red : .secondary)
+                Text(task.title).font(.body).lineLimit(1)
+                    .strikethrough(task.isDone)
+                    .foregroundStyle(task.isDone ? DD.ink3 : DD.ink)
+                if !meta.isEmpty {
+                    HStack(spacing: 10) {
+                        if let c = task.category {
+                            HStack(spacing: 4) { Circle().fill(c.color).frame(width: 7, height: 7); Text(c.name) }
+                        }
+                        if let due = task.dueDate {
+                            Text("Due " + (Calendar.current.isDateInToday(due) ? "today" : due.formatted(.dateTime.day().month(.abbreviated))))
+                                .foregroundStyle(due < DayMath.logicalDate(.now) && !task.isDone ? DD.danger : DD.ink3)
+                        }
+                        if let est = task.estimateMinutes { Text("~" + TimeInterval(est * 60).hoursMinutes) }
                     }
-                    if let est = task.estimateMinutes {
-                        Label(TimeInterval(est * 60).hoursMinutes, systemImage: "hourglass")
-                    }
+                    .font(.footnote).foregroundStyle(DD.ink3).lineLimit(1)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
             }
-            Spacer()
+            Spacer(minLength: 0)
             if !task.isDone { TimerButton(task: task) }
         }
-        .listRowBackground(task.isRunning ? Color.accentColor.opacity(0.12) : nil)
+        .frame(minHeight: 60)
+        .listRowBackground(task.isRunning ? DD.runningRow : DD.surface)
+    }
+
+    private var meta: [String] {
+        [task.category?.name, task.dueDate.map { _ in "due" }, task.estimateMinutes.map { _ in "est" }].compactMap { $0 }
+    }
+}
+
+/// Project section header: white name on a capsule in the project colour, plus the count.
+struct ProjectHeader: View {
+    let project: Project
+    let count: Int
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(project.name).font(.rounded(13, .bold)).foregroundStyle(.white)
+                .padding(.horizontal, 10).frame(height: 24)
+                .background(headerColor, in: Capsule())
+            Text("\(count) task\(count == 1 ? "" : "s")").font(.footnote).foregroundStyle(DD.ink3)
+        }
+        .textCase(nil)
+    }
+
+    /// White text needs a dark enough capsule: the light swatches step down to pine.
+    private var headerColor: Color {
+        switch Palette.canonical(project.colorName) {
+        case "seafoam", "slate": Palette.color("pine")
+        case "forest": DD.forestFill
+        default: project.color
+        }
     }
 }
 
@@ -166,12 +247,14 @@ struct TaskEditor: View {
     @State private var category: Category?
     @State private var hasDue = false
     @State private var due = Date.now
-    @State private var hasEstimate = false
-    @State private var estimate = 30
+    /// Minutes; 0 = no estimate.
+    @State private var estimate = 0
 
     var body: some View {
-        EditorSheet(title: task == nil ? "New Task" : "Edit Task", canSave: !title.isBlank && project != nil, save: save) {
-            TextField("Title", text: $title)
+        EditorSheet(title: task == nil ? "New Task" : "Edit Task", canSave: !title.isBlank && project != nil, save: save,
+                    destructive: task.map { t in ("Delete Task", { context.delete(t) }) }) {
+            Section { TextField("Title", text: $title).font(.system(size: 17, weight: .semibold)).labelsHidden() }
+            Section {
             Picker("Project", selection: $project) {
                 if project == nil { Text("Choose…").tag(Project?.none) }
                 ForEach(projects) { Text($0.name).tag(Optional($0)) }
@@ -182,11 +265,15 @@ struct TaskEditor: View {
             }
             Toggle("Due date", isOn: $hasDue)
             if hasDue { DatePicker("Due", selection: $due, displayedComponents: .date) }
-            Toggle("Estimate", isOn: $hasEstimate)
-            if hasEstimate {
-                Stepper("Estimate: \(TimeInterval(estimate * 60).hoursMinutes)", value: $estimate, in: 5...(12 * 60), step: 5)
+            LabeledContent("Estimate") {
+                HStack(spacing: 8) {
+                    Text(estimate == 0 ? "None" : compactHours(estimate)).font(.rounded(13, .bold)).monospacedDigit()
+                        .foregroundStyle(estimate == 0 ? DD.ink3 : DD.ink)
+                    Stepper("Estimate", value: $estimate, in: 0...(8 * 60), step: 15).labelsHidden()
+                }
             }
-            TextField("Notes", text: $notes, axis: .vertical).lineLimit(3...8)
+            }
+            Section { TextField("Notes", text: $notes, axis: .vertical).lineLimit(3...8) }
         }
         .onAppear(perform: load)
     }
@@ -203,8 +290,7 @@ struct TaskEditor: View {
             category = prefill.category
             hasDue = prefill.dueDate != nil
             due = prefill.dueDate ?? .now
-            hasEstimate = prefill.estimateMinutes != nil
-            estimate = prefill.estimateMinutes ?? 30
+            estimate = prefill.estimateMinutes ?? 0
             return
         }
         title = task.title
@@ -213,8 +299,7 @@ struct TaskEditor: View {
         category = task.category
         hasDue = task.dueDate != nil
         due = task.dueDate ?? .now
-        hasEstimate = task.estimateMinutes != nil
-        estimate = task.estimateMinutes ?? 30
+        estimate = task.estimateMinutes ?? 0
     }
 
     private func save() {
@@ -224,7 +309,7 @@ struct TaskEditor: View {
         t.project = project
         t.category = category
         t.dueDate = hasDue ? Calendar.current.startOfDay(for: due) : nil
-        t.estimateMinutes = hasEstimate ? estimate : nil
+        t.estimateMinutes = estimate > 0 ? estimate : nil
         if task == nil { context.insert(t) }
     }
 }

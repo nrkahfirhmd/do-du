@@ -25,25 +25,28 @@ struct QuickAddSheet: View {
         } else {
             NavigationStack {
                 Form {
-                    TextField("Add 2h design review to Do-Du tomorrow", text: $text, axis: .vertical)
-                        .lineLimit(1...4)
-                        .onSubmit(parse)
-                        .disabled(parsing)
-                        .focused($focused)
-                    if parsing { ProgressView("Reading…") }
-                    if let note { Text(note).foregroundStyle(.secondary) }
-                    if !QuickAddParser.isAvailable {
-                        Text("Apple Intelligence isn't available here, so the text becomes the task title.")
-                            .font(.footnote).foregroundStyle(.secondary)
-                    }
+                    Group {
+                        TextField("Add 2h design review to Do-Du tomorrow", text: $text, axis: .vertical)
+                            .lineLimit(1...4)
+                            .onSubmit(parse)
+                            .disabled(parsing)
+                            .focused($focused)
+                        if parsing { ProgressView("Reading…") }
+                        if let note { Text(note).foregroundStyle(.secondary) }
+                        if !QuickAddParser.isAvailable {
+                            Text("Apple Intelligence isn't available here, so the text becomes the task title.")
+                                .font(.footnote).foregroundStyle(.secondary)
+                        }
+                                    }
+                    .ddRows()
                 }
-                .formStyle(.grouped)
+                .ddForm()
                 .navigationTitle("Quick Add")
                 .onAppear { focused = true }
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Next", action: parse).disabled(text.isBlank || parsing)
+                        Button("Next", action: parse).ddPrimary().disabled(text.isBlank || parsing)
                     }
                 }
             }

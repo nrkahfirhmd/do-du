@@ -16,35 +16,21 @@ struct TimerButton: View {
         Button {
             TimerService.toggle(task, in: context)
         } label: {
-            Image(systemName: running ? "stop.circle.fill" : "play.circle")
-                .imageScale(.large)
-                .foregroundStyle(running ? Color.red : Color.accentColor)
+            Group {
+                if running {
+                    RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(.white).frame(width: 11, height: 11)
+                } else {
+                    Image(systemName: "play.fill").font(.system(size: 13, weight: .bold)).foregroundStyle(DD.forest)
+                        .offset(x: 1)
+                }
+            }
+            .frame(width: 36, height: 36)
+            .background(running ? DD.forestFill : DD.fill, in: Circle())
+            .frame(width: 44, height: 44)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(running ? "Stop timer" : "Start timer")
-    }
-}
-
-/// Start a timer without a task. Tap = no project; the menu picks one.
-struct QuickStartButton: View {
-    @Environment(\.modelContext) private var context
-    @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
-
-    var body: some View {
-        Menu {
-            ForEach(projects) { p in
-                Button(p.name) { TimerService.start(nil, project: p, in: context) }
-            }
-        } label: {
-            Label("Start Timer", systemImage: "play.fill")
-                .frame(maxWidth: .infinity)
-        } primaryAction: {
-            TimerService.start(nil, in: context)
-        }
-        .menuStyle(.button)
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
-        .accessibilityHint("Starts a timer without a task. Hold or use the menu to pick a project.")
     }
 }
 
@@ -80,33 +66,37 @@ struct ElapsedText: View {
     }
 }
 
-/// Banner for the running timer, shown on Today and in the menu bar.
-struct RunningTimerBar: View {
+/// Mini timer above the tab bar: pulsing dot, title, clock, Stop. Tap opens Today.
+struct TimerAccessory: View {
+    let entry: TimeEntry
+    let open: () -> Void
     @Environment(\.modelContext) private var context
-    @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
-    private var running: [TimeEntry]
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var dim = false
 
     var body: some View {
-        if let entry = running.first {
-            HStack {
-                Image(systemName: "timer").foregroundStyle(.red)
-                VStack(alignment: .leading) {
-                    Text(entry.title).lineLimit(1)
-                    if entry.task == nil {
-                        ProjectAssignMenu(entry: entry)
-                    } else if let p = entry.effectiveProject {
-                        Text(p.name).font(.caption).foregroundStyle(.secondary)
-                    }
-                }
-                Spacer()
-                ElapsedText(start: entry.start).font(.title3)
-                Button("Stop", systemImage: "stop.fill") { TimerService.stop(in: context) }
-                    .labelStyle(.iconOnly)
-                    .tint(.red)
-                    .buttonStyle(.borderedProminent)
+        HStack(spacing: 10) {
+            Circle().fill(DD.mint).frame(width: 8, height: 8).opacity(dim ? 0.35 : 1)
+            Text(entry.title).font(.subheadline.weight(.semibold)).foregroundStyle(DD.ink).lineLimit(1)
+            Spacer(minLength: 4)
+            ElapsedText(start: entry.start).font(.rounded(17, .semibold)).foregroundStyle(DD.forest)
+            Button { TimerService.stop(in: context) } label: {
+                RoundedRectangle(cornerRadius: 2.5, style: .continuous).fill(.white)
+                    .frame(width: 11, height: 11)
+                    .frame(width: 40, height: 40)
+                    .background(DD.forestFill, in: Circle())
             }
-        } else {
-            QuickStartButton()
+            .buttonStyle(.plain)
+            .accessibilityLabel("Stop timer")
+        }
+        .padding(.leading, 18).padding(.trailing, 6)
+        .contentShape(Rectangle())
+        .onTapGesture(perform: open)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint("Opens Today")
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { dim = true }
         }
     }
 }
@@ -128,34 +118,84 @@ struct MenuBarLabel: View {
     }
 }
 
+/// Menu-bar panel: hero card (forest while recording), verdict line, Recent tasks, footer.
 struct MenuBarPanel: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \TimeEntry.start, order: .reverse) private var entries: [TimeEntry]
+    @Query(filter: #Predicate<Project> { !$0.isArchived }, sort: \Project.createdAt) private var projects: [Project]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            RunningTimerBar()
-            Text("Recent").font(.caption).foregroundStyle(.secondary)
-            if recentTasks.isEmpty {
-                Text("No tracked tasks yet").foregroundStyle(.secondary)
-            }
-            ForEach(recentTasks) { task in
-                HStack {
-                    TimerButton(task: task)
-                    Text(task.title).lineLimit(1)
-                    Spacer()
-                    if let p = task.project { ColorDot(color: p.color) }
+        let running = entries.first(where: \.isRunning)
+        TimelineView(.periodic(from: .now, by: 1)) { tl in
+            VStack(alignment: .leading, spacing: 12) {
+                hero(running, now: tl.date)
+                VerdictStrip(verdict: Stats.verdict(for: projects, on: tl.date, now: tl.date),
+                             progress: 0, font: .rounded(15, .bold))
+                    .padding(-4)
+                Text("Recent").font(.footnote.weight(.semibold)).foregroundStyle(DD.ink3)
+                if recentTasks.isEmpty {
+                    Text("No tracked tasks yet").font(.subheadline).foregroundStyle(DD.ink3)
                 }
+                VStack(spacing: 2) {
+                    ForEach(recentTasks) { task in
+                        Button { TimerService.toggle(task, in: context) } label: {
+                            HStack(spacing: 10) {
+                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                    .fill(task.project?.color ?? DD.disabled).frame(width: 10, height: 10)
+                                Text(task.title).lineLimit(1).foregroundStyle(DD.ink)
+                                Spacer()
+                                Image(systemName: task.isRunning ? "stop.fill" : "play.fill")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(task.isRunning ? DD.onMint : DD.forest)
+                            }
+                            .padding(.horizontal, 10).frame(height: 32)
+                            .background(task.isRunning ? DD.mint : .clear, in: .dd(8))
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                Divider()
+                HStack {
+                    Button("Open Do-Du") { NSApp.activate() }
+                    Spacer()
+                    Button("Quit") { NSApp.terminate(nil) }
+                }
+                .buttonStyle(.borderless)
+                .tint(DD.sage)
             }
-            Divider()
-            HStack {
-                Button("Open Do-Du") { NSApp.activate() }
-                Spacer()
-                Button("Quit") { NSApp.terminate(nil) }
-            }
+            .padding(14)
         }
-        .padding()
         .frame(width: 300)
+    }
+
+    private func hero(_ running: TimeEntry?, now: Date) -> some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(running?.title ?? "No timer running").font(.subheadline.weight(.semibold)).lineLimit(1).opacity(0.8)
+                Text((running.map { now.timeIntervalSince($0.start) } ?? 0).clock)
+                    .font(.rounded(40)).tracking(-1).monospacedDigit()
+            }
+            Spacer(minLength: 0)
+            Button {
+                TimerService.toggleQuick(in: context)
+            } label: {
+                Group {
+                    if running != nil {
+                        RoundedRectangle(cornerRadius: 4, style: .continuous).fill(DD.onMint).frame(width: 14, height: 14)
+                    } else {
+                        Image(systemName: "play.fill").font(.system(size: 16, weight: .bold)).foregroundStyle(DD.mint)
+                    }
+                }
+                .frame(width: 44, height: 44)
+                .background(running != nil ? DD.mint : DD.forestFill, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(running != nil ? "Stop timer" : "Start timer")
+        }
+        .foregroundStyle(running != nil ? Color.white : DD.ink)
+        .padding(14)
+        .background(running != nil ? DD.forestFill : DD.fill, in: .dd(DD.Radius.menu))
     }
 
     /// Last five distinct open tasks that had time tracked.

@@ -13,9 +13,18 @@ import SwiftData
 enum SharedStore {
     static let appGroupID = "group.com.kv.Do-Du"
     static let fileName = "Do-Du.store"
+    /// Off keeps data on this device only. Read when the container opens, so a change applies next launch.
+    static let iCloudKey = "iCloudSyncOn"
+    static var iCloudOn: Bool { UserDefaults.standard.object(forKey: iCloudKey) as? Bool ?? true }
+    /// What the open container uses (the setting may have changed since).
+    static let iCloudOnAtLaunch = iCloudOn
 
+    /// The App Group folder, or nil when this build can't use it. On macOS the system
+    /// returns a path even without the entitlement (unsigned/ad-hoc builds), so check access.
     static var groupURL: URL? {
-        FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID)
+        guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID),
+              FileManager.default.isWritableFile(atPath: url.path) else { return nil }
+        return url
     }
 
     /// Store URL inside `group`, or nil when the App Group is unavailable
@@ -46,11 +55,12 @@ enum SharedStore {
     /// to the default location when the App Group is unavailable.
     static func modelConfiguration() -> ModelConfiguration {
         let schema = Schema(allModels)
+        let cloud: ModelConfiguration.CloudKitDatabase = iCloudOnAtLaunch ? .automatic : .none
         migrateIfNeeded()
         if let url = storeURL(groupURL: groupURL) {
-            return ModelConfiguration(schema: schema, url: url, cloudKitDatabase: .automatic)
+            return ModelConfiguration(schema: schema, url: url, cloudKitDatabase: cloud)
         }
-        return ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
+        return ModelConfiguration(schema: schema, cloudKitDatabase: cloud)
     }
 
     /// The one container for this process: app UI, timers and Siri/Shortcuts intents.

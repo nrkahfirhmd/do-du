@@ -2,22 +2,42 @@
 //  SampleData.swift
 //  Do-Du
 //
-//  DEBUG only. Launch with `-seedSampleData YES` to fill an empty store.
+//  Preview container, plus DEBUG-only sample data (launch with
+//  `-seedSampleData YES` to fill an empty store).
 //
 
-#if DEBUG
 import Foundation
 import SwiftData
+
+extension SharedStore {
+    /// In-memory store for `#Preview`, with sample data in DEBUG. CloudKit is off: a
+    /// mirrored in-memory store has no usable SQLite connection and crashes previews
+    /// ("No eligible connection available").
+    @MainActor static var preview: ModelContainer {
+        let config = ModelConfiguration(schema: Schema(allModels), isStoredInMemoryOnly: true, cloudKitDatabase: .none)
+        let container = try! ModelContainer(for: Schema(allModels), configurations: [config])
+        #if DEBUG
+        SampleData.seed(container.mainContext)
+        #endif
+        return container
+    }
+}
+
+#if DEBUG
 
 enum SampleData {
     static func seedIfRequested(_ context: ModelContext) {
         guard UserDefaults.standard.bool(forKey: "seedSampleData"),
               (try? context.fetchCount(FetchDescriptor<Project>())) == 0 else { return }
+        seed(context)
+    }
 
-        let deep = Category(name: "Deep Work", colorName: "purple")
-        let admin = Category(name: "Admin", colorName: "gray")
-        let dodu = Project(name: "Do-Du", colorName: "blue", dailyTargetMinutes: 180, activeWeekdaysMask: Weekdays.all)
-        let client = Project(name: "Client X", colorName: "orange", dailyTargetMinutes: 120, activeWeekdaysMask: Weekdays.all)
+    static func seed(_ context: ModelContext) {
+
+        let deep = Category(name: "Deep Work", colorName: "sage")
+        let admin = Category(name: "Admin", colorName: "slate")
+        let dodu = Project(name: "Do-Du", colorName: "forest", dailyTargetMinutes: 180, activeWeekdaysMask: Weekdays.all)
+        let client = Project(name: "Client X", colorName: "moss", dailyTargetMinutes: 120, activeWeekdaysMask: Weekdays.all)
         [deep, admin].forEach(context.insert)
         [dodu, client].forEach(context.insert)
 

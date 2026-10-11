@@ -36,6 +36,10 @@ struct RecapView: View {
             .pickerStyle(.segmented)
             .labelsHidden()
 
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+            .listRowInsets(EdgeInsets())
+
             Section("Numbers") {
                 let tracked = entries.tracked(in: elapsed, now: now)
                 LabeledContent("Tracked", value: tracked.hoursMinutes)
@@ -51,7 +55,12 @@ struct RecapView: View {
                     let t = p.tracked(in: elapsed, now: now)
                     if target > 0 || t > 0 {
                         LabeledContent { Text("\(t.hoursMinutes) / \(target.hoursMinutes)").monospacedDigit() }
-                            label: { Label { Text(p.name) } icon: { ColorDot(color: p.color) } }
+                            label: {
+                                HStack(spacing: 10) {
+                                    RoundedRectangle(cornerRadius: 3, style: .continuous).fill(p.color).frame(width: 10, height: 10)
+                                    Text(p.name)
+                                }
+                            }
                     }
                 }
                 let loose = entries.filter { $0.effectiveProject == nil }.tracked(in: elapsed, now: now)
@@ -59,11 +68,15 @@ struct RecapView: View {
                 LabeledContent("Tasks done", value: "\(tasks.filter { $0.completedAt.map(elapsed.contains) ?? false }.count)")
             }
 
+            .listRowBackground(DD.surface)
+            .font(.body)
+            .labeledContentStyle(DDValueStyle())
+
             Section("Recap") {
                 if let text = writeUps[span] {
                     Text(text).textSelection(.enabled)
                 }
-                if let error { Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(.orange) }
+                if let error { Label(error, systemImage: "exclamationmark.triangle").foregroundStyle(DD.danger) }
                 if loading {
                     ProgressView("Writing…")
                 } else {
@@ -72,8 +85,15 @@ struct RecapView: View {
                     }
                 }
             }
+            .listRowBackground(DD.surface)
         }
-        .navigationTitle("Recap")
+        .scrollContentBackground(.hidden)
+        .background(DD.page)
+        .tint(DD.sage)
+        #if !os(macOS)
+        .navigationTitle("Recap")   // Mac shows both side by side under "Assistant"
+        #endif
+        .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
         .onChange(of: span) { error = nil }
     }
 
@@ -136,5 +156,17 @@ enum RecapReminder {
             guard (try? await center.requestAuthorization(options: [.alert, .sound])) == true else { return }
             try? await center.add(UNNotificationRequest(identifier: id, content: content, trigger: trigger))
         }
+    }
+}
+
+/// Values in SF Rounded medium, Ink 3, tabular.
+struct DDValueStyle: LabeledContentStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.label.foregroundStyle(DD.ink)
+            Spacer()
+            configuration.content.font(.rounded(16, .medium)).monospacedDigit().foregroundStyle(DD.ink3)
+        }
+        .frame(minHeight: 32)
     }
 }

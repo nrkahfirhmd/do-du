@@ -10,44 +10,93 @@ import SwiftData
 
 @main
 struct Do_DuApp: App {
-    // Same instance Siri/Shortcuts intents use (App Group store, CloudKit sync).
-    let sharedModelContainer = SharedStore.shared
+    /// Same instance Siri/Shortcuts intents use (App Group store, CloudKit unless turned off).
+    /// Nil until onboarding finishes on a fresh install, so its iCloud choice decides how the store opens.
+    @State private var container: ModelContainer? = OnboardingGate.isNeeded ? nil : Do_DuApp.openStore()
+    #if os(macOS)
+    @AppStorage(MenuBarVisibility.key) private var showMenuBar = true
+    #endif
 
     init() {
-        LongRunAlert.register(container: sharedModelContainer)
-        TimerWidget.register(container: sharedModelContainer)
+        #if canImport(UIKit)
+        DD.applyAppearance()
+        #endif
+    }
+
+    /// Opens the shared store and starts the services that watch the timer.
+    private static func openStore() -> ModelContainer {
+        let container = SharedStore.shared
+        LongRunAlert.register(container: container)
+        TimerWidget.register(container: container)
         #if os(macOS)
-        IdleStop.register(container: sharedModelContainer)
+        IdleStop.register(container: container)
+        GlobalHotKey.register(container: container)
         #endif
         #if DEBUG
-        SampleData.seedIfRequested(sharedModelContainer.mainContext)
+        SampleData.seedIfRequested(container.mainContext)
         #endif
+        return container
+    }
+
+    /// Saves the answers (nil = iCloud already had data), then opens the store.
+    private func finishOnboarding(_ answers: OnboardingAnswers?) {
+        let defaults = UserDefaults.standard
+        if let answers {
+            defaults.set(answers.dayStart, forKey: DayMath.startHourKey)
+            defaults.set(answers.iCloud, forKey: SharedStore.iCloudKey)
+            if !answers.key.isBlank { _ = ClaudeKey.save(answers.key.trimmingCharacters(in: .whitespacesAndNewlines)) }
+        }
+        defaults.set(true, forKey: OnboardingGate.doneKey)
+        let opened = Self.openStore()
+        if let answers {
+            opened.mainContext.insert(Project(name: answers.trimmedName, colorName: answers.colorName,
+                                              dailyTargetMinutes: answers.targetMinutes,
+                                              activeWeekdaysMask: answers.weekdayMask))
+            try? opened.mainContext.save()
+            OnboardingGate.justFinished = true
+        }
+        container = opened
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if let container {
+                ContentView().modelContainer(container)
+            } else {
+                OnboardingView(onFinish: finishOnboarding)
+                    #if os(macOS)
+                    .toolbar(removing: .title)
+                    .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+                    #endif
+            }
         }
-        .modelContainer(sharedModelContainer)
+        .defaultSize(width: 1280, height: 800)
+        #if os(macOS)
+        .windowResizability(.contentSize)
+        #endif
         .commands {
             CommandMenu("Timer") {
-                Button("Stop Timer") { TimerService.stop(in: sharedModelContainer.mainContext) }
+                Button("Stop Timer") { if let container { TimerService.stop(in: container.mainContext) } }
                     .keyboardShortcut(".", modifiers: .command)
+                    .disabled(container == nil)
             }
         }
 
         #if os(macOS)
-        MenuBarExtra {
-            MenuBarPanel().modelContainer(sharedModelContainer)
+        MenuBarExtra(isInserted: Binding(get: { container != nil && showMenuBar }, set: { showMenuBar = $0 })) {
+            if let container { MenuBarPanel().modelContainer(container) }
         } label: {
-            MenuBarLabel().modelContainer(sharedModelContainer)
+            if let container { MenuBarLabel().modelContainer(container) }
         }
         .menuBarExtraStyle(.window)
 
         Settings {
-            SettingsView()
+            if let container {
+                MacSettingsView().modelContainer(container)
+            } else {
+                Text("Finish setting up Do-Du first.").padding(40)
+            }
         }
-        .modelContainer(sharedModelContainer)
         #endif
     }
 }

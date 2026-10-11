@@ -9,13 +9,21 @@ import SwiftUI
 import SwiftData
 
 struct AssistantView: View {
-    enum Mode: String, CaseIterable, Identifiable {
+    enum Mode: String, CaseIterable, Identifiable, Codable {
         case recap = "Recap", chat = "Chat"
         var id: Self { self }
     }
-    @State private var mode = Mode.recap
+    @AppStorage("assistantMode") private var mode = Mode.recap
 
     var body: some View {
+        #if os(macOS)
+        // Mac: Recap beside Chat.
+        HStack(spacing: 14) {
+            RecapView().frame(maxWidth: .infinity)
+            ChatView().frame(maxWidth: .infinity)
+        }
+        .background(DD.page)
+        #else
         Group {
             switch mode {
             case .recap: RecapView()
@@ -31,6 +39,7 @@ struct AssistantView: View {
                 .fixedSize()
             }
         }
+        #endif
     }
 }
 
@@ -53,35 +62,44 @@ struct ChatView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollViewReader { proxy in
-                List {
-                    if lines.isEmpty {
-                        Text("Ask about your time and tasks, e.g. \"How much deep work did I do last week?\" or \"Which days this month weren't enough?\"")
-                            .foregroundStyle(.secondary)
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        if lines.isEmpty {
+                            Text("Ask about your time and tasks, e.g. \"How much deep work did I do last week?\" or \"Which days this month weren't enough?\"")
+                                .font(.subheadline).foregroundStyle(DD.ink3)
+                                .padding(.horizontal, 16).padding(.top, 8)
+                        }
+                        ForEach(lines) { line in
+                            ChatBubble(text: line.text, fromUser: line.fromUser).id(line.id)
+                        }
+                        if busy { ProgressView().frame(maxWidth: .infinity) }
                     }
-                    ForEach(lines) { line in
-                        Text(line.text)
-                            .textSelection(.enabled)
-                            .frame(maxWidth: .infinity, alignment: line.fromUser ? .trailing : .leading)
-                            .foregroundStyle(line.fromUser ? Color.accentColor : .primary)
-                            .id(line.id)
-                    }
-                    if busy { ProgressView().frame(maxWidth: .infinity) }
+                    .padding(.horizontal, 16).padding(.vertical, 8)
                 }
+                .background(DD.page)
                 .onChange(of: lines.count) { if let last = lines.last { proxy.scrollTo(last.id) } }
             }
-            HStack {
+            HStack(alignment: .bottom, spacing: 8) {
                 TextField("Ask Do-Du…", text: $draft, axis: .vertical)
                     .lineLimit(1...4)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, 16).padding(.vertical, 11)
+                    .background(DD.surface, in: .dd(22))
                     .onSubmit(send)
-                Button("Send", systemImage: "arrow.up.circle.fill", action: send)
-                    .labelStyle(.iconOnly)
-                    .font(.title2)
-                    .disabled(draft.isBlank || busy)
+                Button(action: send) {
+                    Image(systemName: "arrow.up").font(.system(size: 17, weight: .bold)).foregroundStyle(.white)
+                        .frame(width: 44, height: 44)
+                        .background(draft.isBlank || busy ? DD.disabled : DD.forestFill, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Send")
+                .disabled(draft.isBlank || busy)
             }
-            .padding()
+            .padding(.horizontal, 16).padding(.vertical, 8)
+            .background(DD.page)
         }
-        .navigationTitle("Chat")
+        #if !os(macOS)
+        .navigationTitle("Chat")   // Mac shows both side by side under "Assistant"
+        #endif
         .toolbar {
             Button("New Chat", systemImage: "square.and.pencil") { lines = []; history = [] }
                 .disabled(lines.isEmpty || busy)
@@ -126,5 +144,22 @@ struct ChatView: View {
             "No project" time is tracked but does not count toward targets. \
             Answer briefly in plain text.
             """
+    }
+}
+
+/// User messages: forest with white text, right. Replies: surface, left.
+struct ChatBubble: View {
+    let text: String
+    let fromUser: Bool
+
+    var body: some View {
+        Text(text)
+            .textSelection(.enabled)
+            .font(.body)
+            .foregroundStyle(fromUser ? Color.white : DD.ink)
+            .padding(.horizontal, 14).padding(.vertical, 10)
+            .background(fromUser ? DD.forestFill : DD.surface, in: .dd(20))
+            .frame(maxWidth: 300, alignment: fromUser ? .trailing : .leading)
+            .frame(maxWidth: .infinity, alignment: fromUser ? .trailing : .leading)
     }
 }

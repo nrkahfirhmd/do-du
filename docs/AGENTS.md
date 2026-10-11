@@ -15,6 +15,7 @@
 | **Phase 1 — Core loop** (DD-01…14) | Done | Projects, categories, tasks, timer + quick timer, manual entries, long-run warning, Today verdict, Stats, Mac menu bar, iPhone, CloudKit sync | `checks/run.sh`; iPhone simulator | iCloud container in Xcode; cross-device sync test ([sync-test-plan.md](sync-test-plan.md)) |
 | **Phase 2 — AI assistant** (DD-20…30) | Done | Quick Add (on-device), Recap, Plan my day, Chat, day-start hour, CSV export, Pomodoro, widgets + Live Activity, Mac idle/sleep stop | Quick Add live in simulator; Claude paths offline + no-key UI | Claude features with your API key; widget + Live Activity on device |
 | **Phase 3 — Integrations** (DD-31…34) | Done | Notion import, Apple Calendar (read-only), Siri/Shortcuts, Reminders import | Parsing/mapping in `checks/run.sh`; Reminders permission + sheet in simulator | Live Notion import; Calendar access; Siri phrases; real reminders |
+| **Phase 4 — Redesign** (DD-40…52, [tickets](phase-4-tickets.md)) | Done on `feat/redesign` (DD-40…52) | Design tokens + light/dark, timer-first Today, tab bar + timer accessory, restyled tabs and sheets, Mac window + menu-bar panel, ⌘⇧T hotkey, widgets (Today S/M/L, Timer, Lock Screen), Live Activity + Dynamic Island, app icon, motion + haptics, onboarding, Mac Settings window, Mac sheets + Quick Add panel (⌥⌘K), Mac Tasks table | iPhone simulator light/dark; medium widget toggle; Dynamic Island compact/expanded; Lock Screen banner; Mac window (test build) | ⌘⇧T press; menu-bar panel look; small/large/Lock Screen widgets; Live Activity Stop on device; haptics feel on device; onboarding skip with real iCloud data |
 
 **Known limits:** Notion is one-way (Notion wins); Calendar shows one calendar, read-only; Chat is read-only; widgets need the App Group (signed builds).
 
@@ -26,6 +27,17 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-11 | Mac Quick Add saves on Return: the live "Do-Du will add" preview is the confirmation (typed syntax first, Foundation Models fill gaps; never a guessed project) | Handoff flow; the user sees every field before adding, so the "AI never writes silently" rule holds |
+| 2026-10-11 | Mac idle stop is always on (5–60 min, default 10); stopping on sleep or lock has its own switch | Handoff Settings design; forgotten timers stay the main data risk, so only the sleep stop can be turned off |
+| 2026-10-11 | Mac Quick Add: ⌘K inside the app plus a **global ⌥⌘K**; no Settings button in the menu-bar panel (app menu ⌘, only) | A global ⌘K would take the key from Slack, browsers and editors; owner wants no extra Settings buttons on Mac |
+| 2026-10-11 | Onboarding's iCloud switch is a **real opt-out**: off opens the store without CloudKit; changing it later applies after relaunch | Owner's choice; a store's CloudKit mode is fixed when the container opens |
+| 2026-10-11 | Mac global hotkey **⌘⇧T** toggles the timer from any app (Carbon `RegisterEventHotKey`), on by default with a Settings switch; Shortcuts actions stay | Owner asked for a real hotkey plus Shortcuts. Note: it takes ⌘⇧T from other apps (e.g. browsers' "Reopen closed tab") while on |
+| 2026-10-11 | Widget and Live Activity start/stop open the app via `dodu://timer/toggle` (option A); the small Timer widget toggles on any tap | Widget processes never write to the store, so there is one writer and no CloudKit conflict from extensions. Cost: the app comes to the front |
+| 2026-10-11 | Haptics only at timer start/stop/switch, project met, task done and AI errors; timer haptics hang off the running entry at the root (`TimerSync`) | One place catches every start path (buttons, widget, hotkey, Siri, sync). Few haptics keep "project met" meaningful |
+| 2026-10-11 | iPhone keeps the **native** Liquid Glass tab bar (tinted forest) and shows the running timer in the native `tabViewBottomAccessory` | Handoff prefers native controls; the system bar can't take a solid forest selection capsule |
+| 2026-10-11 | **Redesign** (handoff in `docs/design_handoff_dodu_app/`, git-ignored): timer-first Today, forest/sage/mint palette, SF Rounded numbers. Tokens live in `DesignSystem.swift` (`DD`); shared views in `DesignComponents.swift` | High-fidelity handoff; one source for tokens |
+| 2026-10-11 | **Dark mode** adapted from the light tokens: brand hues kept, neutrals inverted, text on mint always forest (`DD.onMint`); forest splits into `DD.forest` (ink) and `DD.forestFill` (surfaces) | Handoff defines light only |
+| 2026-10-11 | Project colours are six named swatches (`forest`, `sage`, `moss`, `seafoam`, `pine`, `slate`); old names map via `Palette.canonical` | New palette without a data migration |
 | 2026-10-10 | Reminders import maps each **list name → project** (case-insensitive, never auto-created); links by `calendarItemExternalIdentifier` | Lists are how people already group reminders; external ID keeps one link across devices |
 | 2026-10-10 | All imports share one `TaskSource` path: finished items aren't offered as new; linked tasks refresh title/done/due on every import | Same rules everywhere; fixed linked rows never refreshing |
 | 2026-10-10 | Usage strings set as `INFOPLIST_KEY_*` build settings, using **full-access** keys (`NSCalendarsFullAccessUsageDescription`, `NSRemindersFullAccessUsageDescription`) | `requestFullAccessTo…` needs them; one place for both platforms |
@@ -59,9 +71,11 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 - **Data store:** always use `SharedStore.shared` (App Group store, CloudKit). Never create another `ModelContainer` in the app process; the widget opens the store read-only in its own process.
 - **Self-checks:** `checks/run.sh` compiles the pure/core files listed in it with `checks/main.swift` and runs assertions. Add a check for new logic and add new core files to the list. No XCTest target.
 - **Integrations** plug in as a `TaskSource` (`TaskSource.swift`) and import through `ExternalImportSheet<Source>`; don't touch core models for a new source.
+- **Visuals:** use `DD` tokens and `DesignComponents` views; never hard-code colours. Text on mint uses `DD.onMint`. Check light and dark.
 - **Privacy strings:** add `INFOPLIST_KEY_*` build settings on the `Do-Du` target (both configs), not per-platform plist files.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
+- **Onboarding:** the store opens only after onboarding on a fresh install (`OnboardingGate`); don't touch `SharedStore.shared` before `Do_DuApp` opens it. Widgets never create the store. DEBUG: `-forceOnboarding YES -onboardingStep N` shows a step.
 - **Claude calls** go through `ClaudeClient` (raw HTTPS; no Swift SDK). Keep each feature's system prompt stable (it's cached) and put changing data in the user message. Echo assistant `content` back unchanged in tool loops. Send Claude an `AISnapshot` or tool results, never raw store dumps.
 - **Day boundaries:** always use `DayMath.day` / `logicalDate` / `period` (they honour the "day starts at" setting); never `Calendar.startOfDay` for stats.
 - **Sync:** SwiftData + CloudKit (private database). No custom backend.
@@ -69,7 +83,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 - Models: `Project`, `Category`, `TaskItem`, `TimeEntry` in `Models.swift`. Model is `TaskItem`, not `Task`, to avoid clashing with Swift concurrency `Task`. Keep them CloudKit-compatible (defaults on every property, optional relationships, no `.unique`).
 - Secrets (API keys, OAuth tokens) go in Keychain, never in SwiftData or source.
 - **AI (hybrid):** Apple Foundation Models (on-device) for natural-language task input (R7). Claude API (`claude-opus-5-5`, Anthropic's default model; one constant in `ClaudeClient`) for plan, recap, chat (R8–R10). User's Claude API key stored in Keychain.
-- **Tickets:** [phase-1](phase-1-tickets.md), [phase-2](phase-2-tickets.md), [phase-3](phase-3-tickets.md). Tick checkboxes as work lands; ticket files are the source of truth for status (the requirement checkboxes in this spec are scope, not status).
+- **Tickets:** [phase-1](phase-1-tickets.md), [phase-2](phase-2-tickets.md), [phase-3](phase-3-tickets.md), [phase-4 redesign](phase-4-tickets.md). Tick checkboxes as work lands; ticket files are the source of truth for status (the requirement checkboxes in this spec are scope, not status).
 
 ### Commit Guide
 

@@ -9,29 +9,77 @@ import SwiftUI
 import SwiftData
 import CoreData
 
+enum AppTab: Hashable { case today, tasks, assistant, stats, projects }
+
 struct ContentView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
+    @Query(filter: #Predicate<TimeEntry> { $0.end == nil }, sort: \TimeEntry.start, order: .reverse)
+    private var running: [TimeEntry]
+    @State private var tab = AppTab.today
+    @AppStorage("assistantMode") private var assistantMode = AssistantView.Mode.recap
 
     var body: some View {
-        TabView {
-            Tab("Today", systemImage: "sun.max") {
-                NavigationStack { TodayView() }
+        #if os(macOS)
+        MacRootView().modifier(TimerSync())
+        #else
+        TabView(selection: $tab) {
+            Tab("Today", systemImage: "sun.max", value: AppTab.today) {
+                NavigationStack { TodayView() }.tint(DD.sage)
             }
-            Tab("Tasks", systemImage: "checklist") {
-                NavigationStack { TasksView() }
+            Tab("Tasks", systemImage: "checklist", value: AppTab.tasks) {
+                NavigationStack { TasksView() }.tint(DD.sage)
             }
-            Tab("Assistant", systemImage: "sparkles") {
-                NavigationStack { AssistantView() }
+            Tab("Assistant", systemImage: "sparkles", value: AppTab.assistant) {
+                NavigationStack { AssistantView() }.tint(DD.sage)
             }
-            Tab("Stats", systemImage: "chart.bar") {
-                NavigationStack { StatsView() }
+            Tab("Stats", systemImage: "chart.bar", value: AppTab.stats) {
+                NavigationStack { StatsView() }.tint(DD.sage)
             }
-            Tab("Projects", systemImage: "folder") {
-                NavigationStack { ProjectsView() }
+            Tab("Projects", systemImage: "folder", value: AppTab.projects) {
+                NavigationStack { ProjectsView() }.tint(DD.sage)
             }
         }
         .tabViewStyle(.sidebarAdaptable)
+        // Selected tab in forest; content keeps sage links.
+        .tint(DD.forest)
+        #if os(iOS)
+        // Running timer stays visible and stoppable on every tab except Today.
+        // Hidden in Chat too, where the message field needs the space.
+        .tabViewBottomAccessory(isEnabled: running.first != nil && tab != .today
+                                && !(tab == .assistant && assistantMode == .chat)) {
+            if let entry = running.first {
+                TimerAccessory(entry: entry) { tab = .today }
+            }
+        }
+        #endif
+        .modifier(TimerSync())
+        .onOpenURL { url in
+            // Widgets open the app instead of writing data themselves.
+            if url.host() == "timer" && url.path() == "/toggle" { TimerService.toggleQuick(in: context) }
+            tab = .today
+        }
+        #endif
+    }
+}
+
+/// Resolves duplicate running timers and reschedules the long-run alert on activation
+/// and when CloudKit imports land.
+struct TimerSync: ViewModifier {
+    @Environment(\.modelContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
+    @Query(filter: #Predicate<TimeEntry> { $0.end == nil }) private var running: [TimeEntry]
+
+    func body(content: Content) -> some View {
+        content
+        .sensoryFeedback(trigger: running.first?.persistentModelID) { old, new in
+            switch (old, new) {
+            case (nil, .some): .start
+            case (.some, nil): .stop
+            case (.some, .some): .impact(weight: .light)   // switched session
+            case (nil, nil): nil
+            }
+        }
         .onChange(of: scenePhase, initial: true) {
             guard scenePhase == .active else { return }
             TimerService.resolveConflicts(in: context)
@@ -48,5 +96,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: allModels, inMemory: true)
+        .modelContainer(SharedStore.preview)
 }

@@ -114,20 +114,33 @@ final class TimeEntry {
     func duration(now: Date = .now) -> TimeInterval { (end ?? now).timeIntervalSince(start) }
 }
 
+/// Project colours from the redesign. Older names (blue, green, …) still resolve,
+/// so existing projects keep a colour without a data migration.
 enum Palette {
-    static let names = ["blue", "green", "orange", "red", "purple", "pink", "teal", "yellow", "gray"]
+    static let names = ["forest", "sage", "moss", "seafoam", "pine", "slate"]
+
+    /// Old free-colour names mapped onto the redesign swatches.
+    static func canonical(_ name: String) -> String {
+        if names.contains(name) { return name }
+        switch name {
+        case "green": return "sage"
+        case "teal": return "moss"
+        case "yellow", "pink": return "seafoam"
+        case "orange", "red": return "pine"
+        case "purple", "gray": return "slate"
+        default: return "forest"   // "blue" and anything unknown
+        }
+    }
 
     static func color(_ name: String) -> Color {
-        switch name {
-        case "green": .green
-        case "orange": .orange
-        case "red": .red
-        case "purple": .purple
-        case "pink": .pink
-        case "teal": .teal
-        case "yellow": .yellow
-        case "gray": .gray
-        default: .blue
+        switch canonical(name) {
+        // Forest swatch lightens in dark mode so it stays visible on dark surfaces.
+        case "sage": Color.dynamic(light: Color(hex: 0x428475), dark: Color(hex: 0x6FB3A0))
+        case "moss": Color(hex: 0x5E9C8C)
+        case "seafoam": Color(hex: 0x9CC4B6)
+        case "pine": Color.dynamic(light: Color(hex: 0x2F6B5D), dark: Color(hex: 0x4E9282))
+        case "slate": Color(hex: 0x8B93A7)
+        default: Color.dynamic(light: Color(hex: 0x1A312C), dark: Color(hex: 0xD7E8E1))
         }
     }
 }

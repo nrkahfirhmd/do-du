@@ -448,6 +448,81 @@ func checkRemindersImport() throws {
     print("✓ reminders import")
 }
 
+func checkDesignFoundation() throws {
+    // Palette: old names land on redesign swatches; new names pass through.
+    precondition(Palette.canonical("blue") == "forest" && Palette.canonical("green") == "sage", "old names")
+    precondition(Palette.canonical("orange") == "pine" && Palette.canonical("purple") == "slate", "old names 2")
+    precondition(Palette.names.allSatisfy { Palette.canonical($0) == $0 }, "new names stable")
+    precondition(Palette.canonical("nonsense") == "forest", "unknown → forest")
+
+    // Session strip: 4h window ending at the next full hour.
+    var cal = Calendar(identifier: .gregorian)
+    cal.timeZone = TimeZone(identifier: "UTC")!
+    let iso = ISO8601DateFormatter()
+    func d(_ s: String) -> Date { iso.date(from: s)! }
+    let now = d("2026-10-12T09:30:00Z")
+    let w = SessionTimeline.window(now: now, calendar: cal)
+    precondition(w.start == d("2026-10-12T06:00:00Z") && w.end == d("2026-10-12T10:00:00Z"), "window")
+    precondition(SessionTimeline.labels(for: w, calendar: cal) == ["6:00", "7:00", "8:00", "9:00", "10:00"], "labels")
+    precondition(SessionTimeline.nowFraction(now, window: w) == 0.875, "now line")
+    let blocks = SessionTimeline.blocks([
+        (d("2026-10-12T05:00:00Z"), d("2026-10-12T07:00:00Z"), "A"),   // clipped at window start
+        (d("2026-10-12T08:00:00Z"), d("2026-10-12T08:30:00Z"), nil),   // No project
+        (d("2026-10-12T09:00:00Z"), nil, "B"),                         // live, ends at now
+        (d("2026-10-12T03:00:00Z"), d("2026-10-12T04:00:00Z"), "A"),   // outside → dropped
+    ], window: w, now: now, projectOrder: ["A", "B"])
+    precondition(blocks == [
+        SessionBlock(start: 0, end: 0.25, projectRank: 0, isLive: false),
+        SessionBlock(start: 0.5, end: 0.625, projectRank: nil, isLive: false),
+        SessionBlock(start: 0.75, end: 0.875, projectRank: 1, isLive: true),
+    ], "blocks")
+    print("✓ design palette + session strip")
+}
+
+func checkOnboarding() throws {
+    var a = OnboardingAnswers()
+    precondition(!a.canContinue(.project) && a.canContinue(.welcome), "project needs a name")
+    a.name = "  Thesis "
+    precondition(a.canContinue(.project) && a.projectName == "Thesis", "trimmed name")
+    precondition(a.weekdayMask == Weekdays.all && a.daysLabel == "Every day", "every day")
+    a.days = OnboardingAnswers.presets[1].days
+    precondition(a.weekdayMask == Weekdays.monToFri && a.daysLabel == "Weekdays", "weekdays mask")
+    precondition(a.weekNote == "5 days · 15h a week", "week note")
+    // Sunday (weekday 1) is a rest day on weekdays; next target Monday.
+    precondition(a.isRestDay(weekday: 1) && !a.isRestDay(weekday: 2), "rest day")
+    precondition(a.verdict(weekday: 1) == ("Today is a ", "rest day", ". Your first target starts Monday."), "rest verdict")
+    precondition(a.verdict(weekday: 3) == ("You need ", "3h", " to call it a day."), "verdict")
+    a.days = [Bool](repeating: false, count: 7)
+    precondition(!a.canContinue(.days) && a.weekNote == "Pick at least one day.", "no days")
+    a.days[6] = true   // Sunday only
+    precondition(a.weekdayMask == 1 && a.daysLabel == "Sun", "sunday bit 0")
+    a.stepTarget(by: -1000); precondition(a.targetMinutes == 15, "min target")
+    a.stepTarget(by: 1000); precondition(a.targetMinutes == 720, "max target")
+    precondition(OnboardingAnswers.hm(135) == "2h 15m" && OnboardingAnswers.hm(45) == "45m", "hm")
+    print("✓ onboarding rules")
+}
+
+func checkQuickAddSyntax() throws {
+    let projects = ["Do-Du", "Client X", "Client"], cats = ["Admin", "Deep Work"]
+    // Sunday = weekday 1.
+    let a = QuickAddSyntax.read("Invoice Client X tomorrow ~30m #admin", projects: projects, categories: cats, weekday: 1)
+    precondition(a == QuickAddSyntax(title: "Invoice Client X", projectName: "Client X", categoryName: "Admin",
+                                     dueInDays: 1, estimateMinutes: 30), "full sentence: \(a)")
+    let b = QuickAddSyntax.read("Review designs on Friday ~1h30 #deep", projects: projects, categories: cats, weekday: 1)
+    precondition(b.dueInDays == 5 && b.estimateMinutes == 90 && b.categoryName == "Deep Work" && b.title == "Review designs", "weekday: \(b)")
+    let c = QuickAddSyntax.read("Ship do-du build today ~2h", projects: projects, categories: cats, weekday: 4)
+    precondition(c.projectName == "Do-Du" && c.dueInDays == 0 && c.estimateMinutes == 120, "case-insensitive project: \(c)")
+    let d = QuickAddSyntax.read("Call mom", projects: projects, categories: cats, weekday: 4)
+    precondition(d == QuickAddSyntax(title: "Call mom", projectName: nil, categoryName: nil, dueInDays: nil, estimateMinutes: nil), "plain")
+    let e = QuickAddSyntax.read("Monday standup #unknown", projects: projects, categories: cats, weekday: 2)
+    precondition(e.dueInDays == 0 && e.categoryName == nil && e.title == "standup", "same weekday = today; unknown tag dropped")
+    let f = QuickAddSyntax.read("Clientele call", projects: projects, categories: cats, weekday: 2)
+    precondition(f.projectName == nil, "no partial-word project match")
+    print("✓ quick add syntax")
+}
+
+
+
 try checkModelRoundTrip()
 try checkDayMath()
 try checkTimer()
@@ -465,4 +540,7 @@ try checkNotion()
 try checkMeetings()
 try checkIntents()
 try checkRemindersImport()
+try checkDesignFoundation()
+try checkOnboarding()
+try checkQuickAddSyntax()
 print("All checks passed")

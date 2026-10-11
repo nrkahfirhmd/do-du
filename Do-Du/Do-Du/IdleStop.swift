@@ -10,13 +10,13 @@ import Foundation
 import SwiftData
 
 enum IdleStop {
-    static let enabledKey = "idleStopOn"
+    static let sleepStopKey = "sleepStopOn"
     static let minutesKey = "idleStopMinutes"
     static let defaultMinutes = 10
     static let pollInterval: TimeInterval = 60
 
-    static var isEnabled: Bool {
-        UserDefaults.standard.object(forKey: enabledKey) as? Bool ?? true
+    static var stopsOnSleep: Bool {
+        UserDefaults.standard.object(forKey: sleepStopKey) as? Bool ?? true
     }
 
     static var threshold: TimeInterval {
@@ -62,14 +62,13 @@ extension IdleStop {
     }
 
     @MainActor private static func stopForSleep() {
-        guard let container, TimerService.current(in: container.mainContext) != nil else { return }
+        guard stopsOnSleep, let container, TimerService.current(in: container.mainContext) != nil else { return }
         TimerService.stop(in: container.mainContext, at: .now)
         notify(body: "Mac went to sleep, so the running timer was stopped.")
     }
 
     @MainActor private static func checkIdle(now: Date = .now) {
-        guard isEnabled,
-              let container,
+        guard let container,
               let running = TimerService.current(in: container.mainContext) else { return }
         let idle = idleSeconds()
         guard let stopAt = stopDate(now: now, idleSeconds: idle, thresholdSeconds: threshold),

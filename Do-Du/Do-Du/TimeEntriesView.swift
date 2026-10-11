@@ -16,32 +16,36 @@ struct TimeEntriesView: View {
     var body: some View {
         NavigationStack {
             List {
-                let entries = (task.entries ?? []).sorted { $0.start > $1.start }
-                if entries.isEmpty {
-                    Text("No time tracked yet.").foregroundStyle(.secondary)
-                }
-                ForEach(entries) { entry in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(entry.start.formatted(date: .abbreviated, time: .omitted))
-                            Text(range(entry)).font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        if entry.isRunning {
-                            ElapsedText(start: entry.start).foregroundStyle(.red)
-                        } else {
-                            Text(entry.duration().hoursMinutes).monospacedDigit()
-                        }
+                Group {
+                    let entries = (task.entries ?? []).sorted { $0.start > $1.start }
+                    if entries.isEmpty {
+                        Text("No time tracked yet.").foregroundStyle(.secondary)
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture { editing = entry }
-                    .contextMenu {
-                        Button("Edit") { editing = entry }
-                        Button("Delete", role: .destructive) { context.delete(entry) }
+                    ForEach(entries) { entry in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(entry.start.formatted(date: .abbreviated, time: .omitted))
+                                Text(range(entry)).font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            if entry.isRunning {
+                                ElapsedText(start: entry.start).foregroundStyle(.red)
+                            } else {
+                                Text(entry.duration().hoursMinutes).monospacedDigit()
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { editing = entry }
+                        .contextMenu {
+                            Button("Edit") { editing = entry }
+                            Button("Delete", role: .destructive) { context.delete(entry) }
+                        }
+                        .swipeActions { Button("Delete", role: .destructive) { context.delete(entry) } }
                     }
-                    .swipeActions { Button("Delete", role: .destructive) { context.delete(entry) } }
-                }
+                            }
+                .ddRows()
             }
+            .ddForm()
             .navigationTitle(task.title)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
@@ -129,30 +133,34 @@ struct UnassignedEntriesView: View {
     var body: some View {
         NavigationStack {
             List {
-                if entries.isEmpty { Text("All time is assigned.").foregroundStyle(.secondary) }
-                ForEach(entries) { entry in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(entry.start.formatted(date: .abbreviated, time: .shortened))
-                            ProjectAssignMenu(entry: entry)
+                Group {
+                    if entries.isEmpty { Text("All time is assigned.").foregroundStyle(.secondary) }
+                    ForEach(entries) { entry in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(entry.start.formatted(date: .abbreviated, time: .shortened))
+                                ProjectAssignMenu(entry: entry)
+                            }
+                            Spacer()
+                            if entry.isRunning {
+                                ElapsedText(start: entry.start).foregroundStyle(.red)
+                            } else {
+                                Text(entry.duration().hoursMinutes).monospacedDigit()
+                            }
                         }
-                        Spacer()
-                        if entry.isRunning {
-                            ElapsedText(start: entry.start).foregroundStyle(.red)
-                        } else {
-                            Text(entry.duration().hoursMinutes).monospacedDigit()
+                        .contextMenu {
+                            Button("Edit Time") { editing = entry }
+                            Button("Delete", role: .destructive) { context.delete(entry) }
+                        }
+                        .swipeActions {
+                            Button("Delete", role: .destructive) { context.delete(entry) }
+                            Button("Edit") { editing = entry }
                         }
                     }
-                    .contextMenu {
-                        Button("Edit Time") { editing = entry }
-                        Button("Delete", role: .destructive) { context.delete(entry) }
-                    }
-                    .swipeActions {
-                        Button("Delete", role: .destructive) { context.delete(entry) }
-                        Button("Edit") { editing = entry }
-                    }
-                }
+                            }
+                .ddRows()
             }
+            .ddForm()
             .navigationTitle("No Project")
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
             .sheet(item: $editing) { EntryEditor(task: nil, entry: $0) }

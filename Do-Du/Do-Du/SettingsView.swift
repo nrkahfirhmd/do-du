@@ -14,65 +14,73 @@ struct SettingsView: View {
     @AppStorage(RecapReminder.minutesKey) private var recapMinutes = 18 * 60
     @AppStorage(Pomodoro.enabledKey) private var pomodoroOn = false
     @AppStorage(Pomodoro.minutesKey) private var pomodoroMinutes = 25
-    @AppStorage(IdleStop.enabledKey) private var idleStopOn = true
-    @AppStorage(IdleStop.minutesKey) private var idleStopMinutes = IdleStop.defaultMinutes
+    @AppStorage(Pomodoro.breakKey) private var breakMinutes = 5
+    @AppStorage(SharedStore.iCloudKey) private var iCloudOn = true
     @Query private var entries: [TimeEntry]
     @State private var export: CSVDocument?
 
     var body: some View {
         Form {
-            Section("Timer") {
-                Picker("Day starts at", selection: $dayStartHour) {
-                    ForEach(0...6, id: \.self) { Text(String(format: "%d:00", $0)).tag($0) }
+            Group {
+                Section("Timer") {
+                    Picker("Day starts at", selection: $dayStartHour) {
+                        ForEach(0...6, id: \.self) { Text(String(format: "%d:00", $0)).tag($0) }
+                    }
+                    Toggle("Pomodoro break reminder", isOn: $pomodoroOn)
+                    if pomodoroOn {
+                        Stepper("Focus \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
+                        Stepper("Break \(breakMinutes) min", value: $breakMinutes, in: 1...30)
+                    }
+                    Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
+                            value: $longRunHours, in: 0.5...12, step: 0.5)
                 }
-                Toggle("Pomodoro break reminder", isOn: $pomodoroOn)
-                if pomodoroOn {
-                    Stepper("Break after \(pomodoroMinutes) min", value: $pomodoroMinutes, in: 10...90, step: 5)
+                Section("Recap") {
+                    Toggle("Daily recap reminder", isOn: $recapOn)
+                    if recapOn {
+                        DatePicker("Remind at", selection: Binding(
+                            get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
+                            set: { recapMinutes = Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0) }),
+                                   displayedComponents: .hourAndMinute)
+                    }
                 }
-                Stepper("Warn after \(TimeInterval(longRunHours * 3600).hoursMinutes) running",
-                        value: $longRunHours, in: 0.5...12, step: 0.5)
-                #if os(macOS)
-                Toggle("Stop timer when Mac sleeps or is idle", isOn: $idleStopOn)
-                if idleStopOn {
-                    Stepper("Stop after \(idleStopMinutes) min idle",
-                            value: $idleStopMinutes, in: 2...120, step: 5)
+                .onChange(of: recapOn) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
+                .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
+                CategoriesSection()
+                ClaudeKeySection()
+                NotionSettingsSection()
+                RemindersSettingsSection()
+                CalendarSettingsSection()
+                Section {
+                    Toggle("Sync with iCloud", isOn: $iCloudOn)
+                    if iCloudOn == SharedStore.iCloudOnAtLaunch { ICloudStatus() }
+                } header: {
+                    Text("Sync")
+                } footer: {
+                    if iCloudOn != SharedStore.iCloudOnAtLaunch {
+                        Text(iCloudOn ? "Sync starts next time you open Do-Du." : "Sync stops next time you open Do-Du. Data already in iCloud stays there.")
+                    }
                 }
-                #endif
+                Section("Data") {
+                    Button("Export Time Entries (CSV)…", systemImage: "square.and.arrow.up") {
+                        export = CSVDocument(text: TimeEntryCSV.make(entries))
+                    }
+                    .disabled(entries.isEmpty)
+                }
             }
-            Section("Recap") {
-                Toggle("Daily recap reminder", isOn: $recapOn)
-                if recapOn {
-                    DatePicker("Remind at", selection: Binding(
-                        get: { Calendar.current.startOfDay(for: .now).addingTimeInterval(Double(recapMinutes) * 60) },
-                        set: { recapMinutes = Calendar.current.component(.hour, from: $0) * 60 + Calendar.current.component(.minute, from: $0) }),
-                               displayedComponents: .hourAndMinute)
-                }
-            }
-            .onChange(of: recapOn) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
-            .onChange(of: recapMinutes) { RecapReminder.apply(enabled: recapOn, minutesAfterMidnight: recapMinutes) }
-            CategoriesSection()
-            ClaudeKeySection()
-            NotionSettingsSection()
-            RemindersSettingsSection()
-            CalendarSettingsSection()
-            Section("Sync") {
-                ICloudStatus()
-            }
-            Section("Data") {
-                Button("Export Time Entries (CSV)…", systemImage: "square.and.arrow.up") {
-                    export = CSVDocument(text: TimeEntryCSV.make(entries))
-                }
-                .disabled(entries.isEmpty)
-            }
+            .ddRows()
         }
-        .formStyle(.grouped)
+        .ddForm()
         .navigationTitle("Settings")
-        .fileExporter(isPresented: .init(get: { export != nil }, set: { if !$0 { export = nil } }),
-                      document: export, contentType: .commaSeparatedText,
-                      defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))") { _ in }
-        #if os(macOS)
-        .frame(width: 460, height: 420)
-        #endif
+        .csvExport($export)
+    }
+}
+
+extension View {
+    /// Save-panel for the time-entries CSV; `document` non-nil opens it.
+    func csvExport(_ document: Binding<CSVDocument?>) -> some View {
+        fileExporter(isPresented: .init(get: { document.wrappedValue != nil }, set: { if !$0 { document.wrappedValue = nil } }),
+                     document: document.wrappedValue, contentType: .commaSeparatedText,
+                     defaultFilename: "Do-Du time entries \(Date.now.formatted(.iso8601.year().month().day()))") { _ in }
     }
 }
 
@@ -131,7 +139,9 @@ struct CategoryEditor: View {
 /// iCloud account state. Data always saves locally; it syncs once signed in.
 struct ICloudStatus: View {
     var body: some View {
-        if FileManager.default.ubiquityIdentityToken != nil {
+        if !SharedStore.iCloudOnAtLaunch {
+            Label("iCloud sync off. Data stays on this device.", systemImage: "icloud.slash")
+        } else if FileManager.default.ubiquityIdentityToken != nil {
             Label("iCloud sync on", systemImage: "checkmark.icloud")
         } else {
             Label {
