@@ -91,6 +91,7 @@ struct RecapView: View {
         .background(DD.page)
         .tint(DD.sage)
         .navigationTitle("Recap")
+        .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
         .onChange(of: span) { error = nil }
     }
 

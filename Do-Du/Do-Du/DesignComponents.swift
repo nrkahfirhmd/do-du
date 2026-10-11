@@ -99,7 +99,7 @@ struct StatTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label).font(.subheadline.weight(.semibold)).foregroundStyle(labelColor)
-            Text(value).font(.ddStatLG).tracking(-0.6).monospacedDigit()
+            Text(value).font(.ddStatLG).tracking(-0.6).monospacedDigit().contentTransition(.numericText())
                 .foregroundStyle(valueColor).lineLimit(1).minimumScaleFactor(0.6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

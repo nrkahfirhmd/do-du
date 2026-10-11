@@ -47,3 +47,18 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days. Verify each screen
 
 ## DD-47 · Live Activity + Dynamic Island — M
 - [x] Banner, compact, minimal, expanded per handoff.
+
+## DD-48 · Motion + haptics — S
+- [x] Motion per handoff table (no bounce; Reduce Motion stops ring and pulse). Added: Stats bars, tiles and trend animate over 0.6s when the period changes; stat numbers roll (`numericText`).
+- [x] Haptics (`sensoryFeedback`, respects the system haptics switch; no-op on Mac without a Force Touch trackpad):
+
+  | Moment | Feedback |
+  |---|---|
+  | Timer starts | `.start` |
+  | Timer stops | `.stop` |
+  | Session switched | light impact |
+  | Project reaches its target | `.success` |
+  | Task marked done | light impact |
+  | Plan / Recap fails | `.error` |
+
+  Nothing else buzzes: no haptics on scrolling, tab changes, sheet accept or undone tasks.

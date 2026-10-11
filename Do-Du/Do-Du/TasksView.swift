@@ -138,6 +138,7 @@ struct TaskRow: View {
                 }
                 .frame(width: 24, height: 24)
                 .frame(width: 44, height: 44)
+                .sensoryFeedback(.impact(weight: .light), trigger: task.isDone) { _, done in done }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)

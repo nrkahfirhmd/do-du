@@ -89,6 +89,7 @@ struct StatsView: View {
         }
         .scrollContentBackground(.hidden)
         .background(DD.page)
+        .animation(DD.fillChange, value: range)
         .navigationTitle("Stats")
     }
 

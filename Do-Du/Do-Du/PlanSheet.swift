@@ -55,6 +55,7 @@ struct PlanSheet: View {
             }
             .ddForm()
             .navigationTitle("Plan My Day")
+            .sensoryFeedback(.error, trigger: error) { _, new in new != nil }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Discard") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {

@@ -68,9 +68,18 @@ struct ContentView: View {
 struct TimerSync: ViewModifier {
     @Environment(\.modelContext) private var context
     @Environment(\.scenePhase) private var scenePhase
+    @Query(filter: #Predicate<TimeEntry> { $0.end == nil }) private var running: [TimeEntry]
 
     func body(content: Content) -> some View {
         content
+        .sensoryFeedback(trigger: running.first?.persistentModelID) { old, new in
+            switch (old, new) {
+            case (nil, .some): .start
+            case (.some, nil): .stop
+            case (.some, .some): .impact(weight: .light)   // switched session
+            case (nil, nil): nil
+            }
+        }
         .onChange(of: scenePhase, initial: true) {
             guard scenePhase == .active else { return }
             TimerService.resolveConflicts(in: context)
