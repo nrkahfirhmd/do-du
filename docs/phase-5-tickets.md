@@ -14,16 +14,17 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [ ] Owner: deploy the CloudKit schema to Production and run TestFlight builds on both devices.
 
 ## DD-61 · Tasks empty state (Mac) — S
-- [ ] Content fills the window; the empty state sits in the page, not over a narrow column.
+- [x] Content fills the window; the empty state sits in the page, not over a narrow column.
 
 ## DD-62 · Chat input field — S
-- [ ] "Ask Do-Du" field is one pill (no inner border); send button lines up with it.
+- [x] "Ask Do-Du" field is one pill (no inner border); send button lines up with it.
 
 ## DD-63 · Timer card project chip — S
-- [ ] Project chip sits flush right in the card header.
+- [x] Project chip sits flush right in the card header.
 
 ## DD-64 · Dismiss keyboard on iPhone — S
-- [ ] Chat and editor sheets dismiss the keyboard on scroll and with a Done button.
+- [x] Forms and sheets: keyboard hides on scroll and with a keyboard Done button.
+- [x] Chat: tapping the thread hides the keyboard (the keyboard toolbar doesn't show under the tab bar).
 
 ## DD-65 · Styled due date picker — M
 - [ ] Due date chip with quick picks (Today, Tomorrow, Next week, Clear) and an app-tinted calendar.

@@ -272,14 +272,6 @@ struct MintSwitch: ToggleStyle {
 }
 
 extension View {
-    func ddForm() -> some View {
-        self.formStyle(.grouped)
-            .scrollContentBackground(.hidden)
-            .background(DD.page)
-            .tint(DD.sage)
-            .toggleStyle(MintSwitch())
-    }
-
     func ddRows() -> some View { listRowBackground(DD.surface) }
 
     func ddPrimary() -> some View {

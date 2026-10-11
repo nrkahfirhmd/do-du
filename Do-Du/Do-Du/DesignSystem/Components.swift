@@ -171,3 +171,36 @@ extension MacSheet where Footer == EmptyView {
 extension String {
     var isBlank: Bool { trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 }
+
+// App-only: UIApplication isn't available to the widget extension, which shares DesignComponents.swift.
+extension View {
+    func ddForm() -> some View {
+        self.formStyle(.grouped)
+            .scrollContentBackground(.hidden)
+            .background(DD.page)
+            .tint(DD.sage)
+            .toggleStyle(MintSwitch())
+            .keyboardDismissable()
+    }
+
+    /// iPhone: scroll or tap Done to hide the keyboard (number pads and multi-line fields have no Return).
+    @ViewBuilder func keyboardDismissable() -> some View {
+        #if os(iOS)
+        scrollDismissesKeyboard(.immediately)
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done", action: dismissKeyboard).fontWeight(.semibold)
+                }
+            }
+        #else
+        self
+        #endif
+    }
+}
+
+#if os(iOS)
+func dismissKeyboard() {
+    UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+}
+#endif

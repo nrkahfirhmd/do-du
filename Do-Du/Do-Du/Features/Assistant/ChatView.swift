@@ -72,6 +72,10 @@ struct ChatView: View {
                     .padding(.horizontal, 16).padding(.vertical, 8)
                 }
                 .background(DD.page)
+                #if os(iOS)
+                // The keyboard toolbar doesn't show under the tab bar, so tapping the thread hides the keyboard.
+                .onTapGesture(perform: dismissKeyboard)
+                #endif
                 .onChange(of: lines.count) { if let last = lines.last { proxy.scrollTo(last.id) } }
             }
             HStack(alignment: .bottom, spacing: 8) {
@@ -93,6 +97,7 @@ struct ChatView: View {
             .padding(.horizontal, 16).padding(.vertical, 8)
             .background(DD.page)
         }
+        .keyboardDismissable()
         #if !os(macOS)
         .navigationTitle("Chat")  // Mac shows both side by side under "Assistant"
         #endif
