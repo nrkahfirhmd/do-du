@@ -18,6 +18,6 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [ ] Owner: deploy the CloudKit schema to Production; run the same build source (both TestFlight or both Xcode, team `84L3QCBHMU`) on both devices; same iCloud account; relaunch after toggling Sync. See [sync-test-plan.md](sync-test-plan.md).
 
 ## DD-82 · Timer stops on sleep only — S
-- [ ] Mac stops the running timer on system sleep (`willSleep`) only; screensaver, display sleep and lock leave it running.
-- [ ] Settings toggle renamed to "Stop on sleep"; idle stop still backdates to last activity.
+- [x] Mac stops the running timer on system sleep (`willSleep`) only; screensaver, display sleep and lock leave it running.
+- [x] Settings toggle renamed to "Stop on sleep"; idle stop still backdates to last activity.
 - [ ] Owner: check sleep vs. screensaver on a signed Mac build.

@@ -33,18 +33,13 @@ extension IdleStop {
 
     static func register(container: ModelContainer) {
         self.container = container
-        let center = NSWorkspace.shared.notificationCenter
-        let names = [
-            NSWorkspace.willSleepNotification,
-            NSWorkspace.screensDidSleepNotification,
-            NSWorkspace.sessionDidResignActiveNotification,
-        ]
-        for name in names {
-            observers.append(
-                center.addObserver(forName: name, object: nil, queue: .main) { _ in
-                    Task { @MainActor in stopForSleep() }
-                })
-        }
+        // System sleep only: screensaver, display sleep and lock leave the timer running.
+        observers.append(
+            NSWorkspace.shared.notificationCenter.addObserver(
+                forName: NSWorkspace.willSleepNotification, object: nil, queue: .main
+            ) { _ in
+                Task { @MainActor in stopForSleep() }
+            })
         timer = Timer.scheduledTimer(withTimeInterval: pollInterval, repeats: true) { _ in
             Task { @MainActor in checkIdle() }
         }
