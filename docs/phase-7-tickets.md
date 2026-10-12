@@ -21,3 +21,8 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [x] Mac stops the running timer on system sleep (`willSleep`) only; screensaver, display sleep and lock leave it running.
 - [x] Settings toggle renamed to "Stop on sleep"; idle stop still backdates to last activity.
 - [ ] Owner: check sleep vs. screensaver on a signed Mac build.
+
+## DD-83 · Optional screensaver and lock stops — S
+- [x] Separate "Stop on screensaver" and "Stop on lock" switches, both off by default; sleep keeps its switch.
+- [x] Each stop fires at that moment with its own message; idle stop still backdates.
+- [ ] Owner: try the combinations on a signed Mac build.

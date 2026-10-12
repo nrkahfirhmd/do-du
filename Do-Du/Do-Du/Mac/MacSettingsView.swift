@@ -97,6 +97,8 @@ struct MacGeneralSettings: View {
 struct MacTimerSettings: View {
     @AppStorage(IdleStop.minutesKey) private var idleMinutes = IdleStop.defaultMinutes
     @AppStorage(IdleStop.sleepStopKey) private var sleepStop = true
+    @AppStorage(IdleStop.screensaverStopKey) private var screensaverStop = false
+    @AppStorage(IdleStop.lockStopKey) private var lockStop = false
     @AppStorage(LongRunAlert.thresholdKey) private var longRunHours = LongRunAlert.defaultHours
     @AppStorage(Pomodoro.enabledKey) private var pomodoroOn = false
     @AppStorage(Pomodoro.minutesKey) private var focusMinutes = 25
@@ -110,6 +112,8 @@ struct MacTimerSettings: View {
                     increment: { idleMinutes = min(60, idleMinutes + 5) },
                     decrement: { idleMinutes = max(5, idleMinutes - 5) })
                 Toggle("Stop on sleep", isOn: $sleepStop)
+                Toggle("Stop on screensaver", isOn: $screensaverStop)
+                Toggle("Stop on lock", isOn: $lockStop)
                 ValueStepper(
                     title: "Warn when a timer runs over", value: compactHours(Int(longRunHours * 60)),
                     increment: { longRunHours = min(8, longRunHours + 0.5) },
@@ -117,7 +121,7 @@ struct MacTimerSettings: View {
             } header: {
                 Text("Stopping")
             } footer: {
-                Text("Idle stops are backdated to your last activity. Sleep stops the timer; the screensaver and lock leave it running.")
+                Text("Idle stops are backdated to your last activity; the rest stop the timer at that moment.")
             }
             Section("Pomodoro") {
                 Toggle(isOn: $pomodoroOn) {
