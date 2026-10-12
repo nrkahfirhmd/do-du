@@ -13,8 +13,8 @@ Size: **S** ≤ half day · **M** ~1 day · **L** 2–3 days.
 - [ ] Owner: fresh-install check (Continue and Skip) with real iCloud data.
 
 ## DD-81 · Mac refresh shows a sync error while iPhone syncs — S
-- [ ] Diagnosis only, no sync-logic change: refresh can't force a CloudKit pull, so its banner reports the last sync result (logged decision). A Mac-only `CKError 2` means this Mac's push is rejected while the iPhone's succeeds.
-- [ ] Banner labels the sync tail (`iCloud: …`) so the error isn't mistaken for an import result.
+- [x] Diagnosis only, no sync-logic change: refresh can't force a CloudKit pull, so its banner reports the last sync result (logged decision). A Mac-only `CKError 2` means this Mac's push is rejected while the iPhone's succeeds.
+- [x] Banner labels the sync tail (`iCloud: …`) so the error isn't mistaken for an import result.
 - [ ] Owner: deploy the CloudKit schema to Production; run the same build source (both TestFlight or both Xcode, team `84L3QCBHMU`) on both devices; same iCloud account; relaunch after toggling Sync. See [sync-test-plan.md](sync-test-plan.md).
 
 ## DD-82 · Timer stops on sleep only — S

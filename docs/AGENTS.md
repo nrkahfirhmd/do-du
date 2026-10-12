@@ -30,6 +30,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-12 | Refresh banner labels its sync tail (`iCloud: …`) so a sync error isn't mistaken for an import result | Mac refresh showed the CKError 2 text with no visible source (DD-81) |
 | 2026-10-12 | Onboarding is one screen (iCloud switch + Claude key) with Skip; no starter project, days or day-start step | Setup friction; Projects and Settings cover the rest |
 | 2026-10-11 | Haptics go through `SensoryFeedback.ddStart/ddStop/ddSwitch/ddSuccess/ddTick/ddError`; on Mac they map to `.levelChange`/`.alignment` | macOS ignores `.start`, `.stop`, `.success`, `.impact`, so Mac had no haptics |
 | 2026-10-11 | Manual refresh (iPhone pull down, Mac ⌘R) runs the import, reloads the calendar and saves; it can't force a CloudKit download, so it shows the last sync result instead | SwiftData has no sync-now API; downloads arrive by push |

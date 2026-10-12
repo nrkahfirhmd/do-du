@@ -44,7 +44,7 @@ enum ManualRefresh {
         NotificationCenter.default.post(name: didRun, object: nil)
         var parts = [added == 0 ? "Up to date" : "\(added) imported"]
         parts += problems
-        parts.append(SyncMonitor.shared.summary.text)
+        parts.append("iCloud: \(SyncMonitor.shared.summary.text)")
         return parts.joined(separator: " · ")
     }
 }
