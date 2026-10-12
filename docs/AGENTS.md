@@ -2,7 +2,7 @@
 
 > Personal to-do list + work timer. Purpose: answer one question at end of every day — **"Did I do enough today?"** — with data, not guilt.
 
-**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–4 done, Phases 5–6 code complete · **Last updated:** 2026-10-11
+**Owner:** Kahfi R · **Version:** 1.0 (build 1) · **Status:** Phases 1–4 done, Phases 5–7 code complete · **Last updated:** 2026-10-12
 
 ---
 
@@ -18,6 +18,7 @@
 | **Phase 4 — Redesign** (DD-40…52, [tickets](phase-4-tickets.md)) | Done (DD-40…52) | Design tokens + light/dark, timer-first Today, tab bar + timer accessory, restyled tabs and sheets, Mac window + menu-bar panel, ⌘⇧T hotkey, widgets (Today S/M/L, Timer, Lock Screen), Live Activity + Dynamic Island, app icon, motion + haptics, onboarding, Mac Settings window, Mac sheets + Quick Add panel (⌥⌘K), Mac Tasks table | iPhone simulator light/dark; medium widget toggle; Dynamic Island compact/expanded; Lock Screen banner; Mac window (test build) | ⌘⇧T press; menu-bar panel look; small/large/Lock Screen widgets; Live Activity Stop on device; haptics feel on device; onboarding skip with real iCloud data |
 | **Phase 6 — 3rd iteration** (DD-70…74, [tickets](phase-6-tickets.md)) | Done | All projects in the timer menu; menu-bar setting fix; delete sessions with Undo; manual refresh; Mac haptics + hover motion | `checks/run.sh`; Mac + iOS builds; iPhone simulator | Mac haptics on a Force Touch trackpad; Mac hover/transitions in a signed build |
 | **Phase 5 — 2nd iteration** (DD-60…66, [tickets](phase-5-tickets.md)) | Done (DD-60…66) | iCloud sync status; Mac Tasks empty state; chat field; timer chip; keyboard dismissal; due date picker; automatic Notion/Reminders import + calendar refresh | `checks/run.sh`; Mac + iOS builds | Deploy CloudKit schema to Production; same build source on both devices; live auto-import test |
+| **Phase 7 — 4th iteration** (DD-80…82, [tickets](phase-7-tickets.md)) | In progress | Single-screen onboarding (iCloud + Claude, skippable); refresh banner labels its sync tail; sleep-only timer stop | `checks/run.sh`; Mac + iOS builds | Fresh-install onboarding check (Continue + Skip) with real iCloud data; sleep vs screensaver on a signed Mac build; deploy CloudKit schema to Production; same build source on both devices |
 
 **Known limits:** Notion is one-way (Notion wins); Calendar shows one calendar, read-only; Chat is read-only; widgets need the App Group (signed builds).
 
@@ -29,6 +30,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-12 | Onboarding is one screen (iCloud switch + Claude key) with Skip; no starter project, days or day-start step | Setup friction; Projects and Settings cover the rest |
 | 2026-10-11 | Haptics go through `SensoryFeedback.ddStart/ddStop/ddSwitch/ddSuccess/ddTick/ddError`; on Mac they map to `.levelChange`/`.alignment` | macOS ignores `.start`, `.stop`, `.success`, `.impact`, so Mac had no haptics |
 | 2026-10-11 | Manual refresh (iPhone pull down, Mac ⌘R) runs the import, reloads the calendar and saves; it can't force a CloudKit download, so it shows the last sync result instead | SwiftData has no sync-now API; downloads arrive by push |
 | 2026-10-11 | Deleting a session is permanent with a short inline Undo; no "exclude from stats" flag | Owner's choice; stats stay computed from entries with no new field |
@@ -86,7 +88,7 @@ Newest first. One line per decision: what, why. Reverse a decision by adding a n
 - **Privacy strings:** add `INFOPLIST_KEY_*` build settings on the `Do-Du` target (both configs), not per-platform plist files.
 - **Timer writes** go through `TimerService` only. Never set `TimeEntry.end` on a running entry from a view.
 - **Sample data:** DEBUG builds launched with `-seedSampleData YES` fill an empty store.
-- **Onboarding:** the store opens only after onboarding on a fresh install (`OnboardingGate`); don't touch `SharedStore.shared` before `Do_DuApp` opens it. Widgets never create the store. DEBUG: `-forceOnboarding YES -onboardingStep N` shows a step.
+- **Onboarding:** the store opens only after onboarding on a fresh install (`OnboardingGate`); don't touch `SharedStore.shared` before `Do_DuApp` opens it. Widgets never create the store. DEBUG: `-forceOnboarding YES` shows it.
 - **Claude calls** go through `ClaudeClient` (raw HTTPS; no Swift SDK). Keep each feature's system prompt stable (it's cached) and put changing data in the user message. Echo assistant `content` back unchanged in tool loops. Send Claude an `AISnapshot` or tool results, never raw store dumps.
 - **Day boundaries:** always use `DayMath.day` / `logicalDate` / `period` (they honour the "day starts at" setting); never `Calendar.startOfDay` for stats.
 - **Sync:** SwiftData + CloudKit (private database). No custom backend.

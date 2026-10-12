@@ -544,28 +544,9 @@ func checkDesignFoundation() throws {
 }
 
 func checkOnboarding() throws {
-    var a = OnboardingAnswers()
-    precondition(!a.canContinue(.project) && a.canContinue(.welcome), "project needs a name")
-    a.name = "  Thesis "
-    precondition(a.canContinue(.project) && a.projectName == "Thesis", "trimmed name")
-    precondition(a.weekdayMask == Weekdays.all && a.daysLabel == "Every day", "every day")
-    a.days = OnboardingAnswers.presets[1].days
-    precondition(a.weekdayMask == Weekdays.monToFri && a.daysLabel == "Weekdays", "weekdays mask")
-    precondition(a.weekNote == "5 days · 15h a week", "week note")
-    // Sunday (weekday 1) is a rest day on weekdays; next target Monday.
-    precondition(a.isRestDay(weekday: 1) && !a.isRestDay(weekday: 2), "rest day")
-    precondition(a.verdict(weekday: 1) == ("Today is a ", "rest day", ". Your first target starts Monday."), "rest verdict")
-    precondition(a.verdict(weekday: 3) == ("You need ", "3h", " to call it a day."), "verdict")
-    a.days = [Bool](repeating: false, count: 7)
-    precondition(!a.canContinue(.days) && a.weekNote == "Pick at least one day.", "no days")
-    a.days[6] = true  // Sunday only
-    precondition(a.weekdayMask == 1 && a.daysLabel == "Sun", "sunday bit 0")
-    a.stepTarget(by: -1000)
-    precondition(a.targetMinutes == 15, "min target")
-    a.stepTarget(by: 1000)
-    precondition(a.targetMinutes == 720, "max target")
-    precondition(compactHours(135) == "2h 15m" && compactHours(45) == "45m", "hm")
-    print("✓ onboarding rules")
+    let a = OnboardingAnswers()
+    precondition(a.iCloud && a.key.isEmpty, "defaults keep sync on without a key")
+    print("✓ onboarding defaults")
 }
 
 func checkQuickAddSyntax() throws {

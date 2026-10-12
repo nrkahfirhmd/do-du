@@ -33,22 +33,12 @@ struct Do_DuApp: App {
     private func finishOnboarding(_ answers: OnboardingAnswers?) {
         let defaults = UserDefaults.standard
         if let answers {
-            defaults.set(answers.dayStart, forKey: DayMath.startHourKey)
             defaults.set(answers.iCloud, forKey: SharedStore.iCloudKey)
             if !answers.key.isBlank { _ = ClaudeKey.save(answers.key.trimmingCharacters(in: .whitespacesAndNewlines)) }
-        }
-        defaults.set(true, forKey: OnboardingGate.doneKey)
-        let opened = Self.openStore()
-        if let answers {
-            opened.mainContext.insert(
-                Project(
-                    name: answers.trimmedName, colorName: answers.colorName,
-                    dailyTargetMinutes: answers.targetMinutes,
-                    activeWeekdaysMask: answers.weekdayMask))
-            try? opened.mainContext.save()
             OnboardingGate.justFinished = true
         }
-        container = opened
+        defaults.set(true, forKey: OnboardingGate.doneKey)
+        container = Self.openStore()
     }
 
     var body: some Scene {
